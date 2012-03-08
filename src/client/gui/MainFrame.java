@@ -12,8 +12,11 @@ public class MainFrame extends JFrame {
 	public static void main(String[] args) {
 		JFrame frame = new MainFrame("Kalender");
 		
+		frame.getContentPane().add(new WeekView());
+		
 		frame.pack();
 		frame.setVisible(true);
+		
 
 	}
 
