@@ -1,43 +1,61 @@
 package client.gui;
 
-import java.awt.Color;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridLayout;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 public class WeekView extends JPanel {
 	
 	private static final long serialVersionUID = -8533878088518459485L;
 	
-	private JPanel[] days;
-	private final Dimension dayDimension;
+	private Calendar date;
 	
 	public WeekView() {
 		
-		dayDimension = new Dimension(100,600);
+		date = Calendar.getInstance(); //Sets the default week to view as the current week
 		
-		this.setLayout(new GridLayout(1,8,5,5));
+		this.setLayout(new BorderLayout());
 		
-		days = new JPanel[7];
-		String[] weekdays = new String[]{"Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag", "Søndag"};
+		JPanel dayPanel = getDayPanel(date);
+		WeekViewInternal wvi = new WeekViewInternal();
 		
+		this.add(dayPanel, BorderLayout.NORTH);
+		this.add(wvi, BorderLayout.CENTER);
 		
-		for (int i = 0; i < 7; i++) {
-			days[i] = new JPanel();
-			days[i].setPreferredSize(dayDimension);
+		JScrollPane weekScroll = new JScrollPane(wvi);
+		weekScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		weekScroll.setPreferredSize(new Dimension(718 + weekScroll.WIDTH,600));
+		this.add(weekScroll);
+		
+	}
+	
+	
+	//Creates a JPanel containing 7 lables, writing out the days of the week given as input. e.g "Monday 9.jan Tuesday 10.jan ..."
+	private JPanel getDayPanel(Calendar date) {
+		String[] weekdays = new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+		SimpleDateFormat sdf = new SimpleDateFormat("dd.MMM");
+		JPanel p = new JPanel();
+		p.setLayout(new GridLayout(1,7));
+		
+		//Setter dayOfWeek til å være datoen den første dagen i uken, bruker den til å loope og skrive dato
+		Calendar dayOfWeek = (Calendar)date.clone();
+		dayOfWeek.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+		
+		for (String day : weekdays) {
+			JLabel label = new JLabel(day + " " + sdf.format(dayOfWeek.getTime()), JLabel.CENTER);
+			label.setPreferredSize(new Dimension(100,25)); //TODO fjerne en del "magic numbers"
 			
-			JLabel label = new JLabel(weekdays[i]);
-			Font font = new Font("Courier New", Font.PLAIN, 12);
-			label.setFont(font);
-			
-			days[i].add(label);
-			days[i].add(new HourCell(100,50));
-			if (i%2 == 0) days[i].setBackground(new Color(0x00E7E7E7));
-			this.add(days[i]);
+			dayOfWeek.add(Calendar.DAY_OF_WEEK, 1);
+			p.add(label);
 		}
+		
+		return p;
 	}
 	
 }
