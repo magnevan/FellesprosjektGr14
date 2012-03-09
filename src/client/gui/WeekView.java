@@ -23,9 +23,14 @@ public class WeekView extends JPanel {
 		this.setLayout(new BorderLayout());
 		
 		JPanel dayPanel = getDayPanel(date);
+		JPanel dayPanelWithPadding = new JPanel();
+		JPanel padding = new JPanel();
+		padding.setPreferredSize(new Dimension(50,25));
+		dayPanelWithPadding.add(padding);
+		dayPanelWithPadding.add(dayPanel);
 		WeekViewInternal wvi = new WeekViewInternal();
 		
-		this.add(dayPanel, BorderLayout.NORTH);
+		this.add(dayPanelWithPadding, BorderLayout.NORTH);
 		this.add(wvi, BorderLayout.CENTER);
 		
 		JScrollPane weekScroll = new JScrollPane(wvi);
@@ -41,8 +46,8 @@ public class WeekView extends JPanel {
 		String[] weekdays = new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MMM");
 		JPanel p = new JPanel();
-		p.setLayout(new GridLayout(1,7));
-		
+		p.setLayout(new GridLayout(1,8));
+				
 		//Setter dayOfWeek til å være datoen den første dagen i uken, bruker den til å loope og skrive dato
 		Calendar dayOfWeek = (Calendar)date.clone();
 		dayOfWeek.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
