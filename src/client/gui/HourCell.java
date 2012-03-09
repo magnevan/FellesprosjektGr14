@@ -6,7 +6,10 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class HourCell extends JPanel {
@@ -15,10 +18,15 @@ public class HourCell extends JPanel {
 	
 	public final int WIDTH, HEIGHT;
 	
-	public HourCell(int width, int height) {
+	private final int hour;
+	
+	public HourCell(int hour, int width, int height) {
 		this.WIDTH = width;
 		this.HEIGHT = height;
 		this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
+		
+		this.hour = hour;
+		
 	}
 	
 	@Override
@@ -43,5 +51,7 @@ public class HourCell extends JPanel {
 		g2d.setStroke(dotted);
 		g2d.drawLine(1, HEIGHT/2, WIDTH-1, HEIGHT/2);
 	}
+	
+	public int getHour() {return hour;}
 
 }

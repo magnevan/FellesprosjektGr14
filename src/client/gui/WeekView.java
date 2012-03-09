@@ -3,6 +3,7 @@ package client.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -10,6 +11,7 @@ import java.util.Calendar;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+
 
 public class WeekView extends JPanel {
 	
@@ -24,7 +26,7 @@ public class WeekView extends JPanel {
 		this.setLayout(new BorderLayout());
 		
 		JPanel dayPanel = getDayPanel(date);
-		JPanel dayPanelWithPadding = new JPanel();
+		JPanel dayPanelWithPadding = new JPanel(); //Because of the field on the left side that contains the times, e.g. "13:00", we need some extra padding.
 		JPanel padding = new JPanel();
 		padding.setPreferredSize(new Dimension(12,25));
 		dayPanelWithPadding.add(padding);
@@ -63,6 +65,39 @@ public class WeekView extends JPanel {
 		}
 		
 		return p;
+	}
+	
+	
+	//Inline class which contains the window that is scrolling in the weekview
+	class WeekViewInternal extends JPanel {
+
+		private static final long serialVersionUID = 8940695225869678479L;
+
+		public WeekViewInternal() {
+			
+			this.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
+			
+			JPanel hourColumn = new JPanel(new GridLayout(24,1));
+			
+			for (int hour = 0; hour < 24; hour++) {
+				String txt = (hour < 10 ? "0" : "") + Integer.toString(hour) + ":00";
+				JLabel label = new JLabel(txt,JLabel.CENTER);
+				JPanel p = new JPanel(new BorderLayout());
+				p.setPreferredSize(new Dimension(35,50));
+				p.add(label, BorderLayout.CENTER);
+				hourColumn.add(p);
+			}
+			
+			JPanel hourCellPanel = new JPanel();
+			hourCellPanel.setLayout(new GridLayout(24,8));
+			
+			for (int i = 0; i < 24*7; i++)
+				hourCellPanel.add(new HourCell(i / 7, 100,50));
+			
+			this.add(hourColumn);
+			this.add(hourCellPanel);
+			
+		}
 	}
 	
 }
