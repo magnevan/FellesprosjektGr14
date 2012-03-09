@@ -1,6 +1,7 @@
 package client.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.text.SimpleDateFormat;
@@ -25,7 +26,7 @@ public class WeekView extends JPanel {
 		JPanel dayPanel = getDayPanel(date);
 		JPanel dayPanelWithPadding = new JPanel();
 		JPanel padding = new JPanel();
-		padding.setPreferredSize(new Dimension(50,25));
+		padding.setPreferredSize(new Dimension(12,25));
 		dayPanelWithPadding.add(padding);
 		dayPanelWithPadding.add(dayPanel);
 		WeekViewInternal wvi = new WeekViewInternal();
@@ -35,7 +36,7 @@ public class WeekView extends JPanel {
 		
 		JScrollPane weekScroll = new JScrollPane(wvi);
 		weekScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		weekScroll.setPreferredSize(new Dimension(718 + weekScroll.WIDTH,600));
+		weekScroll.setPreferredSize(new Dimension(755,600));
 		this.add(weekScroll);
 		
 	}
@@ -43,8 +44,7 @@ public class WeekView extends JPanel {
 	
 	//Creates a JPanel containing 7 lables, writing out the days of the week given as input. e.g "Monday 9.jan Tuesday 10.jan ..."
 	private JPanel getDayPanel(Calendar date) {
-		String[] weekdays = new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-		SimpleDateFormat sdf = new SimpleDateFormat("dd.MMM");
+		SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd.MMM");
 		JPanel p = new JPanel();
 		p.setLayout(new GridLayout(1,8));
 				
@@ -52,12 +52,14 @@ public class WeekView extends JPanel {
 		Calendar dayOfWeek = (Calendar)date.clone();
 		dayOfWeek.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
 		
-		for (String day : weekdays) {
-			JLabel label = new JLabel(day + " " + sdf.format(dayOfWeek.getTime()), JLabel.CENTER);
-			label.setPreferredSize(new Dimension(100,25)); //TODO fjerne en del "magic numbers"
+		for (int i = 0; i < 7; i++) {
+			JLabel label = new JLabel(sdf.format(dayOfWeek.getTime()), JLabel.LEFT);
+			JPanel pLabel = new JPanel();
+			pLabel.add(label);
+			pLabel.setPreferredSize(new Dimension(100,25));
 			
 			dayOfWeek.add(Calendar.DAY_OF_WEEK, 1);
-			p.add(label);
+			p.add(pLabel);
 		}
 		
 		return p;

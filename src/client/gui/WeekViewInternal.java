@@ -1,6 +1,9 @@
 package client.gui;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 
 import javax.swing.JLabel;
@@ -12,13 +15,17 @@ public class WeekViewInternal extends JPanel {
 
 	public WeekViewInternal() {
 		
+		this.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
+		
 		JPanel hourColumn = new JPanel(new GridLayout(24,1));
 		
 		for (int hour = 0; hour < 24; hour++) {
 			String txt = (hour < 10 ? "0" : "") + Integer.toString(hour) + ":00";
 			JLabel label = new JLabel(txt,JLabel.CENTER);
-			label.setPreferredSize(new Dimension(50,50));
-			hourColumn.add(label);
+			JPanel p = new JPanel(new BorderLayout());
+			p.setPreferredSize(new Dimension(35,50));
+			p.add(label, BorderLayout.CENTER);
+			hourColumn.add(p);
 		}
 		
 		JPanel hourCellPanel = new JPanel();
