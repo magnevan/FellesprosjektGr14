@@ -6,10 +6,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 public class HourCell extends JPanel {
@@ -20,6 +17,9 @@ public class HourCell extends JPanel {
 	
 	private final int hour;
 	
+	/**
+	 * @author Magne
+	 */
 	public HourCell(int hour, int width, int height) {
 		this.WIDTH = width;
 		this.HEIGHT = height;

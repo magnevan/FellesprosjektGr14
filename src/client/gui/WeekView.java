@@ -1,7 +1,6 @@
 package client.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -10,14 +9,24 @@ import java.util.Calendar;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 
-
+/**
+ * @author Magne
+ */
 public class WeekView extends JPanel {
 	
 	private static final long serialVersionUID = -8533878088518459485L;
 	
+	public static int 
+		HOURHEIGHT = 50,
+		HOURWIDTH = 100,
+		SHOWHOURS = 12;
+	
+	
 	private Calendar date;
+	private JScrollPane weekScroll;
 	
 	public WeekView() {
 		
@@ -36,9 +45,9 @@ public class WeekView extends JPanel {
 		this.add(dayPanelWithPadding, BorderLayout.NORTH);
 		this.add(wvi, BorderLayout.CENTER);
 		
-		JScrollPane weekScroll = new JScrollPane(wvi);
+		weekScroll = new JScrollPane(wvi);
 		weekScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		weekScroll.setPreferredSize(new Dimension(755,600));
+		weekScroll.setPreferredSize(new Dimension(HOURWIDTH*7 + 55,HOURHEIGHT*SHOWHOURS));
 		this.add(weekScroll);
 		
 	}
@@ -58,13 +67,24 @@ public class WeekView extends JPanel {
 			JLabel label = new JLabel(sdf.format(dayOfWeek.getTime()), JLabel.LEFT);
 			JPanel pLabel = new JPanel();
 			pLabel.add(label);
-			pLabel.setPreferredSize(new Dimension(100,25));
+			pLabel.setPreferredSize(new Dimension(HOURWIDTH,HOURHEIGHT/2));
 			
 			dayOfWeek.add(Calendar.DAY_OF_WEEK, 1);
 			p.add(pLabel);
 		}
 		
 		return p;
+	}
+	
+	//TODO legge til throw?
+	public void focusOnHour(int hour) {
+		if (hour > 23 || hour < 0) return;
+		
+		JScrollBar vs = weekScroll.getVerticalScrollBar();
+		
+		vs.setValue(
+				(5)
+				);
 	}
 	
 	
@@ -83,7 +103,7 @@ public class WeekView extends JPanel {
 				String txt = (hour < 10 ? "0" : "") + Integer.toString(hour) + ":00";
 				JLabel label = new JLabel(txt,JLabel.CENTER);
 				JPanel p = new JPanel(new BorderLayout());
-				p.setPreferredSize(new Dimension(35,50));
+				p.setPreferredSize(new Dimension(35,HOURHEIGHT));
 				p.add(label, BorderLayout.NORTH);
 				hourColumn.add(p);
 			}
@@ -92,7 +112,7 @@ public class WeekView extends JPanel {
 			hourCellPanel.setLayout(new GridLayout(24,8));
 			
 			for (int i = 0; i < 24*7; i++)
-				hourCellPanel.add(new HourCell(i / 7, 100,50));
+				hourCellPanel.add(new HourCell(i / 7, HOURWIDTH,HOURHEIGHT));
 			
 			this.add(hourColumn);
 			this.add(hourCellPanel);
