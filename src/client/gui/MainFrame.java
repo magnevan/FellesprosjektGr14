@@ -21,7 +21,6 @@ public class MainFrame extends JFrame {
 		JFrame frame = new MainFrame("Kalender");
 		
 		JPanel content = new JPanel();
-		content.add(new WeekView());
 		frame.setContentPane(content);
 		
 		
