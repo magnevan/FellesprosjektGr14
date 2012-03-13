@@ -44,6 +44,7 @@ public class MainPanel extends JPanel {
 		
 		JPanel content = new MainPanel();
 		frame.setContentPane(content);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		frame.pack();
 		frame.setVisible(true);
