@@ -8,6 +8,8 @@ import java.util.Calendar;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import client.gui.week.WeekView;
+
 
 public class MainFrame extends JFrame {
 

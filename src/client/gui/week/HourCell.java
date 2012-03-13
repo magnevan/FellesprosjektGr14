@@ -1,4 +1,4 @@
-package client.gui;
+package client.gui.week;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
