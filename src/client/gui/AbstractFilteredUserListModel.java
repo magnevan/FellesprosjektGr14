@@ -4,24 +4,34 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 /**
- * Abstract implementation of the ISearchableUserListModel that provides some
+ * Abstract implementation of the IFilteredUserListModel that provides some
  * basic listener support
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public abstract class AbstractSearchableUserListModel 
-	implements ISearchableUserListModel {
+public abstract class AbstractFilteredUserListModel 
+	implements IFilteredUserListModel {
 	
 	private PropertyChangeSupport pcs;
 		
-	public AbstractSearchableUserListModel() {
+	public AbstractFilteredUserListModel() {
 		pcs = new PropertyChangeSupport(this);
 	}
 	
+	/**
+	 * Register a listener with the model
+	 * 
+	 * @param listener
+	 */
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
 	}
 	
+	/**
+	 * Deregister a registered listener
+	 * 
+	 * @param listener
+	 */
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		pcs.removePropertyChangeListener(listener);
 	}

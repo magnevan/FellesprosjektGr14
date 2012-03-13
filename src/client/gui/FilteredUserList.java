@@ -1,11 +1,14 @@
 package client.gui;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -33,30 +36,30 @@ import javax.swing.table.AbstractTableModel;
  * 
  * @TODO The model should deal in User object and not String[]
  * @TODO General code cleanup
- * @TODO This can be combined with two buttons and an other table in a JPanel to created the select atendees widged
- * 
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
 @SuppressWarnings("serial")
-public class SearchableUserList extends JPanel 
+public class FilteredUserList extends JPanel 
 	implements PropertyChangeListener, KeyListener {
 	
 	// Internal component
 	private JTextField searchField;
 	private JTable userTable;
 	
+	// Table headers
 	private static final String[] HEADERS = new String[]{"Navn", "Epost"};
 	
+	// Internal and external model
 	private UserListModel userListModel;
-	private ISearchableUserListModel model;
+	private IFilteredUserListModel model;
 	
 	/**
 	 * Create a new list of user object with a search box for live search
 	 *  
-	 * @param model The searchable user list model
+	 * @param model The filtered user list model
 	 */
-	public SearchableUserList(ISearchableUserListModel model) {
+	public FilteredUserList(IFilteredUserListModel model) {
 		
 		this.model = model;
 		model.addPropertyChangeListener(this);
@@ -64,26 +67,40 @@ public class SearchableUserList extends JPanel
 		setLayout(new BorderLayout());		
 		searchField = new JTextField();		
 		searchField.addKeyListener(this);
-		add(searchField, BorderLayout.NORTH);	
-				
+		add(searchField, BorderLayout.NORTH);
+		
 		userListModel = new UserListModel();
 		userTable = new JTable(userListModel);
 		userTable.setFillsViewportHeight(true);
-		
-		
 		add(new JScrollPane(userTable), BorderLayout.CENTER);
 		
-		model.setFilter("");
-		
+		// Clear filter
+		model.setFilter();		
 	}
 	
 	/**
-	 * Handle events from the searchable user list model, tell the table
+	 * Return the currently selected user objects within the filtered user list
+	 * 
+	 * @return 
+	 */
+	public String[][] getSelectedUsers() {
+		int[] rows = userTable.getSelectedRows();
+		String[][] selection = new String[rows.length][];
+		
+		for(int i = 0; i < rows.length; i++) {
+			selection[i] = model.getUserList()[rows[i]];
+		}
+		
+		return selection;
+	}
+	
+	/**
+	 * Handle events from the IFilteredUserList, tell the table
 	 * that it's model has changed
 	 */
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
-		if(event.getPropertyName().equals(ISearchableUserListModel.PROPERTY_USER_LIST)
+		if(event.getPropertyName().equals(IFilteredUserListModel.PROPERTY_USER_LIST)
 				&& event.getOldValue() != event.getNewValue()) {
 			userListModel.fireTableDataChanged();
 		}
@@ -92,8 +109,10 @@ public class SearchableUserList extends JPanel
 
 	/**
 	 * Capture keyPressed events in the searchField text field and update the 
-	 * filter of the searchable user list model. This will in turn cause a 
-	 * propertyChange event
+	 * filter of the filtered user list model. This is expected to cause a 
+	 * propertyChange event soon after.
+	 * 
+	 * @param event
 	 */
 	@Override
 	public void keyPressed(KeyEvent event) {
@@ -107,38 +126,55 @@ public class SearchableUserList extends JPanel
 
 	@Override
 	public void keyReleased(KeyEvent event) {}
-
 	@Override
-	public void keyTyped(KeyEvent event) {
-	}
+	public void keyTyped(KeyEvent event) {}
 	
 	/**
-	 * Table model providing data for the filtered user table
-	 * 
+	 * Table model providing data for the internal JTable 
 	 */
 	@SuppressWarnings("serial")
 	class UserListModel extends AbstractTableModel {
 
+		/**
+		 * Get header name for column i
+		 * 
+		 * @param i zero indexed column number
+		 */
 		@Override
 		public String getColumnName(int i) {
 			return HEADERS[i];
 		}
 		
+		/**
+		 * Get number of columns
+		 */
 		@Override
 		public int getColumnCount() {
 			return 2;
 		}
 
+		/**
+		 * Get number of rows
+		 */
 		@Override
 		public int getRowCount() {
 			return model.getUserList().length;
 		}
 
+		/**
+		 * Get value at (rowIndex,columnIndex)
+		 * 
+		 * @param rowIndex
+		 * @param columnIndex
+		 */
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			return model.getUserList()[rowIndex][columnIndex];
 		}
 		
+		/**
+		 * Boolean indicating if the table cell is editable
+		 */
 		@Override
 		public boolean isCellEditable(int rowIndex, int columnIndex) {
 			return false;
@@ -146,11 +182,32 @@ public class SearchableUserList extends JPanel
 		
 	}
 	
+	
+	
+	
+	// DEBUG 
 	public static void main(String[] args) {
 		JFrame f = new JFrame();
+		f.setLayout(new BorderLayout());
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.add(new SearchableUserList(new TestModel()));
-		f.setSize(300, 150);
+		
+		final FilteredUserList list = new FilteredUserList(new TestModel());
+		list.setSize(300, 150);
+		f.add(list, BorderLayout.NORTH);
+		
+		JButton b = new JButton("Print selection");
+		b.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("\nCurrent selection:");
+				for(String[] s : list.getSelectedUsers()) {
+					System.out.println(s[0]);
+				}
+			}
+		});
+		f.add(b, BorderLayout.CENTER);
+		
+		f.setSize(300, 170);
 		f.setVisible(true);
 	}
 

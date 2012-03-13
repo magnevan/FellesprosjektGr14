@@ -2,7 +2,7 @@ package client.gui;
 
 import java.util.ArrayList;
 
-class TestModel extends AbstractSearchableUserListModel {
+class TestModel extends AbstractFilteredUserListModel {
 
 	String[][] data = new String[][] {
 			{"Runar Olsen", "test@example.com"},
@@ -12,6 +12,13 @@ class TestModel extends AbstractSearchableUserListModel {
 	};
 	
 	ArrayList<String[]> filtered = new ArrayList<String[]>();
+	
+	/**
+	 * Set empty filter
+	 */
+	public void setFilter() {
+		setFilter("");
+	}
 	
 	@Override
 	public void setFilter(String filter) {
