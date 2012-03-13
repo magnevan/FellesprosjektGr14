@@ -1,6 +1,7 @@
 package client.gui;
 
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -17,7 +18,7 @@ import javax.swing.JTextField;
 import javax.swing.table.AbstractTableModel;
 
 /**
- * Searchable user list widget
+ * Filtered user list widget
  * 
  * This widget provides a search field and a list of users. It takes a
  * implementation of ISearchableUserListModel as its data source.
@@ -182,18 +183,15 @@ public class FilteredUserList extends JPanel
 		
 	}
 	
-	
-	
-	
 	// DEBUG 
 	public static void main(String[] args) {
 		JFrame f = new JFrame();
-		f.setLayout(new BorderLayout());
+		f.setLayout(new GridLayout(2,1, 5, 5));
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		final FilteredUserList list = new FilteredUserList(new TestModel());
 		list.setSize(300, 150);
-		f.add(list, BorderLayout.NORTH);
+		f.add(list);
 		
 		JButton b = new JButton("Print selection");
 		b.addActionListener(new ActionListener(){
@@ -205,7 +203,7 @@ public class FilteredUserList extends JPanel
 				}
 			}
 		});
-		f.add(b, BorderLayout.CENTER);
+		f.add(b);
 		
 		f.setSize(300, 170);
 		f.setVisible(true);
