@@ -14,6 +14,19 @@ public class MainPanel extends JPanel {
 
 	public MainPanel() {
 		super();
+		
+		JTabbedPane optionTabbedPane = new JTabbedPane();
+		JTabbedPane calendarTabbedPane = new JTabbedPane();
+		
+		optionTabbedPane.addTab("Hoved", new JPanel()); //TODO
+		optionTabbedPane.addTab("Andre", new JPanel()); //TODO
+		optionTabbedPane.addTab("Varsler(0)", new JPanel()); //TODO
+		
+		calendarTabbedPane.addTab("Uke", new WeekView());
+		calendarTabbedPane.addTab("Måned", new JPanel()); //TODO
+		
+		this.add(optionTabbedPane);
+		this.add(calendarTabbedPane);
 	}
 	
 	
