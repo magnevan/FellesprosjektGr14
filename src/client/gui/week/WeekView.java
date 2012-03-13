@@ -117,7 +117,7 @@ public class WeekView extends JPanel {
 			String txt = (hour < 10 ? "0" : "") + Integer.toString(hour) + ":00";
 			JLabel label = new JLabel(txt,JLabel.CENTER);
 			JPanel p = new JPanel(new BorderLayout());
-			p.setPreferredSize(new Dimension(35,HOURHEIGHT));
+			p.setPreferredSize(new Dimension(label.getPreferredSize().width,HOURHEIGHT));
 			p.add(label, BorderLayout.NORTH);
 			hourColumn.add(p);
 		}
