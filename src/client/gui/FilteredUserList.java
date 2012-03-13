@@ -204,8 +204,6 @@ public class FilteredUserList extends JPanel
 			}
 		});
 		f.add(b);
-		
-		f.setSize(300, 170);
 		f.setVisible(true);
 	}
 
