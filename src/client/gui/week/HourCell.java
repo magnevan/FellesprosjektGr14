@@ -6,13 +6,17 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Stroke;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 import javax.swing.JPanel;
 
 public class HourCell extends JPanel {
 
 	private static final long serialVersionUID = -7714516649231902177L;
-	
 	public final int WIDTH, HEIGHT;
 	
 	private final int hour;
@@ -24,9 +28,7 @@ public class HourCell extends JPanel {
 		this.WIDTH = width;
 		this.HEIGHT = height;
 		this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-		
 		this.hour = hour;
-		
 	}
 	
 	@Override
@@ -53,5 +55,4 @@ public class HourCell extends JPanel {
 	}
 	
 	public int getHour() {return hour;}
-
 }

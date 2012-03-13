@@ -22,8 +22,9 @@ public class MainPanel extends JPanel {
 		JFrame frame = new JFrame("Kalender");
 		
 		JPanel content = new MainPanel();
+		content.add(new WeekView());
 		frame.setContentPane(content);
-		
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
 		frame.setVisible(true);
 	}

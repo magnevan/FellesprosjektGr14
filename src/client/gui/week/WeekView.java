@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -127,6 +130,7 @@ public class WeekView extends JPanel {
 		
 		for (int i = 0; i < 24*7; i++) {
 			HourCell hc = new HourCell(i / 7, HOURWIDTH,HOURHEIGHT);
+			hc.addMouseListener(new MouseClickListener(i));
 			hourCellPanel.add(hc);
 		}
 		
@@ -134,5 +138,45 @@ public class WeekView extends JPanel {
 		weekViewInternal.add(hourCellPanel);
 		
 		return weekViewInternal;
+	}
+	
+	class MouseClickListener implements MouseListener {
+		long timestamp;
+		boolean secondClick;
+		int day, hour;
+		
+		public MouseClickListener(int index) {
+			hour = index / 7;
+			day = index % 7 + 1;
+			timestamp = System.currentTimeMillis();
+			secondClick = false;
+		}
+		
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			long now = System.currentTimeMillis();
+			long delta = now - timestamp;
+			timestamp = now;
+			if (delta < 500 && !secondClick) {
+				// propagate event
+				System.out.println(day + " " + hour);
+				secondClick = true;
+			} else {
+				secondClick = false;
+			}
+		}
+
+		/*
+		 * Unused methods
+		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+		 */
+		@Override
+		public void mouseEntered(MouseEvent arg0) {}
+		@Override
+		public void mouseExited(MouseEvent arg0) {}
+		@Override
+		public void mousePressed(MouseEvent arg0) {}
+		@Override
+		public void mouseReleased(MouseEvent arg0) {}
 	}
 }
