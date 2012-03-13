@@ -1,5 +1,6 @@
 package client.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
@@ -15,7 +16,7 @@ public class MainPanel extends JPanel {
 
 
 	public MainPanel() {
-		super();
+		super(new BorderLayout());
 		
 		JTabbedPane optionTabbedPane = new JTabbedPane();
 		JTabbedPane calendarTabbedPane = new JTabbedPane();
@@ -29,8 +30,11 @@ public class MainPanel extends JPanel {
 		calendarTabbedPane.addTab("Uke", new WeekView());
 		calendarTabbedPane.addTab("Måned", new JPanel()); //TODO
 		
-		this.add(optionTabbedPane);
-		this.add(calendarTabbedPane);
+		//TODO This should probably be done in a better manner
+		optionTabbedPane.setPreferredSize(new Dimension(300,calendarTabbedPane.getPreferredSize().height));
+		
+		this.add(optionTabbedPane,BorderLayout.CENTER);
+		this.add(calendarTabbedPane, BorderLayout.EAST);
 	}
 	
 	
