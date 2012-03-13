@@ -24,7 +24,9 @@ class TestModel extends AbstractFilteredUserListModel {
 	public void setFilter(String filter) {
 		filtered.clear();
 		for(String[] s : data) {
-			if(s[0].startsWith(filter)) {
+			String lcaseName = s[0].toLowerCase();
+			String lcaseFilter = filter.toLowerCase();
+			if(lcaseName.startsWith(lcaseFilter)) {
 				filtered.add(s);
 			}
 		}
