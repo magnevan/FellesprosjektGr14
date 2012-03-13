@@ -1,5 +1,7 @@
 package client.gui;
 
+import java.awt.Dimension;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -18,7 +20,9 @@ public class MainPanel extends JPanel {
 		JTabbedPane optionTabbedPane = new JTabbedPane();
 		JTabbedPane calendarTabbedPane = new JTabbedPane();
 		
-		optionTabbedPane.addTab("Hoved", new JPanel()); //TODO
+		System.out.println("her");
+		HovedPanel hp = new HovedPanel();
+		optionTabbedPane.addTab("Hoved", hp); //TODO
 		optionTabbedPane.addTab("Andre", new JPanel()); //TODO
 		optionTabbedPane.addTab("Varsler(0)", new JPanel()); //TODO
 		
