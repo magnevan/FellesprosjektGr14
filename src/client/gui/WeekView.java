@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -19,14 +21,14 @@ public class WeekView extends JPanel {
 	
 	private static final long serialVersionUID = -8533878088518459485L;
 	
-	public static int 
+	public static final int 
 		HOURHEIGHT = 50,
 		HOURWIDTH = 100,
 		SHOWHOURS = 12;
 	
 	
-	private Calendar date;
-	private JScrollPane weekScroll;
+	private final Calendar date;
+	private final JScrollPane weekScroll;
 	
 	public WeekView() {
 		
@@ -34,13 +36,13 @@ public class WeekView extends JPanel {
 		
 		this.setLayout(new BorderLayout());
 		
-		JPanel dayPanel = getDayPanel(date);
+		JPanel dayPanel = createDayPanel(date);
 		JPanel dayPanelWithPadding = new JPanel(); //Because of the field on the left side that contains the times, e.g. "13:00", we need some extra padding.
 		JPanel padding = new JPanel();
 		padding.setPreferredSize(new Dimension(12,25));
 		dayPanelWithPadding.add(padding);
 		dayPanelWithPadding.add(dayPanel);
-		WeekViewInternal wvi = new WeekViewInternal();
+		JPanel wvi = createWeekViewInternal();
 		
 		this.add(dayPanelWithPadding, BorderLayout.NORTH);
 		this.add(wvi, BorderLayout.CENTER);
@@ -49,12 +51,39 @@ public class WeekView extends JPanel {
 		weekScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		weekScroll.setPreferredSize(new Dimension(HOURWIDTH*7 + 55,HOURHEIGHT*SHOWHOURS));
 		this.add(weekScroll);
-		
 	}
 	
 	
-	//Creates a JPanel containing 7 lables, writing out the days of the week given as input. e.g "Monday 9.jan Tuesday 10.jan ..."
-	private JPanel getDayPanel(Calendar date) {
+	/**
+	 * 
+	 * @param hour The hour it should focus on, between 0 and 23 inclusive.
+	 * @throws Exception
+	 */
+	public void focusOnHour(int hour) {
+		if (hour > 23 || hour < 0) return;
+		
+		JScrollBar vs = weekScroll.getVerticalScrollBar();
+		
+		if (hour < 6) hour = 6;
+		if (hour > 18) hour = 18;
+		hour -= 6;
+		
+		System.out.println(hour);
+		
+		//It seems like getMaximum returns only half of the maximum. Dividing by two to compensate
+		vs.setValue(
+				hour * vs.getMaximum() / 2 / 12
+				);
+		
+		System.out.printf("%d / %d \n",vs.getValue(), vs.getMaximum());
+	}
+	
+	/**
+	 * Creates a JPanel containing 7 labels, writing out the days of the week given as input. e.g "Monday 9.jan Tuesday 10.jan ..."
+	 * @param date A date which you want the JPanel to focus around. Note only the input week is relevant. Tuesday the 6th as input is the same as Thursday the 8th of the same week.
+	 * @return
+	 */
+	private JPanel createDayPanel(Calendar date) {
 		SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd.MMM");
 		JPanel p = new JPanel();
 		p.setLayout(new GridLayout(1,8));
@@ -76,48 +105,69 @@ public class WeekView extends JPanel {
 		return p;
 	}
 	
-	//TODO legge til throw?
-	public void focusOnHour(int hour) {
-		if (hour > 23 || hour < 0) return;
+	/**
+	 * Creates a JPanel filled with HourCells and timestamps to the left.
+	 * @return
+	 */
+	private JPanel createWeekViewInternal() {
+		JPanel weekViewInternal = new JPanel();
 		
-		JScrollBar vs = weekScroll.getVerticalScrollBar();
+		weekViewInternal.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
 		
-		vs.setValue(
-				(5)
-				);
+		JPanel hourColumn = new JPanel(new GridLayout(24,1));
+		
+		for (int hour = 0; hour < 24; hour++) {
+			String txt = (hour < 10 ? "0" : "") + Integer.toString(hour) + ":00";
+			JLabel label = new JLabel(txt,JLabel.CENTER);
+			JPanel p = new JPanel(new BorderLayout());
+			p.setPreferredSize(new Dimension(35,HOURHEIGHT));
+			p.add(label, BorderLayout.NORTH);
+			hourColumn.add(p);
+		}
+		
+		JPanel hourCellPanel = new JPanel();
+		hourCellPanel.setLayout(new GridLayout(24,8));
+		
+		for (int i = 0; i < 24*7; i++) {
+			HourCell hc = new HourCell(i / 7, HOURWIDTH,HOURHEIGHT);
+			hc.addMouseListener(new FocusHourListener(hc.getHour(), this));
+			hourCellPanel.add(hc);
+		}
+		
+		weekViewInternal.add(hourColumn);
+		weekViewInternal.add(hourCellPanel);
+		
+		return weekViewInternal;
 	}
 	
-	
-	//Inline class which contains the window that is scrolling in the weekview
-	class WeekViewInternal extends JPanel {
-
-		private static final long serialVersionUID = 8940695225869678479L;
-
-		public WeekViewInternal() {
-			
-			this.setLayout(new FlowLayout(FlowLayout.LEFT,0,0));
-			
-			JPanel hourColumn = new JPanel(new GridLayout(24,1));
-			
-			for (int hour = 0; hour < 24; hour++) {
-				String txt = (hour < 10 ? "0" : "") + Integer.toString(hour) + ":00";
-				JLabel label = new JLabel(txt,JLabel.CENTER);
-				JPanel p = new JPanel(new BorderLayout());
-				p.setPreferredSize(new Dimension(35,HOURHEIGHT));
-				p.add(label, BorderLayout.NORTH);
-				hourColumn.add(p);
-			}
-			
-			JPanel hourCellPanel = new JPanel();
-			hourCellPanel.setLayout(new GridLayout(24,8));
-			
-			for (int i = 0; i < 24*7; i++)
-				hourCellPanel.add(new HourCell(i / 7, HOURWIDTH,HOURHEIGHT));
-			
-			this.add(hourColumn);
-			this.add(hourCellPanel);
-			
+	class FocusHourListener implements MouseListener {
+		
+		private final int hour;
+		private final WeekView host;
+		
+		public FocusHourListener(int hour, WeekView host) {
+			this.hour = hour;
+			this.host = host;
 		}
+		
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			host.focusOnHour(hour);
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {}
+
+		@Override
+		public void mouseExited(MouseEvent e) {}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+		}	
 	}
 	
 }
