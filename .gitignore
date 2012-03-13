@@ -2,7 +2,9 @@
 .project
 .settings
 lib
+bin
 tmp
 eclipse
 logs
 *~
+src/server.properties

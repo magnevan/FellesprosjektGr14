@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class ClientConnectionListener {
 	}
 
 	/**
-	 * Boardcast a message to all connected clients
+	 * Broadcast a message to all connected clients
 	 * 
 	 * @param line
 	 */
@@ -50,7 +51,7 @@ public class ClientConnectionListener {
 		if(clients.containsKey(username)) {
 			clients.remove(username);
 			LOGGER.info(String.format("%s is gone", username));
-			LOGGER.info(String.format("%d clients in total", clients.size()));
+			LOGGER.info(String.format("%d client(s) in total", clients.size()));
 		}
 	}
 	
@@ -61,6 +62,16 @@ public class ClientConnectionListener {
 	 * @throws IOException if port number is taken
 	 */
 	public void listen() throws IOException {
+		DBConnection db;
+		try {
+			DBConnection db = new DBConnection(Main.properties);
+		} catch(SQLException e) {
+			LOGGER.severe("Unable to connect to database, server stopping");
+			LOGGER.severe(e.toString());
+			return;
+		}
+		
+		
 		ServerSocket ss = new ServerSocket(this.port);
 		
 		LOGGER.info("Server open for requests on "+this.port);
@@ -90,18 +101,25 @@ public class ClientConnectionListener {
 				}
 				
 				String username = parts[1], password = parts[2];
-				
-				// Check database here
-				
-				writer.write("Welcome "+username +"\r\n");
-				writer.flush();
-				
-				// Store and start separate handler thread
-				ClientConnection cc = new ClientConnection(s, reader, writer, username, this);
-				LOGGER.info(String.format("Client from %s authenticated as %s", s.getInetAddress().toString(), username));
-				LOGGER.info(String.format("%d clients in total", clients.size()));
-				clients.put(username, cc);
-				cc.start();
+								
+				ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username='%s' AND password='%s'");
+				// @TODO continue here
+				if(username.equals("runar")) {
+					writer.write("OK Welcome "+username +"\r\n");
+					writer.flush();
+					
+					// Store and start separate handler thread
+					ClientConnection cc = new ClientConnection(s, reader, writer, username, this);
+					clients.put(username, cc);
+					LOGGER.info(String.format("Client from %s authenticated as %s", s.getInetAddress().toString(), username));
+					LOGGER.info(String.format("%d client(s) in total", clients.size()));
+					cc.start();
+					
+				} else {
+					writer.write("ERROR Bad login\r\n");
+					writer.flush();
+					s.close();
+				}
 				
 				// Return to handle next client
 			} catch(IOException e) {

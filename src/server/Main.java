@@ -13,13 +13,16 @@ public class Main {
 	
 	public static String VERSION = "calendar-server-0.0.1";
 	
+	public static Properties properties;
+	
 	/**
 	 * 
 	 * @param p server configuration
 	 * @throws NumberFormatException on badly formatted number in properties
 	 */
-	public Main(Properties p) throws NumberFormatException {
-	
+	public Main(Properties p) throws NumberFormatException {	
+		properties = p;
+		
 		ClientConnectionListener ccl = new ClientConnectionListener(
 			Integer.parseInt(p.getProperty("fp.server.listen_port"))
 		);

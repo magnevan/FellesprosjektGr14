@@ -43,8 +43,7 @@ public class ClientConnection extends Thread {
 	public synchronized void sendLine(String line) {
 		try {
 			writer.write(line + "\r\n");
-			writer.flush();
-			
+			writer.flush();			
 		} catch(IOException e) {
 			LOGGER.info(String.format(
 				"Client %s (%s) dropped due to IOException", 
@@ -65,9 +64,10 @@ public class ClientConnection extends Thread {
 			s.getInetAddress().toString(), username
 		));
 		try {
-			while(running) {
+			String line = null;
+			while(running && (line = reader.readLine()) != null) {
 				// Read next command
-				String[] command = reader.readLine().split("\\s+");
+				String[] command = line.split("\\s+");
 				
 				// Debug commands 
 				if(command[0].toUpperCase().equals("PING")) {
@@ -83,7 +83,8 @@ public class ClientConnection extends Thread {
 				"Client %s (%s) dropped due to IOException", 
 				s.getInetAddress().toString(), username
 			));
-			LOGGER.info(e.toString());			
+			LOGGER.info(e.toString());
+		} finally {
 			disconnect();
 		}
 		
