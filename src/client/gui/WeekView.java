@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
 /**
  * @author Magne
@@ -24,7 +25,7 @@ public class WeekView extends JPanel {
 	public static final int 
 		HOURHEIGHT = 50,
 		HOURWIDTH = 100,
-		SHOWHOURS = 12;
+		SHOWHOURS = 10;
 	
 	
 	private final Calendar date;
@@ -62,20 +63,18 @@ public class WeekView extends JPanel {
 	public void focusOnHour(int hour) {
 		if (hour > 23 || hour < 0) return;
 		
-		JScrollBar vs = weekScroll.getVerticalScrollBar();
+		final JScrollBar vs = weekScroll.getVerticalScrollBar();
 		
-		if (hour < 6) hour = 6;
-		if (hour > 18) hour = 18;
-		hour -= 6;
+		if (hour < SHOWHOURS/2) hour = SHOWHOURS/2;
+		if (hour > (23-SHOWHOURS/2)) hour = (23-SHOWHOURS/2);
+		hour -= SHOWHOURS/2;
 		
 		System.out.println(hour);
 		
-		//It seems like getMaximum returns only half of the maximum. Dividing by two to compensate
+//		It seems like getMaximum returns only half of the maximum. Dividing by two to compensate
 		vs.setValue(
-				hour * vs.getMaximum() / 2 / 12
+				hour * vs.getMaximum() / 2 / SHOWHOURS
 				);
-		
-		System.out.printf("%d / %d \n",vs.getValue(), vs.getMaximum());
 	}
 	
 	/**
@@ -130,7 +129,6 @@ public class WeekView extends JPanel {
 		
 		for (int i = 0; i < 24*7; i++) {
 			HourCell hc = new HourCell(i / 7, HOURWIDTH,HOURHEIGHT);
-			hc.addMouseListener(new FocusHourListener(hc.getHour(), this));
 			hourCellPanel.add(hc);
 		}
 		
@@ -139,35 +137,4 @@ public class WeekView extends JPanel {
 		
 		return weekViewInternal;
 	}
-	
-	class FocusHourListener implements MouseListener {
-		
-		private final int hour;
-		private final WeekView host;
-		
-		public FocusHourListener(int hour, WeekView host) {
-			this.hour = hour;
-			this.host = host;
-		}
-		
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			host.focusOnHour(hour);
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e) {}
-
-		@Override
-		public void mouseExited(MouseEvent e) {}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e) {
-		}	
-	}
-	
 }
