@@ -24,7 +24,7 @@ public class AvtalePanel extends JPanel {
 
 		//Tittel
 		this.add(new JLabel("Tittel:"));
-		tittelText = new JTextField(20);
+		tittelText = new JTextField(25);
 		this.add(tittelText);
 		
 		//Tid
@@ -34,8 +34,8 @@ public class AvtalePanel extends JPanel {
 		dateChooser.setPreferredSize(new Dimension(130,20));
 		tidPanel.add(dateChooser);
 		
-		toTime = new JTimePicker();
-		fromTime = new JTimePicker();
+		toTime = new JTimePicker("08:00");
+		fromTime = new JTimePicker("09:00");
 		
 		tidPanel.add(fromTime);
 		tidPanel.add(new JLabel(" - "));
@@ -46,15 +46,15 @@ public class AvtalePanel extends JPanel {
 		
 	}
 	
-	public static void main(String[] args) {
-		JFrame frame = new JFrame("test");
-		
-		JPanel content = new AvtalePanel();
-		frame.setContentPane(content);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		frame.pack();
-		frame.setVisible(true);
-	}
+//	public static void main(String[] args) {
+//		JFrame frame = new JFrame("test");
+//		
+//		JPanel content = new AvtalePanel();
+//		frame.setContentPane(content);
+//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		
+//		frame.pack();
+//		frame.setVisible(true);
+//	}
 
 }

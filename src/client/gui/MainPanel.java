@@ -21,7 +21,6 @@ public class MainPanel extends JPanel {
 		JTabbedPane optionTabbedPane = new JTabbedPane();
 		JTabbedPane calendarTabbedPane = new JTabbedPane();
 		
-		System.out.println("her");
 		AvtalePanel ap = new AvtalePanel();
 		HovedPanel hp = new HovedPanel();
 		optionTabbedPane.addTab("Hoved", ap); //TODO
