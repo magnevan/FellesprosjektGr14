@@ -42,6 +42,8 @@ public class UserModel implements Model{
 		return fullName;
 	}
 	
-	
-
+	@Override
+	public String toString() {
+		return this.fullName + " | " + this.email;
+	}
 }

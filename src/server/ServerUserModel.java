@@ -1,9 +1,9 @@
 package server;
 
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
 /**
  * Static methods for searching database with different search criteria
  * 
@@ -51,7 +51,7 @@ public class ServerUserModel extends client.UserModel {
 	public static ArrayList<ServerUserModel> searchByUsername(String usr, DBConnection db) {
 		ArrayList<ServerUserModel> ret = new ArrayList<ServerUserModel>();
 		try {
-			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username LIKE '" + usr + "';");
+			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username LIKE '%" + usr + "%';");
 			while (!rs.isAfterLast()) {
 				String 	dbusername = rs.getString("username"),
 						dbemail = rs.getString("email"),
@@ -75,7 +75,7 @@ public class ServerUserModel extends client.UserModel {
 	public static ArrayList<ServerUserModel> searchByEmail(String em, DBConnection db) {
 		ArrayList<ServerUserModel> ret = new ArrayList<ServerUserModel>();
 		try {
-			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE email LIKE '" + em + "';");
+			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE email LIKE '%" + em + "%';");
 			while (!rs.isAfterLast()) {
 				String 	dbusername = rs.getString("username"),
 						dbemail = rs.getString("email"),
@@ -100,7 +100,7 @@ public class ServerUserModel extends client.UserModel {
 	public static ArrayList<ServerUserModel> searchByUsernameAndEmail(String usr, String em, DBConnection db) {
 		ArrayList<ServerUserModel> ret = new ArrayList<ServerUserModel>();
 		try {
-			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username LIKE '" + usr + "' AND email LIKE '" + em + "';");
+			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username LIKE '%" + usr + "%' AND email LIKE '%" + em + "%';");
 			while (!rs.isAfterLast()) {
 				String 	dbusername = rs.getString("username"),
 						dbemail = rs.getString("email"),
