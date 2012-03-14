@@ -45,6 +45,11 @@ public class UserModel extends Model {
 		return email;
 	}
 
+	@Override
+	public String toString() {
+		return this.fullName + " | " + this.email;
+	}
+
 	/**
 	 * Dump the fields of the user model to a stream
 	 */
@@ -69,7 +74,4 @@ public class UserModel extends Model {
 		// TODO Auto-generated method stub
 		
 	}
-	
-	
-
 }
