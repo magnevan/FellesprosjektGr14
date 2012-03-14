@@ -10,7 +10,11 @@ import java.util.ArrayList;
  * @author Peter Ringset
  *
  */
-public class ServerUserModel extends client.UserModel{
+public class ServerUserModel extends client.UserModel {
+	
+	public String getPassword() {
+		return this.password;
+	}
 
 	public ServerUserModel(String username, String password, String email, String fullName) {
 		super(username, password, email, fullName);

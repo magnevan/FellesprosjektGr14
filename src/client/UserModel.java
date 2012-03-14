@@ -10,7 +10,10 @@ import java.io.OutputStream;
  */
 public class UserModel implements Model{
 	
-	private String username, password, email, fullName;
+	protected String	username,
+						password,
+						email,
+						fullName;
 	
 	/**
 	 * Create a user object
