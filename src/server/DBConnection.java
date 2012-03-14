@@ -28,13 +28,13 @@ public class DBConnection {
 	 */
 	public DBConnection(Properties p) throws SQLException {
 		try {
-		Class.forName("com.mysql.jdbc.Driver");
- 
-		connection = DriverManager.getConnection(
-			p.getProperty("fp.database.url"),
-			p.getProperty("fp.database.user"),
-			p.getProperty("fp.database.pass")
-		);
+			Class.forName("com.mysql.jdbc.Driver");
+	 			
+			connection = DriverManager.getConnection(
+				p.getProperty("fp.database.url"),
+				p.getProperty("fp.database.user"),
+				p.getProperty("fp.database.pass")
+			);
 		} catch(ClassNotFoundException e) {
 			LOGGER.severe("Missing MySQL connector");
 			LOGGER.severe(e.toString());

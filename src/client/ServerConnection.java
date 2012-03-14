@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Date;
 import java.util.logging.Logger;
 
 /**
@@ -102,14 +103,79 @@ public class ServerConnection {
 	}
 	
 	
-	// Public interface
-	public void pong() {
-		writeLine("PING");
+	/**
+	 * Return the currently logged in user object
+	 * 
+	 * @return
+	 */
+	public UserModel getUser() {
+		
 	}
-
-	public static void main(String[] args) throws IOException {
-		ServerConnection sc = new ServerConnection(InetAddress.getLocalHost(), 9034, "runar", "runar");
-		sc.pong();
+	
+	/**
+	 * Request a list of users filtered by the given string filter
+	 * 
+	 * @param lisener lister object that will be notified once the response comes
+	 * @param filter text filter
+	 * @return
+	 */
+	public UserModel[] requestFilteredUserlist(
+			ServerResponseListener listener, String filter) {
+		
+	}
+	
+	/**
+	 * Request all meetings within a given time period from this users calendar
+	 * 
+	 * @return
+	 */
+	public MeetingModel[] requestMeetings(
+			ServerResponseListener listener, Date startDate, Date endDate) {
+		return requestMeetings(listener, new UserModel[]{getUser()}, startDate, endDate);
+	}
+	
+	/**
+	 * Request all meetings within a given time periode from the given users calendars
+	 * 
+	 * @param listener
+	 * @return
+	 */
+	public MeetingModel[] requestMeetings(
+			ServerResponseListener listener, UserModel[] users, Date startDate, 
+			Date endDate) {
+		
+	}
+	
+	/**
+	 * Creates a new meeting model with only the title set
+	 * 
+	 * @param title
+	 * @return
+	 */
+	public MeetingModel createMeeting(String title) {
+		
+	}
+	
+	/**
+	 * Stores the given model on the remote server
+	 * 
+	 * The returned model will be equal to the given with any changes that was
+	 * caused on the server as a result to the store call.
+	 * 
+	 * <code>
+	 * ServerConnection server = ...;
+	 * Model model = ...;
+	 * 
+	 * model = server.storeModel(model);
+	 * 
+	 * // Returned model should be used here after 
+	 * </code>
+	 * 
+	 * @param model
+	 * @return
+	 */
+	public Model storeModel(Model model) {
+		
 	}
 	
 }

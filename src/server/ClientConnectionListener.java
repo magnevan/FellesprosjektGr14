@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,7 +65,7 @@ public class ClientConnectionListener {
 	public void listen() throws IOException {
 		DBConnection db;
 		try {
-			DBConnection db = new DBConnection(Main.properties);
+			db = new DBConnection(Main.properties);
 		} catch(SQLException e) {
 			LOGGER.severe("Unable to connect to database, server stopping");
 			LOGGER.severe(e.toString());
@@ -101,27 +102,31 @@ public class ClientConnectionListener {
 				}
 				
 				String username = parts[1], password = parts[2];
-								
-				ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username='%s' AND password='%s'");
-				// @TODO continue here
-				if(username.equals("runar")) {
-					writer.write("OK Welcome "+username +"\r\n");
-					writer.flush();
-					
-					// Store and start separate handler thread
-					ClientConnection cc = new ClientConnection(s, reader, writer, username, this);
-					clients.put(username, cc);
-					LOGGER.info(String.format("Client from %s authenticated as %s", s.getInetAddress().toString(), username));
-					LOGGER.info(String.format("%d client(s) in total", clients.size()));
-					cc.start();
-					
-				} else {
-					writer.write("ERROR Bad login\r\n");
-					writer.flush();
-					s.close();
-				}
 				
-				// Return to handle next client
+				// Test
+				try {
+					ResultSet rs = db.preformQuery(String.format(
+						"SELECT * FROM user WHERE username='%s' AND password='%s'", 
+						username, password)
+					);
+					if(rs.next()) {
+						writer.write("OK Welcome "+rs.getString("full_name") +"\r\n");
+						writer.flush();
+						
+						// Store and start separate handler thread
+						ClientConnection cc = new ClientConnection(s, reader, writer, username, this);
+						clients.put(username, cc);
+						LOGGER.info(String.format("Client from %s authenticated as %s", s.getInetAddress().toString(), username));
+						LOGGER.info(String.format("%d client(s) in total", clients.size()));
+						cc.start();
+					} else {
+						writer.write("ERROR Bad login\r\n");
+						writer.flush();
+						s.close();
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
