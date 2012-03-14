@@ -1,12 +1,9 @@
 package client.gui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 
 public class AvtalePanel extends JPanel {
 	
@@ -20,6 +17,7 @@ public class AvtalePanel extends JPanel {
 		
 		this.add(new JLabel("Tittel:"));
 		tittelText = new JTextField(20);
+		tittelText.setPreferredSize(new Dimension(50,100));
 		this.add(tittelText);
 		
 		
@@ -35,5 +33,6 @@ public class AvtalePanel extends JPanel {
 		frame.pack();
 		frame.setVisible(true);
 	}
+	
 
 }
