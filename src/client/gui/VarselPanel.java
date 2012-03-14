@@ -27,8 +27,8 @@ public class VarselPanel extends JPanel{
 		
 		//Center
 		JPanel centerPanel = new JPanel(new BorderLayout());
-		noteList = new JList(new String[] {"testdata1","testdata2","testdata3","testdata4"});
-		centerPanel.setPreferredSize(new Dimension(270,300));
+		noteList = new JList(new String[] {"ingen varsler.. "});
+		centerPanel.setPreferredSize(new Dimension(270,200));
 		centerPanel.add(noteList);
 		JScrollPane scroll = new JScrollPane(noteList);
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);

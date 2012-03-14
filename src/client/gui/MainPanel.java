@@ -25,10 +25,12 @@ public class MainPanel extends JPanel {
 		AvtalePanel ap = new AvtalePanel();
 		HovedPanel hp = new HovedPanel();
 		VarselPanel vp = new VarselPanel();
+		AndrePanel akp = new AndrePanel();
 		
 		optionTabbedPane.addTab("Hoved", hp); //TODO
-		optionTabbedPane.addTab("Andre Kalendre", ap); //TODO
+		optionTabbedPane.addTab("Andre Kalendre", akp); //TODO
 		optionTabbedPane.addTab("Varsler(0)", vp); //TODO
+		
 		
 		calendarTabbedPane.addTab("Uke", new WeekView());
 		calendarTabbedPane.addTab("Måned", new JPanel()); //TODO
