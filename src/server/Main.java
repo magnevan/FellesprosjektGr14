@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -15,13 +16,23 @@ public class Main {
 	
 	public static Properties properties;
 	
+	public static DBConnection dbConnection;
+	
 	/**
 	 * 
 	 * @param p server configuration
 	 * @throws NumberFormatException on badly formatted number in properties
 	 */
-	public Main(Properties p) throws NumberFormatException {	
+	public Main(Properties p) throws NumberFormatException {		
 		properties = p;
+		
+		try {
+			dbConnection = new DBConnection(p);
+		} catch(SQLException e) {
+			LOGGER.severe("Unable to connect to database, server stopping");
+			LOGGER.severe(e.toString());
+			return;
+		}
 		
 		ClientConnectionListener ccl = new ClientConnectionListener(
 			Integer.parseInt(p.getProperty("fp.server.listen_port"))

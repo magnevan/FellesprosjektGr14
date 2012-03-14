@@ -53,4 +53,16 @@ public class DBConnection {
 		return st.executeQuery(query);
 	}
 	
+	/**
+	 * Close the database connection
+	 * 
+	 */
+	public void close() {
+		try {
+			connection.close();
+		} catch(SQLException e) {
+			// Ignore
+		}
+	}
+	
 }

@@ -7,7 +7,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -23,6 +26,11 @@ public class ServerConnection {
 	private BufferedReader reader;
 	private BufferedWriter writer;
 	private ReaderThread readerThread;
+	
+	private int nextRequestId = 1;
+	
+	// Stores listeners while we wait for the server to respond
+	private Map<Integer, IServerResponseListener> listeners;
 		
 	/**
 	 * Create a new ServerConnection and attempt to preform a login
@@ -36,6 +44,10 @@ public class ServerConnection {
 	 */
 	public ServerConnection(InetAddress address, int port, 
 			String username, String password) throws IOException { 
+		
+		listeners = Collections.synchronizedMap(
+			new HashMap<Integer, IServerResponseListener>()
+		);
 		
 		try {
 			s = new Socket(address, port);			
@@ -73,6 +85,16 @@ public class ServerConnection {
 			e.printStackTrace();// TODO handle exception
 		}
 	}
+
+	/**
+	 * Write a simple request
+	 * 
+	 * @param id
+	 * @param request
+	 */
+	private void writeSimpleRequest(int id, String string) {
+		writeLine(String.format("%d %s", id, string));		
+	}
 	
 	/**
 	 * Private reader thread
@@ -86,10 +108,36 @@ public class ServerConnection {
 				while((line = reader.readLine()) != null) {
 					LOGGER.info(line);
 					
-					// Notifications come what a zero id
-					if(line.startsWith("0 NOTICE ")) {
-						LOGGER.info("Got notice: "+line.substring(9));
+					String[] parts = line.split("\\s+");
+					
+					// All server responses should contain a id and a method name
+					if(parts.length < 2) {
+						LOGGER.severe("Maformed server response: "+line);
+						continue;
 					}
+					
+					int id = Integer.parseInt(parts[0]);
+					String method = parts[1];
+					
+					// Notifications come with a zero id
+					if(id == 0) {
+						LOGGER.info("Unhandled notice: "+line);
+						continue;
+					}
+					
+					IServerResponseListener listener = listeners.get(id);
+					if(listener == null) {
+						LOGGER.severe("No listener registered for response "+line);						
+					}
+					
+					// TODO read any data sent by the server
+					ArrayList<String[]> users = new ArrayList<String[]>();
+					while(!(line = reader.readLine()).equals("")) {
+						String[] user = line.split(",");
+						users.add(user);
+					}
+					listener.onServerResponse(id, users.toArray(new String[users.size()][]));
+					
 				}
 			} catch(IOException e) {
 				
@@ -108,43 +156,43 @@ public class ServerConnection {
 	 * 
 	 * @return
 	 */
-	public UserModel getUser() {
+	/*public UserModel getUser() {
 		
-	}
+	}*/
 	
 	/**
 	 * Request a list of users filtered by the given string filter
 	 * 
 	 * @param lisener lister object that will be notified once the response comes
 	 * @param filter text filter
-	 * @return
+	 * @return request id
 	 */
-	public UserModel[] requestFilteredUserlist(
-			ServerResponseListener listener, String filter) {
+	/*public int requestFilteredUserlist(
+			IServerResponseListener listener, String filter) {
 		
-	}
+	}*/
 	
 	/**
 	 * Request all meetings within a given time period from this users calendar
 	 * 
-	 * @return
+	 * @return request id
 	 */
-	public MeetingModel[] requestMeetings(
-			ServerResponseListener listener, Date startDate, Date endDate) {
+	/*public int requestMeetings(
+			IServerResponseListener listener, Date startDate, Date endDate) {
 		return requestMeetings(listener, new UserModel[]{getUser()}, startDate, endDate);
-	}
+	}*/
 	
 	/**
 	 * Request all meetings within a given time periode from the given users calendars
 	 * 
 	 * @param listener
-	 * @return
+	 * @return request id
 	 */
-	public MeetingModel[] requestMeetings(
-			ServerResponseListener listener, UserModel[] users, Date startDate, 
+	/*public int requestMeetings(
+			IServerResponseListener listener, UserModel[] users, Date startDate, 
 			Date endDate) {
 		
-	}
+	}*/
 	
 	/**
 	 * Creates a new meeting model with only the title set
@@ -152,9 +200,9 @@ public class ServerConnection {
 	 * @param title
 	 * @return
 	 */
-	public MeetingModel createMeeting(String title) {
+	/*public MeetingModel createMeeting(String title) {
 		
-	}
+	}*/
 	
 	/**
 	 * Stores the given model on the remote server
@@ -174,8 +222,18 @@ public class ServerConnection {
 	 * @param model
 	 * @return
 	 */
-	public Model storeModel(Model model) {
+	/*public Model storeModel(Model model) {
 		
-	}
+	}*/
 	
+	
+	// Test
+	public int requestFilteredUserList(IServerResponseListener listener, String filter) {
+		int id = ++nextRequestId;
+		
+		listeners.put(id, listener);
+		writeSimpleRequest(id, "REQUEST FILTERED_USERLIST "+filter);
+		
+		return id;
+	}
 }
