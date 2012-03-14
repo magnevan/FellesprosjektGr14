@@ -4,7 +4,12 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
+/**
+ * Static methods for searching database with different search criteria
+ * 
+ * @author Peter Ringset
+ *
+ */
 public class ServerUserModel extends client.UserModel{
 
 	public ServerUserModel(String username, String password, String email, String fullName) {
