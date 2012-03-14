@@ -6,6 +6,8 @@ import java.util.Calendar;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
@@ -18,13 +20,14 @@ public class AvtalePanel extends JPanel {
 	private final JTimePicker fromTime, toTime;
 	private final JComboBox moteromComboBox;
 	private final JTextField moteromText;
+	private final JTextArea beskrivelseTextArea;
 	
 	public AvtalePanel() {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
-
+		
 		//Tittel
 		this.add(new JLabel("Tittel:"));
-		tittelText = new JTextField(25);
+		tittelText = new JTextField(26);
 		this.add(tittelText);
 		
 		//Tid
@@ -46,13 +49,21 @@ public class AvtalePanel extends JPanel {
 		//Moterom
 		this.add(new JLabel("Møterom"));
 		JPanel moteromPanel = new JPanel();
-		moteromComboBox = new JComboBox(new String[]{"","moterom1","moterom2","moterom3","moterom4"});
-		moteromText = new JDefaultTextField(15, "Skriv møteplass...");
+		moteromComboBox = new JComboBox(new String[]{"","P15 rom 436","Torget","Hell","Oslo"});
+		moteromText = new JDefaultTextField("Skriv møteplass...", 15);
 		moteromPanel.add(moteromComboBox);
 		moteromPanel.add(moteromText);
 		
 		this.add(moteromPanel);
 		
+		//Beskrivelse
+		this.add(new JLabel("Beskrivelse:"));
+		beskrivelseTextArea = new JDefaultTextArea("Skriv inn beskrivelse...", 4, 26);
+		beskrivelseTextArea.setLineWrap(true);
+		this.add(beskrivelseTextArea);
+		JScrollPane beskrivelseScroll = new JScrollPane(beskrivelseTextArea);
+		beskrivelseScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		this.add(beskrivelseScroll);
 	}
 	
 //	public static void main(String[] args) {

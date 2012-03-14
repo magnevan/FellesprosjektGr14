@@ -4,21 +4,17 @@ import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
-import javax.swing.JTextField;
+import javax.swing.JTextArea;
 
-/**
- * Works like a normal text field, but when the textfield is empty, the default text is displayed
- * @author Magne
- *
- */
-public class JDefaultTextField extends JTextField implements FocusListener {
+public class JDefaultTextArea extends JTextArea implements FocusListener {
 	
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -8018332784929190232L;
 	
 	private final String defaultText;
 	
-	public JDefaultTextField(String defaultText, int columns) {
-		super(columns);
+	public JDefaultTextArea(String defaultText, int rows, int cols) {
+		
+		super(rows, cols);
 		
 		this.defaultText = defaultText;
 		this.setText(defaultText);
