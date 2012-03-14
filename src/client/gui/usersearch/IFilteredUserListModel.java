@@ -1,4 +1,4 @@
-package client.gui;
+package client.gui.usersearch;
 
 import java.beans.PropertyChangeListener;
 
