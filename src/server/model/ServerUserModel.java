@@ -1,8 +1,10 @@
-package server;
+package server.model;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import server.DBConnection;
 
 /**
  * Static methods for searching database with different search criteria
@@ -10,7 +12,7 @@ import java.util.ArrayList;
  * @author Peter Ringset
  *
  */
-public class ServerUserModel extends client.UserModel {
+public class ServerUserModel extends client.model.UserModel {
 	
 	public ServerUserModel(String username, String password, String email, String fullName) {
 		super(username, password, email, fullName);

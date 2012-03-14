@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import server.model.ServerUserModel;
+
 public class ClientConnectionListener {
 
 	private static Logger LOGGER = Logger.getLogger("ClientConnectionListener");

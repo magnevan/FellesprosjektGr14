@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 
 import client.gui.AbstractFilteredUserListModel;
+import client.model.UserModel;
 
 public class Main implements IServerResponseListener {
 

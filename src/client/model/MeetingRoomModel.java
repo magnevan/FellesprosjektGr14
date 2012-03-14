@@ -1,4 +1,4 @@
-package client;
+package client.model;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -32,7 +32,7 @@ public class MeetingRoomModel extends Model {
 	}
 	
 	@Override
-	protected void fromStream(BufferedReader stream) throws IOException {
+	public void fromStream(BufferedReader stream) throws IOException {
 		// TODO Auto-generated method stub
 		
 	}

@@ -1,4 +1,4 @@
-package client;
+package client.model;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -72,7 +72,7 @@ public class UserModel extends Model {
 	 * Read the fields of the user model from a stream
 	 */
 	@Override
-	protected void fromStream(BufferedReader in) throws IOException {
+	public void fromStream(BufferedReader in) throws IOException {
 		username = in.readLine();
 		email = in.readLine();
 		fullName = in.readLine();

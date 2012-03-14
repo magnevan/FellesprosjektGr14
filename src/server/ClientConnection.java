@@ -9,6 +9,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import server.model.ServerUserModel;
+
 public class ClientConnection extends Thread {
 
 	private static Logger LOGGER = Logger.getLogger("ClientConnection");	

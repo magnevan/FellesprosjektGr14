@@ -1,4 +1,4 @@
-package client;
+package client.model;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.Time;
 import java.util.Date;
+
+import client.ServerConnection;
 /**
  * A model for the meetings in the calendar
  * 
@@ -112,7 +114,7 @@ public class MeetingModel extends Model {
 
 	
 	@Override
-	protected void fromStream(BufferedReader stream) throws IOException {
+	public void fromStream(BufferedReader stream) throws IOException {
 		// TODO Auto-generated method stub
 		
 	}

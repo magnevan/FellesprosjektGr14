@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import client.model.Model;
+
 /**
  * The clients interface to the remote calendar server
  * 
