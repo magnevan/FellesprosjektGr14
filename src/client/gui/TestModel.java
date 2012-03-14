@@ -2,16 +2,18 @@ package client.gui;
 
 import java.util.ArrayList;
 
+import client.UserModel;
+
 class TestModel extends AbstractFilteredUserListModel {
 
-	String[][] data = new String[][] {
-			{"Runar Olsen", "test@example.com"},
-			{"Råger Hansen", "test@example.com"},
-			{"Zumer Zumers", "test@example.com"},
-			{"Ørjan Ørevis", "test@example.com"}
+	UserModel[] data = new UserModel[] {
+			new UserModel("runarolsen", "", "runar@example.com", "Runar Olsen"),
+			new UserModel("roger", "", "roger@example.com", "Roger Hansen"),
+			new UserModel("zumer", "", "zumer@example.com", "Zumer Zumers"),
+			new UserModel("orjan", "", "orjan@example.com", "Orjan Orje")
 	};
 	
-	ArrayList<String[]> filtered = new ArrayList<String[]>();
+	ArrayList<UserModel> filtered = new ArrayList<UserModel>();
 	
 	/**
 	 * Set empty filter
@@ -23,17 +25,22 @@ class TestModel extends AbstractFilteredUserListModel {
 	@Override
 	public void setFilter(String filter) {
 		filtered.clear();
-		for(String[] s : data) {
-			if(s[0].toLowerCase().startsWith(filter.toLowerCase())) {
-				filtered.add(s);
-			}
+//		for (UserModel m : filtered) {
+//			if (	m.getUsername().toLowerCase().startsWith(filter) ||
+//					m.getFullName().toLowerCase().startsWith(filter) ||
+//					m.getEmail().toLowerCase().startsWith(filter)) {
+//				filtered.add(m);
+//			}
+//		}
+		for (UserModel m : data) {
+			filtered.add(m);
 		}
 		fireUserListChangeEvent(null, getUserList());
 	}
 
 	@Override
-	public String[][] getUserList() {
-		return filtered.toArray(new String[filtered.size()][]);
+	public UserModel[] getUserList() {
+		return filtered.toArray(new UserModel[filtered.size()]);
 	}
 	
 	
