@@ -2,13 +2,13 @@ package client.gui.usersearch;
 
 import java.util.ArrayList;
 
-class TestModel extends AbstractFilteredUserListModel {
+public class TestModel extends AbstractFilteredUserListModel {
 
 	String[][] data = new String[][] {
-			{"Runar Olsen", "test@example.com"},
-			{"Råger Hansen", "test@example.com"},
-			{"Zumer Zumers", "test@example.com"},
-			{"Ørjan Ørevis", "test@example.com"}
+			{"Runar Olsen", "Runar@example.com"},
+			{"Roger Hansen", "Roger@example.com"},
+			{"Zumer Zumers", "Zumer@example.com"},
+			{"Ørjan Ørevis", "Ørjan@example.com"}
 	};
 	
 	ArrayList<String[]> filtered = new ArrayList<String[]>();

@@ -11,6 +11,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import client.gui.usersearch.FilteredUserList;
+import client.gui.usersearch.TestModel;
+
 import com.toedter.calendar.JDateChooser;
 
 public class AvtalePanel extends JPanel {
@@ -21,6 +24,7 @@ public class AvtalePanel extends JPanel {
 	private final JComboBox moteromComboBox;
 	private final JTextField moteromText;
 	private final JTextArea beskrivelseTextArea;
+	private final FilteredUserList filteredUserList;
 	
 	public AvtalePanel() {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
@@ -64,6 +68,12 @@ public class AvtalePanel extends JPanel {
 		JScrollPane beskrivelseScroll = new JScrollPane(beskrivelseTextArea);
 		beskrivelseScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		this.add(beskrivelseScroll);
+		
+		//Ansatte
+		this.add(new JLabel("Ansatte:"));
+		filteredUserList = new FilteredUserList(new TestModel());
+		this.add(filteredUserList);
+		
 	}
 	
 //	public static void main(String[] args) {
