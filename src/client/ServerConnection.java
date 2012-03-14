@@ -20,6 +20,8 @@ import java.util.logging.Logger;
  */
 public class ServerConnection {
 
+	private static ServerConnection instance;
+	
 	private static Logger LOGGER = Logger.getLogger("ServerConnection");
 	
 	private final Socket s;
@@ -42,7 +44,7 @@ public class ServerConnection {
 	 * @throws IOException On reading errors
 	 * @throws InvalidArgumentException or username/password errors
 	 */
-	public ServerConnection(InetAddress address, int port, 
+	private ServerConnection(InetAddress address, int port, 
 			String username, String password) throws IOException { 
 		
 		listeners = Collections.synchronizedMap(
@@ -69,6 +71,33 @@ public class ServerConnection {
 			throw e;
 		}
 		
+	}
+	
+	/**
+	 * Attempt to login
+	 * 
+	 * If successfull a ServerConnection instance will be accessable from
+	 * instance();
+	 * 
+	 * @param address
+	 * @param port
+	 * @param username
+	 * @param password
+	 * @throws IOException
+	 */
+	public static boolean login(InetAddress address, int port, 
+			String username, String password) throws IOException {
+		instance = new ServerConnection(address, port, username, password);
+		return true;
+	}
+	
+	/**
+	 * Get singleton instance
+	 * 
+	 * @return
+	 */
+	public static ServerConnection instance() {
+		return instance;
 	}
 	
 	/**
