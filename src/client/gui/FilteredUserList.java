@@ -17,6 +17,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.AbstractTableModel;
 
+import client.UserModel;
+
 /**
  * Filtered user list widget
  * 
@@ -84,9 +86,9 @@ public class FilteredUserList extends JPanel
 	 * 
 	 * @return 
 	 */
-	public String[][] getSelectedUsers() {
+	public UserModel[] getSelectedUsers() {
 		int[] rows = userTable.getSelectedRows();
-		String[][] selection = new String[rows.length][];
+		UserModel[] selection = new UserModel[rows.length];
 		
 		for(int i = 0; i < rows.length; i++) {
 			selection[i] = model.getUserList()[rows[i]];
@@ -159,14 +161,15 @@ public class FilteredUserList extends JPanel
 		}
 
 		/**
-		 * Get value at (rowIndex,columnIndex)
+		 * Get value at rowIndex
 		 * 
 		 * @param rowIndex
 		 * @param columnIndex
 		 */
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
-			return model.getUserList()[rowIndex][columnIndex];
+			if (columnIndex == 0) return model.getUserList()[rowIndex].getFullName();
+			else return model.getUserList()[rowIndex].getEmail();
 		}
 		
 		/**
@@ -194,8 +197,8 @@ public class FilteredUserList extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				System.out.println("\nCurrent selection:");
-				for(String[] s : list.getSelectedUsers()) {
-					System.out.println(s[0]);
+				for(UserModel u : list.getSelectedUsers()) {
+					System.out.println(u);
 				}
 			}
 		});

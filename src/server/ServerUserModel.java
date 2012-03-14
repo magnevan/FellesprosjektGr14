@@ -26,8 +26,12 @@ public class ServerUserModel extends client.UserModel {
 	 * @param usr
 	 * @param db
 	 * @return the user
+	 * @throws IllegalArgumentException if user name is an empty string
 	 */
 	public static ServerUserModel findByUsername(String usr, DBConnection db) {
+		if (usr.length() == 0) {
+			throw new IllegalArgumentException("ServerUserModel: user name can not be an empty string");
+		}
 		try {
 			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username = '" + usr + "';");
 			if(rs.next()) {
