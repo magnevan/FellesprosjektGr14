@@ -1,5 +1,8 @@
 package client;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.Time;
 import java.util.Date;
@@ -9,7 +12,7 @@ import java.util.Date;
  * @author peterringset
  *
  */
-public class MeetingModel implements Model {
+public class MeetingModel extends Model {
 	
 	private Date date;
 	private Time timeFrom, timeTo;
@@ -107,8 +110,17 @@ public class MeetingModel implements Model {
 		return owner;
 	}
 
+	
 	@Override
-	public void toStream(OutputStream os) {
+	protected void fromStream(BufferedReader stream) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void toStream(BufferedWriter stream) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

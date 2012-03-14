@@ -12,14 +12,14 @@ import java.util.ArrayList;
  */
 public class ServerUserModel extends client.UserModel {
 	
+	public ServerUserModel(String username, String password, String email, String fullName) {
+		super(username, password, email, fullName);
+	}
+	
 	public String getPassword() {
 		return this.password;
 	}
-
-	public ServerUserModel(String username, String password, String email, String fullName) {
-		super(username, password, email, fullName);
-		// TODO Auto-generated constructor stub
-	}
+	
 	/**
 	 * Look-up in database for a specific user name
 	 * 
@@ -34,11 +34,13 @@ public class ServerUserModel extends client.UserModel {
 		}
 		try {
 			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username = '" + usr + "';");
-			String 	dbusername = rs.getString("username"),
-					dbemail = rs.getString("email"),
-					dbfull_name = rs.getString("full_name"),
-					dbpassword = rs.getString("password");
-			return new ServerUserModel(dbusername, dbemail, dbfull_name, dbpassword);
+			if(rs.next()) {
+				String 	dbusername = rs.getString("username"),
+						dbemail = rs.getString("email"),
+						dbfull_name = rs.getString("full_name"),
+						dbpassword = rs.getString("password");
+				return new ServerUserModel(dbusername, dbemail, dbfull_name, dbpassword);
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -56,12 +58,12 @@ public class ServerUserModel extends client.UserModel {
 		ArrayList<ServerUserModel> ret = new ArrayList<ServerUserModel>();
 		try {
 			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username LIKE '%" + usr + "%';");
-			while (!rs.isAfterLast()) {
+			while (!rs.next()) {
 				String 	dbusername = rs.getString("username"),
 						dbemail = rs.getString("email"),
 						dbfull_name = rs.getString("full_name"),
 						dbpassword = rs.getString("password");
-				ret.add(new ServerUserModel(dbusername, dbemail, dbfull_name, dbpassword));
+				ret.add(new ServerUserModel(dbusername, dbpassword, dbemail, dbfull_name));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -80,7 +82,7 @@ public class ServerUserModel extends client.UserModel {
 		ArrayList<ServerUserModel> ret = new ArrayList<ServerUserModel>();
 		try {
 			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE email LIKE '%" + em + "%';");
-			while (!rs.isAfterLast()) {
+			while (!rs.next()) {
 				String 	dbusername = rs.getString("username"),
 						dbemail = rs.getString("email"),
 						dbfull_name = rs.getString("full_name"),
@@ -105,7 +107,7 @@ public class ServerUserModel extends client.UserModel {
 		ArrayList<ServerUserModel> ret = new ArrayList<ServerUserModel>();
 		try {
 			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username LIKE '%" + usr + "%' AND email LIKE '%" + em + "%';");
-			while (!rs.isAfterLast()) {
+			while (!rs.next()) {
 				String 	dbusername = rs.getString("username"),
 						dbemail = rs.getString("email"),
 						dbfull_name = rs.getString("full_name"),

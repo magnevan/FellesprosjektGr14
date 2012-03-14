@@ -1,5 +1,8 @@
 package client;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -8,7 +11,7 @@ import java.io.OutputStream;
  * @author peterringset
  *
  */
-public class MeetingRoomModel implements Model {
+public class MeetingRoomModel extends Model {
 	
 	private String roomNumber;
 	
@@ -27,8 +30,16 @@ public class MeetingRoomModel implements Model {
 	public void setRoomNumber(String roomNumber) {
 		this.roomNumber = roomNumber;
 	}
+	
+	@Override
+	protected void fromStream(BufferedReader stream) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
 
 	@Override
-	public void toStream(OutputStream os) {
+	public void toStream(BufferedWriter stream) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 }

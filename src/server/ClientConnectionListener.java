@@ -46,12 +46,12 @@ public class ClientConnectionListener {
 	 * Removes a client, called by the client it self after a logout
 	 * or a dropped connection
 	 * 
-	 * @param username
+	 * @param user
 	 */
-	public void removeClient(String username) {
-		if(clients.containsKey(username)) {
-			clients.remove(username);
-			LOGGER.info(String.format("%s is gone", username));
+	public void removeClient(ServerUserModel user) {
+		if(clients.containsKey(user.getUsername())) {
+			clients.remove(user.getUsername());
+			LOGGER.info(String.format("%s is gone", user));
 			LOGGER.info(String.format("%d client(s) in total", clients.size()));
 		}
 	}
@@ -92,30 +92,24 @@ public class ClientConnectionListener {
 				}
 				
 				String username = parts[1], password = parts[2];
+					
+				ServerUserModel user = ServerUserModel.findByUsername(
+						username, Main.dbConnection);
 				
-				// Test
-				try {
-					ResultSet rs = Main.dbConnection.preformQuery(String.format(
-						"SELECT * FROM user WHERE username='%s' AND password='%s'", 
-						username, password)
-					);
-					if(rs.next()) {
-						writer.write("OK Welcome "+rs.getString("full_name") +"\r\n");
-						writer.flush();
-						
-						// Store and start separate handler thread
-						ClientConnection cc = new ClientConnection(s, reader, writer, username, this);
-						clients.put(username, cc);
-						LOGGER.info(String.format("Client from %s authenticated as %s", s.getInetAddress().toString(), username));
-						LOGGER.info(String.format("%d client(s) in total", clients.size()));
-						cc.start();
-					} else {
-						writer.write("ERROR Bad login\r\n");
-						writer.flush();
-						s.close();
-					}
-				} catch (SQLException e) {
-					e.printStackTrace();
+				if(user != null && user.getPassword() == password) {
+					writer.write("OK Welcome "+user.getFullName()+"\r\n");
+					writer.flush();
+					
+					// Store and start separate handler thread
+					ClientConnection cc = new ClientConnection(s, reader, writer, user, this);
+					clients.put(user.getUsername(), cc);
+					LOGGER.info(String.format("Client from %s authenticated as %s", s.getInetAddress().toString(), username));
+					LOGGER.info(String.format("%d client(s) in total", clients.size()));
+					cc.start();
+				} else {
+					writer.write("ERROR Bad login\r\n");
+					writer.flush();
+					s.close();
 				}
 			} catch(IOException e) {
 				e.printStackTrace();
