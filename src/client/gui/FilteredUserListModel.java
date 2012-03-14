@@ -9,7 +9,7 @@ import client.UserModel;
 /**
  * A model for the filtered user list.
  * 
- * @author peterringset
+ * @author Peter Ringset
  *
  */
 public class FilteredUserListModel extends AbstractFilteredUserListModel implements IServerResponseListener{
@@ -18,8 +18,8 @@ public class FilteredUserListModel extends AbstractFilteredUserListModel impleme
 	private int lastRequestId;
 	private ArrayList<UserModel> filtered;		
 	
-	public FilteredUserListModel(ServerConnection sc) {
-		this.sc = sc;
+	public FilteredUserListModel() {
+		sc = ServerConnection.instance();
 		filtered = new ArrayList<UserModel>();
 	}
 
