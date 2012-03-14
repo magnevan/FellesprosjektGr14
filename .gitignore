@@ -3,7 +3,9 @@
 .settings
 bin
 lib
+bin
 tmp
 eclipse
 logs
 *~
+src/server.properties
