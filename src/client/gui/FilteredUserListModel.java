@@ -10,6 +10,7 @@ import client.model.UserModel;
  * A model for the filtered user list.
  * 
  * @author Peter Ringset
+ * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  *
  */
 public class FilteredUserListModel 
@@ -18,7 +19,9 @@ public class FilteredUserListModel
 
 	private ServerConnection sc;
 	private int lastRequestId;
-	private UserModel[] filtered;		
+	private UserModel[] filtered;	
+	
+	private String lastFilter = null;
 	
 	public FilteredUserListModel() {
 		sc = ServerConnection.instance();
@@ -30,11 +33,16 @@ public class FilteredUserListModel
 	 * This method propagates the filter to the server, response is
 	 * asynchronously given in {@code onServerResponse()}
 	 * 
+	 * @TODO limit the number of requests/s ? Could be done with a Timer
 	 * @param filter
 	 */
 	@Override
 	public void setFilter(String filter) {
-		lastRequestId = sc.requestFilteredUserList(this, filter);
+		// Only send a request if we've actually updated the filter
+		if(lastFilter == null || !filter.equals(lastFilter)) {
+			lastFilter = filter;
+			lastRequestId = sc.requestFilteredUserList(this, filter);
+		}
 	}
 
 	/**

@@ -18,10 +18,10 @@ public class Main {
 		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
 		
 		//ServerConnection.instance().requestFilteredUserList(this, "");
-		
 		JFrame frame = new JFrame("Search test");
 		frame.add(new FilteredUserList(new FilteredUserListModel()));
 		frame.pack();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}
 	

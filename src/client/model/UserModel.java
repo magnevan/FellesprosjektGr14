@@ -33,20 +33,44 @@ public class UserModel extends Model {
 		this.fullName = fullName;
 	}
 	
+	/**
+	 * Empty constructor 
+	 * 
+	 * Should only be used in combination with fromStream() otherwise the object
+	 * will be unusable
+	 */
 	public UserModel() {}
 	
+	/**
+	 * Get username
+	 * 
+	 * @return
+	 */
 	public String getUsername() {
 		return username;
 	}
 
+	/**
+	 * Get full name
+	 * 
+	 * @return
+	 */
 	public String getFullName() {
 		return fullName;
 	}
 	
+	/**
+	 * Get email
+	 * 
+	 * @return
+	 */
 	public String getEmail() {
 		return email;
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public String toString() {
 		return this.fullName + " | " + this.email;

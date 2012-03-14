@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import client.model.Model;
+import client.model.UserModel;
 
 /**
  * The clients interface to the remote calendar server
@@ -32,6 +33,8 @@ public class ServerConnection {
 	private ReaderThread readerThread;
 	
 	private int nextRequestId = 1;
+	
+	private UserModel user;
 	
 	// Stores listeners while we wait for the server to respond
 	private Map<Integer, IServerResponseListener> listeners;
@@ -65,6 +68,9 @@ public class ServerConnection {
 			if(!line.startsWith("OK")) {
 				throw new IllegalArgumentException("Bad login");
 			}
+			
+			// Read user model off stream
+			user = (UserModel) (readModelsFromStream()).get(0);
 			
 			// Start a reader thread and return
 			readerThread = new ReaderThread();
@@ -128,6 +134,41 @@ public class ServerConnection {
 	}
 	
 	/**
+	 * Attempts to read a set of models from the input stream
+	 * 
+	 * Models are sent over the stream line by line:
+	 * 
+	 * <code>
+	 * client.model.SomeModel
+	 * field 1
+	 * field 2
+	 * 
+	 * client.model.SomeModel
+	 * field 1
+	 * field 2
+	 * 
+	 * 
+	 * </code>
+	 * @return
+	 */
+	private ArrayList<Model> readModelsFromStream() throws IOException {
+		ArrayList<Model> models = new ArrayList<Model>();
+		String line;
+		while(!(line = reader.readLine()).equals("")) {
+			try {
+				Model model = (Model) Class.forName(line).newInstance();
+				model.fromStream(reader);
+				models.add(model);
+				reader.readLine(); // Read the empty seperator line
+			} catch(Exception e) {
+				LOGGER.severe("Unkown model class sent by server, "+line);
+				LOGGER.severe(e.toString());
+			}
+		}		
+		return models;
+	}
+	
+	/**
 	 * Private reader thread
 	 *
 	 */
@@ -161,19 +202,7 @@ public class ServerConnection {
 						LOGGER.severe("No listener registered for response "+line);						
 					}
 					
-					// TODO Are there any other valid returns than models?
-					ArrayList<Model> models = new ArrayList<Model>();
-					while(!(line = reader.readLine()).equals("")) {
-						try {
-							Model model = (Model) Class.forName(line).newInstance();
-							model.fromStream(reader);
-							models.add(model);
-							reader.readLine();
-						} catch(Exception e) {
-							LOGGER.severe("Unkown model class sent by server, "+line);
-							LOGGER.severe(e.toString());
-						}
-					}
+					ArrayList<Model> models = readModelsFromStream();
 					listener.onServerResponse(id, models);
 					
 				}
@@ -194,9 +223,9 @@ public class ServerConnection {
 	 * 
 	 * @return
 	 */
-	/*public UserModel getUser() {
-		
-	}*/
+	public UserModel getUser() {
+		return user;
+	}
 	
 	/**
 	 * Request a list of users filtered by the given string filter
