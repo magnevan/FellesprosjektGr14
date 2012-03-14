@@ -96,7 +96,7 @@ public class ClientConnectionListener {
 				ServerUserModel user = ServerUserModel.findByUsername(
 						username, Main.dbConnection);
 				
-				if(user != null && user.getPassword() == password) {
+				if(user != null && user.getPassword().equals(password)) {
 					writer.write("OK Welcome "+user.getFullName()+"\r\n");
 					writer.flush();
 					

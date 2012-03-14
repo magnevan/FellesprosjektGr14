@@ -33,6 +33,8 @@ public class UserModel extends Model {
 		this.fullName = fullName;
 	}
 	
+	public UserModel() {}
+	
 	public String getUsername() {
 		return username;
 	}
@@ -57,7 +59,7 @@ public class UserModel extends Model {
 	public void toStream(BufferedWriter os) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append(this.getClass().getName()+"\r\n");
+		sb.append("client.UserModel\r\n");
 		sb.append(getUsername() + "\r\n");
 		//sb.append(getPassword() + "\r\n");
 		sb.append(getEmail() + "\r\n");
@@ -70,8 +72,9 @@ public class UserModel extends Model {
 	 * Read the fields of the user model from a stream
 	 */
 	@Override
-	protected void fromStream(BufferedReader stream) throws IOException {
-		// TODO Auto-generated method stub
-		
+	protected void fromStream(BufferedReader in) throws IOException {
+		username = in.readLine();
+		email = in.readLine();
+		fullName = in.readLine();
 	}
 }

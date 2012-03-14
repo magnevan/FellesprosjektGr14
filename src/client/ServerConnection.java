@@ -130,13 +130,20 @@ public class ServerConnection {
 						LOGGER.severe("No listener registered for response "+line);						
 					}
 					
-					// TODO read any data sent by the server
-					ArrayList<String[]> users = new ArrayList<String[]>();
+					// TODO Are there any other valid returns than models?
+					ArrayList<Model> models = new ArrayList<Model>();
 					while(!(line = reader.readLine()).equals("")) {
-						String[] user = line.split(",");
-						users.add(user);
+						try {
+							Model model = (Model) Class.forName(line).newInstance();
+							model.fromStream(reader);
+							models.add(model);
+							reader.readLine();
+						} catch(Exception e) {
+							LOGGER.severe("Unkown model class sent by server, "+line);
+							LOGGER.severe(e.toString());
+						}
 					}
-					listener.onServerResponse(id, users.toArray(new String[users.size()][]));
+					listener.onServerResponse(id, models);
 					
 				}
 			} catch(IOException e) {
@@ -227,10 +234,9 @@ public class ServerConnection {
 	}*/
 	
 	
-	// Test
 	public int requestFilteredUserList(IServerResponseListener listener, String filter) {
 		int id = ++nextRequestId;
-		
+				
 		listeners.put(id, listener);
 		writeSimpleRequest(id, "REQUEST FILTERED_USERLIST "+filter);
 		
