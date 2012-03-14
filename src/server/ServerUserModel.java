@@ -16,7 +16,13 @@ public class ServerUserModel extends client.UserModel{
 		super(username, password, email, fullName);
 		// TODO Auto-generated constructor stub
 	}
-	
+	/**
+	 * Look-up in database for a specific user name
+	 * 
+	 * @param usr
+	 * @param db
+	 * @return the user
+	 */
 	public static ServerUserModel findByUsername(String usr, DBConnection db) {
 		try {
 			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username = '" + usr + "';");
@@ -31,6 +37,13 @@ public class ServerUserModel extends client.UserModel{
 		return null;
 	}
 	
+	/**
+	 * Search in database for user by user name
+	 * 
+	 * @param usr
+	 * @param db
+	 * @return a list of matching user names
+	 */
 	public static ArrayList<ServerUserModel> searchByUsername(String usr, DBConnection db) {
 		ArrayList<ServerUserModel> ret = new ArrayList<ServerUserModel>();
 		try {
@@ -48,6 +61,13 @@ public class ServerUserModel extends client.UserModel{
 		return ret;
 	}
 	
+	/**
+	 * Search in database for user by email
+	 * 
+	 * @param em
+	 * @param db
+	 * @return a list of matching user names
+	 */
 	public static ArrayList<ServerUserModel> searchByEmail(String em, DBConnection db) {
 		ArrayList<ServerUserModel> ret = new ArrayList<ServerUserModel>();
 		try {
@@ -65,6 +85,14 @@ public class ServerUserModel extends client.UserModel{
 		return ret;
 	}
 	
+	/**
+	 * Search in database for user by email and user name
+	 * 
+	 * @param usr
+	 * @param em
+	 * @param db
+	 * @return a list of matching user names
+	 */
 	public static ArrayList<ServerUserModel> searchByUsernameAndEmail(String usr, String em, DBConnection db) {
 		ArrayList<ServerUserModel> ret = new ArrayList<ServerUserModel>();
 		try {
