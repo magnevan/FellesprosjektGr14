@@ -116,17 +116,13 @@ public class FilteredUserList extends JPanel
 	 * @param event
 	 */
 	@Override
-	public void keyPressed(KeyEvent event) {
-		if(Character.isLetterOrDigit(event.getKeyChar())) {
-			model.setFilter(searchField.getText()+event.getKeyChar());
-		} else if(event.getKeyCode() == KeyEvent.VK_BACK_SPACE 
-				&& searchField.getText().length() > 0) {
-			model.setFilter(searchField.getText().substring(0, searchField.getText().length()-1));
-		}
-	}
+	public void keyPressed(KeyEvent event) {}
 
 	@Override
-	public void keyReleased(KeyEvent event) {}
+	public void keyReleased(KeyEvent event) {
+		
+		model.setFilter(searchField.getText());
+	}
 	@Override
 	public void keyTyped(KeyEvent event) {}
 	

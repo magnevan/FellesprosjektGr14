@@ -47,5 +47,4 @@ public abstract class AbstractFilteredUserListModel
 		pcs.firePropertyChange(PROPERTY_USER_LIST, oldValue, newValue);
 	}
 	
-	
 }

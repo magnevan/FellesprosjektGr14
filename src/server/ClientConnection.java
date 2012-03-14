@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.Socket;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.logging.Logger;
 
 public class ClientConnection extends Thread {
@@ -40,7 +42,7 @@ public class ClientConnection extends Thread {
 	 * 
 	 * @param line
 	 */
-	public synchronized void sendLine(String line) {
+	public synchronized void writeLine(String line) {
 		try {
 			writer.write(line + "\r\n");
 			writer.flush();			
@@ -63,21 +65,52 @@ public class ClientConnection extends Thread {
 			"Client thread for %s (%s) started", 
 			s.getInetAddress().toString(), username
 		));
+		DBConnection db = null;
 		try {
+			db = new DBConnection(Main.properties);
 			String line = null;
 			while(running && (line = reader.readLine()) != null) {
 				// Read next command
-				String[] command = line.split("\\s+");
+				String[] parts = line.split("\\s+");
 				
-				// Debug commands 
-				if(command[0].toUpperCase().equals("PING")) {
-					sendLine("PONG!");
-				} else if(command[0].toUpperCase().equals("EXIT")) {
-					System.exit(1);
-				} else if(command[0].toUpperCase().equals("BROADCAST")) {
-					handler.broadcastLine(command[1]);
-				}				
+				if(parts.length < 2) {
+					LOGGER.severe("Malformed command recived from client: "+line);
+					continue;
+				}
+				
+				int id = Integer.parseInt(parts[0]);
+				String method = parts[1];
+				
+				if(method.equals("REQUEST")) {
+					if(parts[2].equals("FILTERED_USERLIST")) {
+						// Allow empty filters
+						String filter = "";
+						if(parts.length == 4) {
+							filter = parts[3];
+						}
+						
+						// TODO Call a static user model method
+						ResultSet rs = db.preformQuery(String.format(
+								"SELECT username, email FROM user WHERE full_name LIKE '%%%s%%' "
+								+ "OR username LIKE '%%%s%%' OR email LIKE '%%%s%%'",
+								filter, filter, filter							
+						));
+						
+						writeLine(String.format("%d %s %s", id, method, parts[2]));
+						while(rs.next()) {
+							writeLine(String.format("%s,%s", rs.getString(1), rs.getString(2)));
+						}
+						writeLine("");
+						
+					}
+				}
 			}
+		} catch(SQLException e) {
+			LOGGER.info(String.format(
+					"Client %s (%s) dropped due to SQLException", 
+					s.getInetAddress().toString(), username
+				));
+				LOGGER.info(e.toString());			
 		} catch(IOException e) {
 			LOGGER.info(String.format(
 				"Client %s (%s) dropped due to IOException", 
@@ -85,6 +118,8 @@ public class ClientConnection extends Thread {
 			));
 			LOGGER.info(e.toString());
 		} finally {
+			if(db != null)
+				db.close();
 			disconnect();
 		}
 		

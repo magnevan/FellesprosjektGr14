@@ -38,7 +38,7 @@ public class ClientConnectionListener {
 	 */
 	public void broadcastLine(String line) {
 		for(ClientConnection c : clients.values()) {
-			c.sendLine(line);
+			c.writeLine(line);
 		}
 	}
 	
@@ -63,16 +63,6 @@ public class ClientConnectionListener {
 	 * @throws IOException if port number is taken
 	 */
 	public void listen() throws IOException {
-		DBConnection db;
-		try {
-			db = new DBConnection(Main.properties);
-		} catch(SQLException e) {
-			LOGGER.severe("Unable to connect to database, server stopping");
-			LOGGER.severe(e.toString());
-			return;
-		}
-		
-		
 		ServerSocket ss = new ServerSocket(this.port);
 		
 		LOGGER.info("Server open for requests on "+this.port);
@@ -105,7 +95,7 @@ public class ClientConnectionListener {
 				
 				// Test
 				try {
-					ResultSet rs = db.preformQuery(String.format(
+					ResultSet rs = Main.dbConnection.preformQuery(String.format(
 						"SELECT * FROM user WHERE username='%s' AND password='%s'", 
 						username, password)
 					);
