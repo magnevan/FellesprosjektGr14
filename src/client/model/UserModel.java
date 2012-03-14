@@ -59,7 +59,7 @@ public class UserModel extends Model {
 	public void toStream(BufferedWriter os) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("client.UserModel\r\n");
+		sb.append(getClass().getSuperclass().getName()+"\r\n");
 		sb.append(getUsername() + "\r\n");
 		//sb.append(getPassword() + "\r\n");
 		sb.append(getEmail() + "\r\n");

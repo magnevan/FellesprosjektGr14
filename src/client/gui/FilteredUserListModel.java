@@ -12,20 +12,23 @@ import client.model.UserModel;
  * @author Peter Ringset
  *
  */
-public class FilteredUserListModel extends AbstractFilteredUserListModel implements IServerResponseListener{
+public class FilteredUserListModel 
+	extends AbstractFilteredUserListModel 
+	implements IServerResponseListener {
 
 	private ServerConnection sc;
 	private int lastRequestId;
-	private ArrayList<UserModel> filtered;		
+	private UserModel[] filtered;		
 	
 	public FilteredUserListModel() {
 		sc = ServerConnection.instance();
-		filtered = new ArrayList<UserModel>();
+		filtered = new UserModel[0];
 	}
 
 	/**
 	 * Set the filter for the list
-	 * This method propagates the filter to the server, response is asynchronously given in {@code onServerResponse}
+	 * This method propagates the filter to the server, response is
+	 * asynchronously given in {@code onServerResponse()}
 	 * 
 	 * @param filter
 	 */
@@ -47,7 +50,7 @@ public class FilteredUserListModel extends AbstractFilteredUserListModel impleme
 	 */
 	@Override
 	public UserModel[] getUserList() {
-		return filtered.toArray(new UserModel[filtered.size()]);
+		return filtered;
 	}
 
 	/**
@@ -60,12 +63,11 @@ public class FilteredUserListModel extends AbstractFilteredUserListModel impleme
 	public void onServerResponse(int requestId, Object data) {
 		// We're only interested in the newest responses, throw out old ones
 		if (lastRequestId == requestId) {
-			ArrayList<UserModel> responseData = (ArrayList<UserModel>)data;
-			// Clear the current list and add the filtered response
-			filtered.clear();
-			for (UserModel userModel : responseData) {
-				filtered.add(userModel);
-			}
+			ArrayList<UserModel> response = (ArrayList<UserModel>)data;
+			UserModel[] old = filtered;
+			filtered = response.toArray(new UserModel[response.size()]);
+			
+			fireUserListChangeEvent(old, filtered);
 		}
 	}
 

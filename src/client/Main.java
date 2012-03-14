@@ -7,28 +7,26 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 
 import client.gui.AbstractFilteredUserListModel;
+import client.gui.FilteredUserList;
+import client.gui.FilteredUserListModel;
 import client.model.UserModel;
 
-public class Main implements IServerResponseListener {
+public class Main {
 
 	public Main() throws IOException {
+		// Attempt to login, will throw a IOException login error
 		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
 		
-		ServerConnection.instance().requestFilteredUserList(this, "");
+		//ServerConnection.instance().requestFilteredUserList(this, "");
+		
+		JFrame frame = new JFrame("Search test");
+		frame.add(new FilteredUserList(new FilteredUserListModel()));
+		frame.pack();
+		frame.setVisible(true);
 	}
 	
 	public static void main(String[] args) throws IOException {
 		new Main();
-	}
-
-	@Override
-	public void onServerResponse(int requestId, Object data) {
-		System.out.println("Response");
-		ArrayList<UserModel> users = (ArrayList<UserModel>) data;
-		for(UserModel u : users) {
-			System.out.println(u);
-		}
-		
 	}
 
 }
