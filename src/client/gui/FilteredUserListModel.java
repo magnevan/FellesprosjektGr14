@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import client.IServerResponseListener;
 import client.ServerConnection;
-import client.UserModel;
+import client.model.UserModel;
 
 /**
  * A model for the filtered user list.

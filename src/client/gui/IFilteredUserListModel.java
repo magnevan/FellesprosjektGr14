@@ -2,7 +2,7 @@ package client.gui;
 
 import java.beans.PropertyChangeListener;
 
-import client.UserModel;
+import client.model.UserModel;
 
 /**
  * Data model that provides a way to search in a list of users using a filter
