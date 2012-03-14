@@ -57,6 +57,7 @@ public class HovedPanel extends JPanel{
 		this.add(topPanel,    BorderLayout.NORTH);
 		this.add(centerPanel, BorderLayout.CENTER);
 		this.add(bottomPanel, BorderLayout.SOUTH);
+		
 	}
 	
 }
