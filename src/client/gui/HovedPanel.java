@@ -1,6 +1,7 @@
 package client.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 
 import javax.swing.ImageIcon;
@@ -49,6 +50,7 @@ public class HovedPanel extends JPanel{
 		
 		//Bottom
 		JPanel bottomPanel = new JPanel(new BorderLayout());
+		bottomPanel.setPreferredSize(new Dimension(200,100));
 		newAppointmentButton = new JButton("Opprett en avtale/møte");
 		bottomPanel.add(newAppointmentButton, BorderLayout.CENTER);
 		
