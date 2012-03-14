@@ -3,7 +3,7 @@ package client.gui;
 import java.awt.Dimension;
 import java.util.Calendar;
 
-import javax.swing.JFrame;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -16,8 +16,8 @@ public class AvtalePanel extends JPanel {
 	private final JTextField tittelText;
 	private final JDateChooser dateChooser;
 	private final JTimePicker fromTime, toTime;
-//	private final JComboBox moteromComboBox;
-//	private final JTextField moteromText;
+	private final JComboBox moteromComboBox;
+	private final JTextField moteromText;
 	
 	public AvtalePanel() {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
@@ -34,15 +34,24 @@ public class AvtalePanel extends JPanel {
 		dateChooser.setPreferredSize(new Dimension(130,20));
 		tidPanel.add(dateChooser);
 		
-		toTime = new JTimePicker("08:00");
-		fromTime = new JTimePicker("09:00");
+		fromTime = new JTimePicker("08:00");
+		toTime = new JTimePicker("09:00");
 		
 		tidPanel.add(fromTime);
 		tidPanel.add(new JLabel(" - "));
 		tidPanel.add(toTime);
 		
-		
 		this.add(tidPanel);
+		
+		//Moterom
+		this.add(new JLabel("Møterom"));
+		JPanel moteromPanel = new JPanel();
+		moteromComboBox = new JComboBox(new String[]{"","moterom1","moterom2","moterom3","moterom4"});
+		moteromText = new JDefaultTextField(15, "Skriv møteplass...");
+		moteromPanel.add(moteromComboBox);
+		moteromPanel.add(moteromText);
+		
+		this.add(moteromPanel);
 		
 	}
 	
