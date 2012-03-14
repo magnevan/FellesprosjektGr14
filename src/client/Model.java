@@ -1,7 +1,13 @@
 package client;
 
-import java.io.OutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 
-public interface Model {
-	public void toStream(OutputStream os);
+public abstract class Model {
+	
+	protected abstract void fromStream(BufferedReader stream) throws IOException ;
+	
+	public abstract void toStream(BufferedWriter stream) throws IOException ;
+	
 }

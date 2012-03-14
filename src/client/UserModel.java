@@ -1,6 +1,9 @@
 package client;
 
-import java.io.OutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * A model for the users in the calendar system
@@ -8,7 +11,7 @@ import java.io.OutputStream;
  * @author Peter Ringset
  * 
  */
-public class UserModel implements Model{
+public class UserModel extends Model {
 	
 	protected String	username,
 						password,
@@ -29,17 +32,42 @@ public class UserModel implements Model{
 		this.email = email;
 		this.fullName = fullName;
 	}
-
-	@Override
-	public void toStream(OutputStream os) {
-	}
-
+	
 	public String getUsername() {
 		return username;
 	}
 
 	public String getFullName() {
 		return fullName;
+	}
+	
+	public String getEmail() {
+		return email;
+	}
+
+	/**
+	 * Dump the fields of the user model to a stream
+	 */
+	@Override
+	public void toStream(BufferedWriter os) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(this.getClass().getName()+"\r\n");
+		sb.append(getUsername() + "\r\n");
+		//sb.append(getPassword() + "\r\n");
+		sb.append(getEmail() + "\r\n");
+		sb.append(getFullName() + "\r\n");
+		
+		os.write(sb.toString());
+	}
+	
+	/**
+	 * Read the fields of the user model from a stream
+	 */
+	@Override
+	protected void fromStream(BufferedReader stream) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

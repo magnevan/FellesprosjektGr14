@@ -3,9 +3,10 @@ package server;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public class ClientConnection extends Thread {
@@ -15,7 +16,7 @@ public class ClientConnection extends Thread {
 	private final Socket s;
 	private final BufferedReader reader;
 	private final BufferedWriter writer;
-	private final String username;
+	private final ServerUserModel user;
 	
 	private final ClientConnectionListener handler;
 	
@@ -29,9 +30,9 @@ public class ClientConnection extends Thread {
 	 * @param writer
 	 */
 	public ClientConnection(Socket s, BufferedReader reader, BufferedWriter writer, 
-			String username, ClientConnectionListener handler) {
+			ServerUserModel user, ClientConnectionListener handler) {
 		this.s = s;
-		this.username = username;
+		this.user = user;
 		this.reader = reader;
 		this.writer = writer;
 		this.handler = handler;
@@ -49,7 +50,7 @@ public class ClientConnection extends Thread {
 		} catch(IOException e) {
 			LOGGER.info(String.format(
 				"Client %s (%s) dropped due to IOException", 
-				s.getInetAddress().toString(), username
+				s.getInetAddress().toString(), user
 			));
 			LOGGER.info(e.toString());
 			disconnect();
@@ -63,7 +64,7 @@ public class ClientConnection extends Thread {
 	public void run() {
 		LOGGER.info(String.format(
 			"Client thread for %s (%s) started", 
-			s.getInetAddress().toString(), username
+			s.getInetAddress().toString(), user
 		));
 		DBConnection db = null;
 		try {
@@ -89,16 +90,13 @@ public class ClientConnection extends Thread {
 							filter = parts[3];
 						}
 						
-						// TODO Call a static user model method
-						ResultSet rs = db.preformQuery(String.format(
-								"SELECT username, email FROM user WHERE full_name LIKE '%%%s%%' "
-								+ "OR username LIKE '%%%s%%' OR email LIKE '%%%s%%'",
-								filter, filter, filter							
-						));
+						ArrayList<ServerUserModel> matches = ServerUserModel.searchByUsernameAndEmail(
+								filter, filter, Main.dbConnection);
 						
 						writeLine(String.format("%d %s %s", id, method, parts[2]));
-						while(rs.next()) {
-							writeLine(String.format("%s,%s", rs.getString(1), rs.getString(2)));
+						for(ServerUserModel model : matches) {
+							model.toStream(writer);
+							writeLine("");
 						}
 						writeLine("");
 						
@@ -108,13 +106,13 @@ public class ClientConnection extends Thread {
 		} catch(SQLException e) {
 			LOGGER.info(String.format(
 					"Client %s (%s) dropped due to SQLException", 
-					s.getInetAddress().toString(), username
+					s.getInetAddress().toString(), user
 				));
 				LOGGER.info(e.toString());			
 		} catch(IOException e) {
 			LOGGER.info(String.format(
 				"Client %s (%s) dropped due to IOException", 
-				s.getInetAddress().toString(), username
+				s.getInetAddress().toString(), user
 			));
 			LOGGER.info(e.toString());
 		} finally {
@@ -132,7 +130,7 @@ public class ClientConnection extends Thread {
 	public void disconnect() {
 		try {
 			running = false;
-			handler.removeClient(username);
+			handler.removeClient(user);
 			reader.close();
 			writer.close();
 			s.close();
