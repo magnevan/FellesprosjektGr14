@@ -17,7 +17,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.AbstractTableModel;
 
-import client.UserModel;
+import client.model.UserModel;
 
 /**
  * Filtered user list widget

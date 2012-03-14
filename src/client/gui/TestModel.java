@@ -2,7 +2,7 @@ package client.gui;
 
 import java.util.ArrayList;
 
-import client.UserModel;
+import client.model.UserModel;
 
 class TestModel extends AbstractFilteredUserListModel {
 

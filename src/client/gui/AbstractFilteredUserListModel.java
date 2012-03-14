@@ -3,7 +3,7 @@ package client.gui;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-import client.UserModel;
+import client.model.UserModel;
 
 /**
  * Abstract implementation of the IFilteredUserListModel that provides some
