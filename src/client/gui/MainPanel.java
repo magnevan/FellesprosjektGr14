@@ -22,9 +22,10 @@ public class MainPanel extends JPanel {
 		JTabbedPane calendarTabbedPane = new JTabbedPane();
 		
 		System.out.println("her");
+		AvtalePanel ap = new AvtalePanel();
 		HovedPanel hp = new HovedPanel();
-		optionTabbedPane.addTab("Hoved", hp); //TODO
-		optionTabbedPane.addTab("Andre", new JPanel()); //TODO
+		optionTabbedPane.addTab("Hoved", ap); //TODO
+		optionTabbedPane.addTab("Andre Kalendre", new JPanel()); //TODO
 		optionTabbedPane.addTab("Varsler(0)", new JPanel()); //TODO
 		
 		calendarTabbedPane.addTab("Uke", new WeekView());
