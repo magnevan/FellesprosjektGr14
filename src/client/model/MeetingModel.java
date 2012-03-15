@@ -3,8 +3,8 @@ package client.model;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.sql.Time;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 
@@ -17,8 +17,7 @@ import client.ServerConnection;
  */
 public class MeetingModel extends Model{
 	
-	private Date date;
-	private Time timeFrom, timeTo;
+	private Calendar timeFrom, timeTo;
 	private String name, description;
 	private MeetingRoomModel room;
 	private ServerConnection serverConnection;
@@ -35,8 +34,7 @@ public class MeetingModel extends Model{
 	 * @param owner
 	 * @throws IllegalArgumentException if timeFrom is after timeTo
 	 */
-	public MeetingModel(Date date, Time timeFrom, Time timeTo, UserModel owner) {
-		this.date = date;
+	public MeetingModel(Calendar timeFrom, Calendar timeTo, UserModel owner) {
 		this.timeFrom = timeFrom;
 		this.timeTo = timeTo;
 		this.owner = owner;
@@ -45,27 +43,19 @@ public class MeetingModel extends Model{
 		}
 	}
 	
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
-	}
-
-	public Time getTimeFrom() {
+	public Calendar getTimeFrom() {
 		return timeFrom;
 	}
 
-	public void setTimeFrom(Time timeFrom) {
+	public void setTimeFrom(Calendar timeFrom) {
 		this.timeFrom = timeFrom;
 	}
 
-	public Time getTimeTo() {
+	public Calendar getTimeTo() {
 		return timeTo;
 	}
 
-	public void setTimeTo(Time timeTo) {
+	public void setTimeTo(Calendar timeTo) {
 		this.timeTo = timeTo;
 	}
 
@@ -129,11 +119,7 @@ public class MeetingModel extends Model{
 	public static final Comparator<MeetingModel> timeFromComparator = 
 			new Comparator<MeetingModel>() {
 				@Override
-				public int compare(MeetingModel A, MeetingModel B) {
-					int dateCompare = A.getDate().compareTo(B.getDate());
-					
-					if (dateCompare != 0) return dateCompare;
-					
+				public int compare(MeetingModel A, MeetingModel B) {					
 					return A.getTimeFrom().compareTo(B.getTimeFrom());
 				}
 			};
@@ -141,22 +127,10 @@ public class MeetingModel extends Model{
 	public static final Comparator<MeetingModel> timeToComparator = 
 			new Comparator<MeetingModel>() {
 				@Override
-				public int compare(MeetingModel A, MeetingModel B) {
-					int dateCompare = A.getDate().compareTo(B.getDate());
-					
-					if (dateCompare != 0) return dateCompare;
-					
+				public int compare(MeetingModel A, MeetingModel B) {					
 					return A.getTimeTo().compareTo(B.getTimeTo());
 				}
 			};
-			
-			
-			
-			
-			
-			
-			
-			
 			
 			
 }
