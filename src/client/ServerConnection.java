@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import client.model.MeetingModel;
-import client.model.Model;
+import client.model.AbstractModel;
 import client.model.UserModel;
 
 /**
@@ -33,6 +33,9 @@ public class ServerConnection extends AbstractConnection {
 	
 	// Stores listeners while we wait for the server to respond
 	private Map<Integer, IServerResponseListener> listeners;
+	
+	// Stores models that come back from the server after beeing stored
+	private Map<Integer, AbstractModel> storedModels;
 		
 	/**
 	 * Create a new ServerConnection and attempt to preform a login
@@ -49,8 +52,12 @@ public class ServerConnection extends AbstractConnection {
 		
 		super();		
 		listeners = Collections.synchronizedMap(
-			new HashMap<Integer, IServerResponseListener>()
-		);
+				new HashMap<Integer, IServerResponseListener>()
+			);
+		storedModels = Collections.synchronizedMap(
+				new HashMap<Integer, AbstractModel>()
+			);
+			
 		
 		try {
 			socket = new Socket(address, port);			
@@ -131,7 +138,7 @@ public class ServerConnection extends AbstractConnection {
 	/**
 	 * Construct client side models for readModels()
 	 */
-	protected Model createModel(String name) {
+	protected AbstractModel createModel(String name) {
 		if(name.equals("UserModel")) {
 			return new UserModel();
 		} else if(name.equals("MeetingModel")) {
@@ -169,8 +176,15 @@ public class ServerConnection extends AbstractConnection {
 						continue;
 					}
 					
-					ArrayList<Model> models = readModels();
+					ArrayList<AbstractModel> models = readModels();
 					
+					// Stored models are saved
+					if(method.equals("STORE")) {
+						storedModels.put(id, models.get(0));
+						return;
+					} 
+					
+					// All other models are passed to their listeners
 					IServerResponseListener listener = listeners.get(id);
 					if(listener == null) {
 						LOGGER.severe("No listener registered for response "+line);						
@@ -189,7 +203,6 @@ public class ServerConnection extends AbstractConnection {
 		}
 		
 	}
-	
 	
 	/**
 	 * Return the currently logged in user object
@@ -250,11 +263,20 @@ public class ServerConnection extends AbstractConnection {
 	 * @param model
 	 * @return
 	 */
-	public Model storeModel(Model model) {
+	public AbstractModel storeModel(AbstractModel model) {
 		int id = ++nextRequestId;
 		try {
-			writeModels(new Model[]{model}, id, "STORE");
-		
+			writeModels(new AbstractModel[]{model}, id, "STORE");
+			
+			// Updated model will come in reader thread, halt till its there
+			while(!storedModels.containsKey(id)) {
+				try {
+					Thread.sleep(100);
+				} catch(InterruptedException e) {}
+			}
+			model = storedModels.get(id);
+			storedModels.remove(id);
+			return model;
 		} catch(IOException e) {
 			e.printStackTrace();
 		}

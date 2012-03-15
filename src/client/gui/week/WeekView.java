@@ -29,6 +29,7 @@ public class WeekView extends JPanel {
 	private final Calendar date;
 	private final JScrollPane weekScroll;
 	
+	
 	public WeekView() {
 		
 		date = Calendar.getInstance(); //Sets the default week to view as the current week
@@ -81,7 +82,7 @@ public class WeekView extends JPanel {
 	 * @return
 	 */
 	private JPanel createDayPanel(Calendar date) {
-		SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd.MMM");
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE dd.MMM");
 		JPanel p = new JPanel();
 		p.setLayout(new GridLayout(1,8));
 				
@@ -91,6 +92,7 @@ public class WeekView extends JPanel {
 		
 		for (int i = 0; i < 7; i++) {
 			JLabel label = new JLabel(sdf.format(dayOfWeek.getTime()), JLabel.LEFT);
+			
 			JPanel pLabel = new JPanel();
 			pLabel.add(label);
 			pLabel.setPreferredSize(new Dimension(HOURWIDTH,HOURHEIGHT/2));
@@ -117,7 +119,7 @@ public class WeekView extends JPanel {
 			String txt = (hour < 10 ? "0" : "") + Integer.toString(hour) + ":00";
 			JLabel label = new JLabel(txt,JLabel.CENTER);
 			JPanel p = new JPanel(new BorderLayout());
-			p.setPreferredSize(new Dimension(35,HOURHEIGHT));
+			p.setPreferredSize(new Dimension(label.getPreferredSize().width,HOURHEIGHT));
 			p.add(label, BorderLayout.NORTH);
 			hourColumn.add(p);
 		}

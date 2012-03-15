@@ -11,7 +11,7 @@ import java.io.OutputStream;
  * @author peterringset
  *
  */
-public class MeetingRoomModel extends Model {
+public class MeetingRoomModel extends AbstractModel {
 	
 	private String roomNumber;
 	

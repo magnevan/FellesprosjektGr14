@@ -8,7 +8,7 @@ import java.sql.Statement;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import client.model.Model;
+import client.model.AbstractModel;
 
 /**
  * A wrapper around the java sql framework

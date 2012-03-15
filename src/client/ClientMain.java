@@ -8,8 +8,8 @@ import java.util.Date;
 
 import javax.swing.JFrame;
 
-import client.gui.FilteredUserList;
-import client.gui.FilteredUserListModel;
+import client.gui.usersearch.FilteredUserList;
+import client.model.FilteredUserListModel;
 import client.model.MeetingModel;
 
 /**
@@ -24,21 +24,29 @@ public class ClientMain {
 		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
 		
 		ServerConnection sc = ServerConnection.instance();
-		System.out.println(sc.getUser());
 		
-		MeetingModel model = new MeetingModel(new Date(2012-1900, 3, 15), new Time(14,0,0), new Time(15,0,0), sc.getUser());
+		//System.out.println(sc.getUser());
 		
-		model.setName("Super viktig møte!");
-		model.setDescription("Dette er beskrivelsen\r\nOg denne er da følgelig minst like viktig\r\n\r\n");
+		//Calendar c = Calendar.getInstance();
+		//c.set(2012, 3, 15, 10, 15);
+		//Calendar c1 = Calendar.getInstance();
+		//c1.set(2012, 3, 15, 11, 15);
+				
+		//MeetingModel model = new MeetingModel(c, c1, sc.getUser());
 		
-		sc.storeModel(model);
+		//model.setName("Super viktig møte!");
+		//model.setDescription("Dette er beskrivelsen\r\nOg denne er da følgelig minst like viktig\r\n\r\n");
+		
+		//model = (MeetingModel) sc.storeModel(model);
+		
+		//System.out.println("Stored! "+model.getId());
 		
 		//ServerConnection.instance().requestFilteredUserList(this, "");
-		JFrame frame = new JFrame("Search test");
+		/*JFrame frame = new JFrame("Search test");
 		frame.add(new FilteredUserList(new FilteredUserListModel()));
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
+		frame.setVisible(true);*/
 	}
 	
 	public static void main(String[] args) throws IOException {

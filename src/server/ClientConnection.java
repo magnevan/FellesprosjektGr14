@@ -11,7 +11,7 @@ import server.model.IServerModel;
 import server.model.ServerMeetingModel;
 import server.model.ServerUserModel;
 import client.AbstractConnection;
-import client.model.Model;
+import client.model.AbstractModel;
 
 /**
  * ClientConnection
@@ -65,7 +65,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 		DBConnection db = ServerMain.dbConnection;
 		try {
 			
-			writeModels(new Model[]{user}, 0, "USER");
+			writeModels(new AbstractModel[]{user}, 0, "USER");
 			
 			// Read loop, read untill we've shutting down or we reach EOF
 			String line = null;
@@ -95,7 +95,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 								filter, filter, ServerMain.dbConnection);
 						
 						// Pull models from database and write them back to client
-						writeModels((Model[]) matches.toArray(new Model[matches.size()]), 
+						writeModels((AbstractModel[]) matches.toArray(new AbstractModel[matches.size()]), 
 								id, method, smethod);
 						
 					}
@@ -103,9 +103,9 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 				} else if(method.equals("STORE")) {
 					// Store model
 					
-					Model model = readModels().get(0);		
+					AbstractModel model = readModels().get(0);		
 					((IServerModel)model).store();					
-					writeModels(new Model[]{model}, id, method);
+					writeModels(new AbstractModel[]{model}, id, method);
 					
 				} else if(method.equals("LOGOUT")) {
 					writeLine(formatCommand(id, "LOGOUT"));
@@ -151,7 +151,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 	/**
 	 * Construct client side models for readModels()
 	 */
-	protected Model createModel(String name) {
+	protected AbstractModel createModel(String name) {
 		if(name.equals("UserModel")) {
 			return new ServerUserModel();
 		} else if(name.equals("MeetingModel")) {

@@ -1,10 +1,10 @@
-package client.gui;
+package client.model;
 
 import java.util.ArrayList;
 
 import client.IServerResponseListener;
 import client.ServerConnection;
-import client.model.UserModel;
+import client.gui.usersearch.AbstractFilteredUserListModel;
 
 /**
  * A implementation of IFilteredUserList that searches the user database using

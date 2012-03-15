@@ -11,7 +11,7 @@ import java.io.InputStream;
  * @author Peter Ringset
  * 
  */
-public class UserModel extends Model {
+public class UserModel extends AbstractModel {
 	
 	protected String	username,
 						//password,
@@ -38,6 +38,7 @@ public class UserModel extends Model {
 	 * will be unusable
 	 */
 	public UserModel() {}
+	
 	
 	/**
 	 * Get username

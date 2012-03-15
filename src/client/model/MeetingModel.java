@@ -3,42 +3,40 @@ package client.model;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
+import java.util.Comparator;
+
 /**
  * A model for the meetings in the calendar
  * 
  * @author peterringset
  *
  */
-public class MeetingModel extends Model {
+public class MeetingModel extends AbstractModel{
 	
 	protected int id;
-	private Date date;
-	private Time timeFrom, timeTo;
-	private String name, description;
-	private MeetingRoomModel room;
-	private boolean active;
+	protected Calendar timeFrom, timeTo;
+	protected String name, description;
+	protected MeetingRoomModel room;
+	protected boolean active;
 	protected UserModel owner;
 	protected String ownerId;
-	private ArrayList<UserModel> antendees;
+	protected ArrayList<UserModel> antendees;
 	
 	/**
 	 * Construct a new meeting model
 	 * Note that timeTo should be after timeFrom
 	 * 
-	 * @param date
 	 * @param timeFrom
 	 * @param timeTo
 	 * @param owner
 	 * @throws IllegalArgumentException if timeFrom is after timeTo
 	 */
-	public MeetingModel(Date date, Time timeFrom, Time timeTo, UserModel owner) {
+	public MeetingModel(Calendar timeFrom, Calendar timeTo, UserModel owner) {
 		this();
-		this.date = date;
 		this.timeFrom = timeFrom;
 		this.timeTo = timeTo;
 		this.owner = owner;
@@ -47,31 +45,27 @@ public class MeetingModel extends Model {
 		}
 	}
 	
+	public int getId() {
+		return id;
+	}
+	
 	public MeetingModel() {
 		id = -1;
 	}
 	
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
-	}
-
-	public Time getTimeFrom() {
+	public Calendar getTimeFrom() {
 		return timeFrom;
 	}
 
-	public void setTimeFrom(Time timeFrom) {
+	public void setTimeFrom(Calendar timeFrom) {
 		this.timeFrom = timeFrom;
 	}
 
-	public Time getTimeTo() {
+	public Calendar getTimeTo() {
 		return timeTo;
 	}
 
-	public void setTimeTo(Time timeTo) {
+	public void setTimeTo(Calendar timeTo) {
 		this.timeTo = timeTo;
 	}
 
@@ -112,13 +106,15 @@ public class MeetingModel extends Model {
 	}
 	
 	public String toString() {
-		return getName() + "(" + date + " " + timeFrom + " - " + timeTo + ")";
+		return getName() + "(" + timeFrom + " - " + timeTo + ")";
 	}
 
-	
-	@SuppressWarnings("deprecation")
+	/**
+	 * Read model from stream
+	 */
 	@Override
 	public void fromStream(BufferedReader reader) throws IOException {
+		id = Integer.parseInt(reader.readLine());
 		setName(reader.readLine());
 		StringBuilder desc = new StringBuilder();
 		String line;
@@ -126,17 +122,17 @@ public class MeetingModel extends Model {
 			desc.append(line+"\r\n");
 		setDescription(desc.toString());
 		
-		Date d;	
 		DateFormat df = DateFormat.getDateTimeInstance();		
 		try {
-			line = reader.readLine();
-			d = df.parse(line);
-			setTimeFrom(new Time(d.getHours(), d.getMinutes(), 0));
-			setDate(new Date(d.getYear(), d.getMonth(), d.getDay()));
-	
-			line = reader.readLine();
-			d = df.parse(line);
-			setTimeTo(new Time(d.getHours(), d.getMinutes(), 0));
+			Calendar timeFrom = Calendar.getInstance();
+			timeFrom.setTime(df.parse(reader.readLine()));
+			setTimeFrom(timeFrom);
+			
+			Calendar timeTo = Calendar.getInstance();
+			timeTo.setTime(df.parse(reader.readLine()));			
+			setTimeFrom(timeFrom);
+			setTimeTo(Calendar.getInstance());
+			
 		} catch(ParseException e) {
 			e.printStackTrace();
 		}		
@@ -147,26 +143,37 @@ public class MeetingModel extends Model {
 	 * Dump the model to stream
 	 * 
 	 */
-	@SuppressWarnings("deprecation")
 	@Override
 	public void toStream(BufferedWriter writer) throws IOException {
 		StringBuilder sb = new StringBuilder();
+		DateFormat df = DateFormat.getDateTimeInstance();
 		
 		sb.append("MeetingModel\r\n");
+		sb.append(getId() + "\r\n");
 		sb.append(getName() + "\r\n");
-		sb.append(getDescription().trim() + "\r\n\0\r\n");
-		
-		Date from = new Date(date.getYear(), date.getMonth(), date.getDay(), 
-				timeFrom.getHours(), timeFrom.getMinutes(), 0);		
-		sb.append(DateFormat.getDateTimeInstance().format(from) + "\r\n");
-		
-		Date to = new Date(date.getYear(), date.getMonth(), date.getDay(), 
-				timeTo.getHours(), timeTo.getMinutes(), 0);	
-		sb.append(DateFormat.getDateTimeInstance().format(to) + "\r\n");
-		
+		sb.append(getDescription().trim() + "\r\n\0\r\n");	
+		sb.append(df.format(timeFrom.getTime()) + "\r\n");
+		sb.append(df.format(timeTo.getTime()) + "\r\n");		
 		sb.append(owner.getUsername()+"\r\n");
 		
 		writer.write(sb.toString());
 	}
 	
+	public static final Comparator<MeetingModel> timeFromComparator = 
+			new Comparator<MeetingModel>() {
+				@Override
+				public int compare(MeetingModel A, MeetingModel B) {					
+					return A.getTimeFrom().compareTo(B.getTimeFrom());
+				}
+			};
+			
+	public static final Comparator<MeetingModel> timeToComparator = 
+			new Comparator<MeetingModel>() {
+				@Override
+				public int compare(MeetingModel A, MeetingModel B) {					
+					return A.getTimeTo().compareTo(B.getTimeTo());
+				}
+			};
+			
+			
 }

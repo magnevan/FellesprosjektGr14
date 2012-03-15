@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import client.model.Model;
+import client.model.AbstractModel;
 
 /**
  * Abstract connection implements helper methods for reading and 
@@ -86,7 +86,7 @@ public abstract class AbstractConnection {
 	 * 
 	 * @param models
 	 */	
-	protected void writeModels(Model[] models, int id, String method) throws IOException {
+	protected void writeModels(AbstractModel[] models, int id, String method) throws IOException {
 		writeModels(models, id, method, "");
 	}
 	
@@ -98,12 +98,12 @@ public abstract class AbstractConnection {
 	 * @param method
 	 * @param smethod
 	 */
-	protected void writeModels(Model[] models, int id, String method, String smethod) 
+	protected void writeModels(AbstractModel[] models, int id, String method, String smethod) 
 			throws IOException {
 
 		synchronized(writer) {
 			writer.write(formatCommand(id, method, smethod)+"\r\n");
-			for(Model m : models) {
+			for(AbstractModel m : models) {
 				m.toStream(writer);
 				writer.write("\r\n");
 			}
@@ -115,12 +115,12 @@ public abstract class AbstractConnection {
 	/**
 	 * Attempts to read a set of models from the input stream
 	 */
-	protected ArrayList<Model> readModels() throws IOException {
-		ArrayList<Model> models = new ArrayList<Model>();
+	protected ArrayList<AbstractModel> readModels() throws IOException {
+		ArrayList<AbstractModel> models = new ArrayList<AbstractModel>();
 		String line;
 		while(!(line = reader.readLine()).equals("")) {
 			try {
-				Model model = createModel(line);				
+				AbstractModel model = createModel(line);				
 				model.fromStream(reader);
 				models.add(model);
 				reader.readLine(); // Read the empty seperator line
@@ -136,6 +136,6 @@ public abstract class AbstractConnection {
 	 * Create a model object based on the given name
 	 * @param name
 	 */
-	protected abstract Model createModel(String name);
+	protected abstract AbstractModel createModel(String name);
 	
 }
