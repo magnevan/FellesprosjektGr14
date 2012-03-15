@@ -174,8 +174,8 @@ public class MeetingModel extends AbstractModel{
 		
 		getOwner().toStream(writer);
 		
-		writer.write(invitations.size()+"\r\n");
-		for(InvitationModel invitation : invitations) {
+		writer.write(getInvitations().size()+"\r\n");
+		for(InvitationModel invitation : getInvitations()) {
 			invitation.toStream(writer);
 		}
 		

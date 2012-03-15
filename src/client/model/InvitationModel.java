@@ -106,8 +106,8 @@ public class InvitationModel extends AbstractModel {
 		try {
 			ResultSet rs = db.preformQuery(
 					"SELECT * FROM user_appointment as ua " +
-					"INNER JOIN user as u ON us.username = u.username " +
-					"WHERE us.appointment_id = "+meeting.getId()+";");
+					"INNER JOIN user as u ON ua.username = u.username " +
+					"WHERE ua.appointment_id = "+meeting.getId()+";");
 			while (rs.next()) {
 				UserModel user = new ServerUserModel(rs);
 				InvitationModel invitation = new InvitationModel(rs);

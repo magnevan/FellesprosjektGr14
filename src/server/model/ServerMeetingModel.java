@@ -41,6 +41,9 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 		Calendar toTime = Calendar.getInstance();
 		toTime.setTime(rs.getDate("start_date"));
 		setTimeTo(toTime);
+		
+		// Set invitations to null forcing a re-fetch on next getInvitations()
+		invitations = null;
 	}
 
 	/**
