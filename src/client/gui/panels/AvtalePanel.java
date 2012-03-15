@@ -1,4 +1,4 @@
-package client.gui;
+package client.gui.panels;
 
 import java.awt.Dimension;
 import java.util.Calendar;
@@ -11,8 +11,10 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import client.gui.usersearch.FilteredUserList;
-import client.gui.usersearch.TestModel;
+import client.gui.JDefaultTextArea;
+import client.gui.JDefaultTextField;
+import client.gui.JTimePicker;
+import client.gui.VerticalLayout;
 
 import com.toedter.calendar.JDateChooser;
 
@@ -21,10 +23,10 @@ public class AvtalePanel extends JPanel {
 	private final JTextField tittelText;
 	private final JDateChooser dateChooser;
 	private final JTimePicker fromTime, toTime;
-	private final JComboBox moteromComboBox;
+	private final JComboBox<String> moteromComboBox;
 	private final JTextField moteromText;
 	private final JTextArea beskrivelseTextArea;
-	private final FilteredUserList filteredUserList;
+//	private final FilteredUserList filteredUserList;
 	
 	public AvtalePanel() {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
@@ -71,8 +73,8 @@ public class AvtalePanel extends JPanel {
 		
 		//Ansatte
 		this.add(new JLabel("Ansatte:"));
-		filteredUserList = new FilteredUserList(new TestModel());
-		this.add(filteredUserList);
+//		filteredUserList = new FilteredUserList(new TestModel());
+//		this.add(filteredUserList);
 		
 	}
 	

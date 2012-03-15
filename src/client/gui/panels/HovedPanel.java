@@ -1,4 +1,4 @@
-package client.gui;
+package client.gui.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;

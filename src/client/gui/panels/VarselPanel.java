@@ -1,10 +1,12 @@
-package client.gui;
+package client.gui.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 
 import javax.swing.*;
+
+import client.gui.VerticalLayout;
 
 public class VarselPanel extends JPanel{
 	

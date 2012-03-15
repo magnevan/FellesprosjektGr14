@@ -1,4 +1,4 @@
-package client.gui;
+package client.gui.panels;
 
 
 import java.awt.BorderLayout;
@@ -7,6 +7,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 
 import javax.swing.*;
+
+import client.gui.VerticalLayout;
 
 public class AndrePanel extends JPanel {
 	

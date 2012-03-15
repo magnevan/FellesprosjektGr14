@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import client.IServerResponseListener;
 import client.ServerConnection;
+import client.gui.usersearch.AbstractFilteredUserListModel;
 import client.model.UserModel;
 
 /**
