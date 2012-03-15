@@ -2,6 +2,8 @@ package client.gui;
 
 import java.beans.PropertyChangeListener;
 
+import client.model.UserModel;
+
 /**
  * Data model that provides a way to search in a list of users using a filter
  * string.
@@ -35,7 +37,7 @@ public interface IFilteredUserListModel {
 	 * After setting a filter using setFilter this method will provide filtered
 	 * data, but only after it has fired a property change event
 	 */
-	public String[][] getUserList();
+	public UserModel[] getUserList();
 	
 	/**
 	 * Add a PropertyChangeListener object

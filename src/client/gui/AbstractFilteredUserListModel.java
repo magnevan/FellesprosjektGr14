@@ -3,6 +3,8 @@ package client.gui;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
+import client.model.UserModel;
+
 /**
  * Abstract implementation of the IFilteredUserListModel that provides some
  * basic listener support
@@ -43,9 +45,8 @@ public abstract class AbstractFilteredUserListModel
 	 * @param oldValue
 	 * @param newValue
 	 */
-	protected void fireUserListChangeEvent(String[][] oldValue, String[][] newValue) {
+	protected void fireUserListChangeEvent(UserModel[] oldValue, UserModel[] newValue) {
 		pcs.firePropertyChange(PROPERTY_USER_LIST, oldValue, newValue);
 	}
-	
 	
 }
