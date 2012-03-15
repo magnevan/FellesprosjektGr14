@@ -23,7 +23,7 @@ public class AvtalePanel extends JPanel {
 	private final JTextField tittelText;
 	private final JDateChooser dateChooser;
 	private final JTimePicker fromTime, toTime;
-	private final JComboBox<String> moteromComboBox;
+	private final JComboBox moteromComboBox;
 	private final JTextField moteromText;
 	private final JTextArea beskrivelseTextArea;
 //	private final FilteredUserList filteredUserList;
@@ -53,10 +53,10 @@ public class AvtalePanel extends JPanel {
 		this.add(tidPanel);
 		
 		//Moterom
-		this.add(new JLabel("Møterom"));
+		this.add(new JLabel("Mï¿½terom"));
 		JPanel moteromPanel = new JPanel();
 		moteromComboBox = new JComboBox(new String[]{"","P15 rom 436","Torget","Hell","Oslo"});
-		moteromText = new JDefaultTextField("Skriv møteplass...", 15);
+		moteromText = new JDefaultTextField("Skriv mï¿½teplass...", 15);
 		moteromPanel.add(moteromComboBox);
 		moteromPanel.add(moteromText);
 		
