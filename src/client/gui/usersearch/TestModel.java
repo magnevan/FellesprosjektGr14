@@ -1,10 +1,9 @@
-package client.gui;
+package client.gui.usersearch;
 
 import java.util.ArrayList;
 
 import client.model.UserModel;
 
-class TestModel extends AbstractFilteredUserListModel {
 
 	UserModel[] data = new UserModel[] {
 			new UserModel("runarolsen", "", "runar@example.com", "Runar Olsen"),
