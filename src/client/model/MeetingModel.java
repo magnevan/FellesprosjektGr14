@@ -1,5 +1,6 @@
 package client.model;
 
+import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -16,13 +17,23 @@ import client.ServerConnection;
  */
 public class MeetingModel extends Model {
 	
+	public final static String TIME_FROM_PROPERTY = "timeFrom";
+    public final static String TIME_TO_PROPERTY = "timeTo";
+    public final static String NAME_PROPERTY = "name";
+    public final static String DATE_PROPERTY = "date";
+    public final static String ROOM_PROPERTY = "room";
+    public final static String LOCATION_PROPERTY = "location";
+	
 	private Date date;
 	private Time timeFrom, timeTo;
-	private String name, description;
+	private String name, description, location;
 	private MeetingRoomModel room;
+	
 	private ServerConnection serverConnection;
 	private boolean active;
 	private UserModel owner;
+	
+	private PropertyChangeSupport changeSupport;
 	
 	/**
 	 * Construct a new meeting model
@@ -35,6 +46,9 @@ public class MeetingModel extends Model {
 	 * @throws IllegalArgumentException if timeFrom is after timeTo
 	 */
 	public MeetingModel(Date date, Time timeFrom, Time timeTo, UserModel owner) {
+		
+		changeSupport = new PropertyChangeSupport(this);
+		
 		this.date = date;
 		this.timeFrom = timeFrom;
 		this.timeTo = timeTo;
@@ -49,7 +63,9 @@ public class MeetingModel extends Model {
 	}
 
 	public void setDate(Date date) {
+		Date oldValue = this.date;
 		this.date = date;
+		changeSupport.firePropertyChange(DATE_PROPERTY, oldValue, date);
 	}
 
 	public Time getTimeFrom() {
@@ -57,7 +73,9 @@ public class MeetingModel extends Model {
 	}
 
 	public void setTimeFrom(Time timeFrom) {
+		Time oldValue = this.timeFrom;
 		this.timeFrom = timeFrom;
+		changeSupport.firePropertyChange(TIME_FROM_PROPERTY, oldValue, timeFrom);
 	}
 
 	public Time getTimeTo() {
@@ -65,7 +83,9 @@ public class MeetingModel extends Model {
 	}
 
 	public void setTimeTo(Time timeTo) {
+		Time oldValue = this.timeTo;
 		this.timeTo = timeTo;
+		changeSupport.firePropertyChange(TIME_TO_PROPERTY, oldValue, timeTo);
 	}
 
 	public String getName() {
@@ -91,6 +111,15 @@ public class MeetingModel extends Model {
 	public void setRoom(MeetingRoomModel room) {
 		this.room = room;
 	}
+	
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
 
 	public ServerConnection getServerConnection() {
 		return serverConnection;
