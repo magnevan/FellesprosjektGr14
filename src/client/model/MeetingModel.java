@@ -16,6 +16,7 @@ import java.util.Date;
  */
 public class MeetingModel extends Model {
 	
+	protected int id;
 	private Date date;
 	private Time timeFrom, timeTo;
 	private String name, description;
@@ -36,6 +37,7 @@ public class MeetingModel extends Model {
 	 * @throws IllegalArgumentException if timeFrom is after timeTo
 	 */
 	public MeetingModel(Date date, Time timeFrom, Time timeTo, UserModel owner) {
+		this();
 		this.date = date;
 		this.timeFrom = timeFrom;
 		this.timeTo = timeTo;
@@ -45,7 +47,9 @@ public class MeetingModel extends Model {
 		}
 	}
 	
-	public MeetingModel() {}
+	public MeetingModel() {
+		id = -1;
+	}
 	
 	public Date getDate() {
 		return date;

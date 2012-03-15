@@ -27,6 +27,9 @@ public class ServerUserModel extends UserModel implements IServerModel  {
 		super(username, email, fullName);
 	}
 	
+	/**
+	 * Emptry constructor
+	 */
 	public ServerUserModel() {
 		super();
 	}

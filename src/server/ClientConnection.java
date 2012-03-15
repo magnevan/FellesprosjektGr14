@@ -104,7 +104,8 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 					// Store model
 					
 					IServerModel model = (IServerModel) readModels().get(0);
-					
+					Model changed = (Model) model.store();					
+					writeModels(new Model[]{changed}, id, method);
 					
 				} else if(method.equals("LOGOUT")) {
 					writeLine(formatCommand(id, "LOGOUT"));

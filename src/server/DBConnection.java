@@ -56,6 +56,17 @@ public class DBConnection {
 	}
 	
 	/**
+	 * Create a statement
+	 * 
+	 * @param query
+	 * @return
+	 * @throws SQLException
+	 */
+	public Statement createStatement() throws SQLException {
+		return connection.createStatement();
+	}
+	
+	/**
 	 * Close the database connection
 	 * 
 	 */
