@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.Time;
+import java.util.Comparator;
 import java.util.Date;
 
 import client.ServerConnection;
@@ -14,7 +15,7 @@ import client.ServerConnection;
  * @author peterringset
  *
  */
-public class MeetingModel extends Model {
+public class MeetingModel extends Model{
 	
 	private Date date;
 	private Time timeFrom, timeTo;
@@ -125,4 +126,37 @@ public class MeetingModel extends Model {
 		
 	}
 	
+	public static final Comparator<MeetingModel> timeFromComparator = 
+			new Comparator<MeetingModel>() {
+				@Override
+				public int compare(MeetingModel A, MeetingModel B) {
+					int dateCompare = A.getDate().compareTo(B.getDate());
+					
+					if (dateCompare != 0) return dateCompare;
+					
+					return A.getTimeFrom().compareTo(B.getTimeFrom());
+				}
+			};
+			
+	public static final Comparator<MeetingModel> timeToComparator = 
+			new Comparator<MeetingModel>() {
+				@Override
+				public int compare(MeetingModel A, MeetingModel B) {
+					int dateCompare = A.getDate().compareTo(B.getDate());
+					
+					if (dateCompare != 0) return dateCompare;
+					
+					return A.getTimeTo().compareTo(B.getTimeTo());
+				}
+			};
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 }
