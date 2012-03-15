@@ -27,7 +27,7 @@ import client.model.UserModel;
 public class ServerConnection extends AbstractConnection {
 
 	private static Logger LOGGER = Logger.getLogger("ServerConnection");
-	private static ServerConnection instance;	
+	private static ServerConnection instance = null;	
 	
 	private ReaderThread readerThread;	
 	private int nextRequestId = 1;	
@@ -39,53 +39,6 @@ public class ServerConnection extends AbstractConnection {
 	// Stores models that come back from the server after beeing stored
 	private Map<Integer, AbstractModel> storedModels;
 		
-	/**
-	 * Create a new ServerConnection and attempt to preform a login
-	 * 
-	 * @param address
-	 * @param port
-	 * @param username
-	 * @param password
-	 * @throws IOException On reading errors
-	 * @throws InvalidArgumentException or username/password errors
-	 */
-	private ServerConnection(InetAddress address, int port, 
-			String username, String password) throws IOException {
-		
-		super();		
-		listeners = Collections.synchronizedMap(
-				new HashMap<Integer, IServerResponseListener>()
-			);
-		storedModels = Collections.synchronizedMap(
-				new HashMap<Integer, AbstractModel>()
-			);
-			
-		
-		try {
-			socket = new Socket(address, port);			
-			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-			
-			LOGGER.info(reader.readLine()); // Read welcome message
-			
-			writeLine(String.format("LOGIN %s %s", username, password));			
-			String line = reader.readLine();
-			if(!line.startsWith("OK")) {
-				throw new IllegalArgumentException("Bad login");
-			}
-			
-			line = reader.readLine();// User header
-			// Read user model off stream
-			user = (UserModel) (readModels()).get(0);
-			
-			// Start a reader thread and return
-			readerThread = new ReaderThread();
-			readerThread.start();
-		} catch(IOException e) {
-			throw e;
-		}
-		
-	}
 	
 	/**
 	 * Attempt to login
@@ -137,6 +90,55 @@ public class ServerConnection extends AbstractConnection {
 		return instance;
 	}
 	
+
+	/**
+	 * Create a new ServerConnection and attempt to preform a login
+	 * 
+	 * @param address
+	 * @param port
+	 * @param username
+	 * @param password
+	 * @throws IOException On reading errors
+	 * @throws InvalidArgumentException or username/password errors
+	 */
+	private ServerConnection(InetAddress address, int port, 
+			String username, String password) throws IOException {
+		
+		super();		
+		listeners = Collections.synchronizedMap(
+				new HashMap<Integer, IServerResponseListener>()
+			);
+		storedModels = Collections.synchronizedMap(
+				new HashMap<Integer, AbstractModel>()
+			);
+			
+		
+		try {
+			socket = new Socket(address, port);			
+			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			
+			LOGGER.info(reader.readLine()); // Read welcome message
+			
+			writeLine(String.format("LOGIN %s %s", username, password));			
+			String line = reader.readLine();
+			if(!line.startsWith("OK")) {
+				throw new IllegalArgumentException("Bad login");
+			}
+			
+			line = reader.readLine();// User header
+			// Read user model off stream
+			user = (UserModel) (readModels()).get(0);
+			
+			// Start a reader thread and return
+			readerThread = new ReaderThread();
+			readerThread.start();
+		} catch(IOException e) {
+			throw e;
+		}
+		
+	}
+	
 	/**
 	 * Construct client side models for readModels()
 	 */
@@ -183,7 +185,7 @@ public class ServerConnection extends AbstractConnection {
 					// Stored models are saved
 					if(method.equals("STORE")) {
 						storedModels.put(id, models.get(0));
-						return;
+						continue;
 					} 
 					
 					// All other models are passed to their listeners
@@ -195,7 +197,7 @@ public class ServerConnection extends AbstractConnection {
 					}	
 				}
 			} catch(IOException e) {
-				
+				e.printStackTrace();
 			} finally {
 				try {
 					socket.close();

@@ -95,7 +95,9 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 				id = rs.getInt(1);
 				st.close();
 			} else {
-				// TODO Update
+				// TODO Update, her må vi finne ut hva som er endret, sende notifications og eventuelt reset invitasjoner
+				System.err.println("Update is not implemented");
+				System.err.println(this.getInvitations().size() + " invitations would have been stored");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
