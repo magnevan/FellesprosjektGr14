@@ -15,29 +15,33 @@ import javax.swing.JPanel;
 
 
 import client.gui.week.WeekView;
+import client.model.MeetingRoomModel;
 
 public class AppointmentPanel extends JPanel {
 
 	private String name, ownerName, location;
 	private GridBagConstraints c;
-	private Calendar start, end;
+	private Calendar timeFrom, timeTo;
 	private JLabel nameLabel, ownerLabel, timeLabel, iconLabel, locationLabel;
 	private Color color;
 	private ImageIcon typeIcon;
 	//private Avtale model;
 	
 	
-	public AppointmentPanel(){
+	public AppointmentPanel(String name, String ownerName, MeetingRoomModel room, String location, Calendar timeFrom, Calendar timeTo ){
 		
 		//model = null;
+		this.name = name;
+		this.ownerName = ownerName;
+		this.location = location;
+		this.timeFrom = timeFrom;
+		this.timeTo = timeTo;
 		
-		//Foreløpig testverdier
-		ownerName= "Ola Nordmann";
-		start = Calendar.getInstance();
-		start.set(2012, 1, 9, 10, 0);
-		end = Calendar.getInstance();
-		end.set(2012, 1, 9, 11, 0);
-		location = "Rom 101";
+		if(location != null){this.location = location;}
+		else{this.location = room.getRoomNumber();}
+		
+		
+		
 		typeIcon = new ImageIcon("src/resources/avtaleMini.png");
 		name = "Ny avtale";
 		
@@ -59,7 +63,7 @@ public class AppointmentPanel extends JPanel {
 		add (locationLabel,c);
 		
 		c.gridy = 2;
-	    timeLabel = new JLabel(timeToString(start,end));
+	    timeLabel = new JLabel(timeToString(timeFrom,timeTo));
 		add (timeLabel,c);
 		
 		
@@ -74,7 +78,7 @@ public class AppointmentPanel extends JPanel {
 	    ownerLabel = new JLabel(ownerName);
 		add(ownerLabel,c);
 		
-		setAppointmentTime(start, end);
+		setAppointmentTime(timeFrom, timeTo);
 
 	}
 	
@@ -106,7 +110,7 @@ public class AppointmentPanel extends JPanel {
 		
 		System.out.println(minutes);
 		
-		int AppointmentLength = (minutes/60)*WeekView.HOURHEIGHT;
+		int AppointmentLength = (minutes*WeekView.HOURHEIGHT)/60;
 		
 		System.out.println(AppointmentLength);
 		
@@ -156,11 +160,11 @@ public class AppointmentPanel extends JPanel {
 //		return model;
 //	}
 	
-	public static void main (String args[]) { 
-        JFrame frame = new JFrame(""); 
-        AppointmentPanel ap = new AppointmentPanel();
-        frame.getContentPane().add(ap); 
-        frame.pack();  
-        frame.setVisible(true);   
-    }
+//	public static void main (String args[]) { 
+//        JFrame frame = new JFrame(""); 
+//        AppointmentPanel ap = new AppointmentPanel();
+//        frame.getContentPane().add(ap); 
+//        frame.pack();  
+//        frame.setVisible(true);   
+//    }
 }
