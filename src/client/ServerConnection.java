@@ -21,19 +21,13 @@ import client.model.UserModel;
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public class ServerConnection {
+public class ServerConnection extends AbstractConnection {
 
-	private static ServerConnection instance;
-	
 	private static Logger LOGGER = Logger.getLogger("ServerConnection");
+	private static ServerConnection instance;	
 	
-	private final Socket s;
-	private BufferedReader reader;
-	private BufferedWriter writer;
-	private ReaderThread readerThread;
-	
-	private int nextRequestId = 1;
-	
+	private ReaderThread readerThread;	
+	private int nextRequestId = 1;	
 	private UserModel user;
 	
 	// Stores listeners while we wait for the server to respond
@@ -50,18 +44,19 @@ public class ServerConnection {
 	 * @throws InvalidArgumentException or username/password errors
 	 */
 	private ServerConnection(InetAddress address, int port, 
-			String username, String password) throws IOException { 
+			String username, String password) throws IOException {
 		
+		super();		
 		listeners = Collections.synchronizedMap(
 			new HashMap<Integer, IServerResponseListener>()
 		);
 		
 		try {
-			s = new Socket(address, port);			
-			reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
-			writer = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
+			socket = new Socket(address, port);			
+			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 			
-			reader.readLine(); // Read welcome message
+			LOGGER.info(reader.readLine()); // Read welcome message
 			
 			writeLine(String.format("LOGIN %s %s", username, password));			
 			String line = reader.readLine();
@@ -69,8 +64,9 @@ public class ServerConnection {
 				throw new IllegalArgumentException("Bad login");
 			}
 			
+			line = reader.readLine();// User header
 			// Read user model off stream
-			user = (UserModel) (readModelsFromStream()).get(0);
+			user = (UserModel) (readModels()).get(0);
 			
 			// Start a reader thread and return
 			readerThread = new ReaderThread();
@@ -100,72 +96,35 @@ public class ServerConnection {
 	}
 	
 	/**
+	 * Logout the currently logged in user
+	 * 
+	 * @return
+	 */
+	public static boolean logout() {
+		if(instance != null) {
+			try {
+				instance.writeLine(instance.formatCommand(0, "LOGOUT"));
+			} catch(IOException e) {
+				// Ignore
+			} finally {
+				instance = null;
+			}			
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean isOnline() {
+		return instance != null;
+	}
+	
+	/**
 	 * Get singleton instance
 	 * 
 	 * @return
 	 */
 	public static ServerConnection instance() {
 		return instance;
-	}
-	
-	/**
-	 * Write a line to the server
-	 * 
-	 * @param line
-	 */
-	private synchronized void writeLine(String line) {
-		try {
-			LOGGER.info(line);
-			writer.write(line + "\r\n");
-			writer.flush();
-		} catch(IOException e) {
-			e.printStackTrace();// TODO handle exception
-		}
-	}
-
-	/**
-	 * Write a simple request
-	 * 
-	 * @param id
-	 * @param request
-	 */
-	private void writeSimpleRequest(int id, String string) {
-		writeLine(String.format("%d %s", id, string));		
-	}
-	
-	/**
-	 * Attempts to read a set of models from the input stream
-	 * 
-	 * Models are sent over the stream line by line:
-	 * 
-	 * <code>
-	 * client.model.SomeModel
-	 * field 1
-	 * field 2
-	 * 
-	 * client.model.SomeModel
-	 * field 1
-	 * field 2
-	 * 
-	 * 
-	 * </code>
-	 * @return
-	 */
-	private ArrayList<Model> readModelsFromStream() throws IOException {
-		ArrayList<Model> models = new ArrayList<Model>();
-		String line;
-		while(!(line = reader.readLine()).equals("")) {
-			try {
-				Model model = (Model) Class.forName(line).newInstance();
-				model.fromStream(reader);
-				models.add(model);
-				reader.readLine(); // Read the empty seperator line
-			} catch(Exception e) {
-				LOGGER.severe("Unkown model class sent by server, "+line);
-				LOGGER.severe(e.toString());
-			}
-		}		
-		return models;
 	}
 	
 	/**
@@ -197,21 +156,22 @@ public class ServerConnection {
 						continue;
 					}
 					
+					ArrayList<Model> models = readModels();
+					
 					IServerResponseListener listener = listeners.get(id);
 					if(listener == null) {
 						LOGGER.severe("No listener registered for response "+line);						
-					}
-					
-					ArrayList<Model> models = readModelsFromStream();
-					listener.onServerResponse(id, models);
-					
+					} else {
+						listener.onServerResponse(id, models);
+					}	
 				}
 			} catch(IOException e) {
 				
 			} finally {
 				try {
-					s.close();
+					socket.close();
 				} catch(IOException e) {}
+				instance = null;
 			}
 		}
 		
@@ -226,7 +186,7 @@ public class ServerConnection {
 	public UserModel getUser() {
 		return user;
 	}
-	
+		
 	/**
 	 * Request a list of users filtered by the given string filter
 	 * 
@@ -293,13 +253,26 @@ public class ServerConnection {
 		
 	}*/
 	
-	
+	/**
+	 * Request a list of all users filtered on the given filter
+	 * 
+	 * @param listener
+	 * @param filter
+	 * @return
+	 */
 	public int requestFilteredUserList(IServerResponseListener listener, String filter) {
 		int id = ++nextRequestId;
 				
-		listeners.put(id, listener);
-		writeSimpleRequest(id, "REQUEST FILTERED_USERLIST "+filter);
-		
+		try {
+			listeners.put(id, listener);
+			writeLine(formatCommand(id, "REQUEST",  "FILTERED_USERLIST "+filter));
+		} catch(IOException e) {
+			listeners.remove(id);
+			LOGGER.severe("IOException requestFilteredUserList");
+			LOGGER.severe(e.toString());
+			return -1;
+		}
+			
 		return id;
 	}
 }

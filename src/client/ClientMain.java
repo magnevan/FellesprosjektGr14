@@ -11,9 +11,14 @@ import client.gui.FilteredUserList;
 import client.gui.FilteredUserListModel;
 import client.model.UserModel;
 
-public class Main {
+/**
+ * Main entry point for the client
+ * 
+ * @author Runar B. Olsen <runar.b.olsen@gmail.com>
+ */
+public class ClientMain {
 
-	public Main() throws IOException {
+	public ClientMain() throws IOException {
 		// Attempt to login, will throw a IOException login error
 		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
 		
@@ -26,7 +31,7 @@ public class Main {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		new Main();
+		new ClientMain();
 	}
 
 }

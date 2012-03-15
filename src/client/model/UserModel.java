@@ -14,7 +14,7 @@ import java.io.InputStream;
 public class UserModel extends Model {
 	
 	protected String	username,
-						password,
+						//password,
 						email,
 						fullName;
 	
@@ -22,13 +22,11 @@ public class UserModel extends Model {
 	 * Create a user object
 	 * 
 	 * @param username
-	 * @param password
 	 * @param email
 	 * @param fullName
 	 */
-	public UserModel(String username, String password, String email, String fullName) {
+	public UserModel(String username, String email, String fullName) {
 		this.username = username;
-		this.password = password;
 		this.email = email;
 		this.fullName = fullName;
 	}
@@ -83,7 +81,7 @@ public class UserModel extends Model {
 	public void toStream(BufferedWriter os) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append(getClass().getSuperclass().getName()+"\r\n");
+		sb.append("client.model.UserModel\r\n");
 		sb.append(getUsername() + "\r\n");
 		//sb.append(getPassword() + "\r\n");
 		sb.append(getEmail() + "\r\n");
