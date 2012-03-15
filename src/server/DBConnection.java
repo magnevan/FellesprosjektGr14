@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import client.model.Model;
+
 /**
  * A wrapper around the java sql framework
  * 

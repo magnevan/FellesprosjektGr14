@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import client.model.MeetingModel;
 import client.model.Model;
 import client.model.UserModel;
 
@@ -128,6 +129,18 @@ public class ServerConnection extends AbstractConnection {
 	}
 	
 	/**
+	 * Construct client side models for readModels()
+	 */
+	protected Model createModel(String name) {
+		if(name.equals("UserModel")) {
+			return new UserModel();
+		} else if(name.equals("MeetingModel")) {
+			return new MeetingModel();
+		}
+		return null;
+	}
+	
+	/**
 	 * Private reader thread
 	 *
 	 */
@@ -186,18 +199,6 @@ public class ServerConnection extends AbstractConnection {
 	public UserModel getUser() {
 		return user;
 	}
-		
-	/**
-	 * Request a list of users filtered by the given string filter
-	 * 
-	 * @param lisener lister object that will be notified once the response comes
-	 * @param filter text filter
-	 * @return request id
-	 */
-	/*public int requestFilteredUserlist(
-			IServerResponseListener listener, String filter) {
-		
-	}*/
 	
 	/**
 	 * Request all meetings within a given time period from this users calendar
@@ -249,9 +250,16 @@ public class ServerConnection extends AbstractConnection {
 	 * @param model
 	 * @return
 	 */
-	/*public Model storeModel(Model model) {
+	public Model storeModel(Model model) {
+		int id = ++nextRequestId;
+		try {
+			writeModels(new Model[]{model}, id, "STORE");
 		
-	}*/
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
 	/**
 	 * Request a list of all users filtered on the given filter

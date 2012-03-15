@@ -18,7 +18,6 @@ public class FilteredUserListModel
 	implements IServerResponseListener {
 
 	// Internal variables
-	private ServerConnection sc;
 	private int lastRequestId;
 	private UserModel[] filtered;
 	private String lastFilter = null;
@@ -28,7 +27,6 @@ public class FilteredUserListModel
 	 * 
 	 */
 	public FilteredUserListModel() {
-		sc = ServerConnection.instance();
 		filtered = new UserModel[0];
 	}
 
@@ -45,7 +43,7 @@ public class FilteredUserListModel
 		// Only send a request if we've actually updated the filter
 		if(lastFilter == null || !filter.equals(lastFilter)) {
 			lastFilter = filter;
-			lastRequestId = sc.requestFilteredUserList(this, filter);
+			lastRequestId = ServerConnection.instance().requestFilteredUserList(this, filter);
 		}
 	}
 

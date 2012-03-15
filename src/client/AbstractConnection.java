@@ -114,28 +114,13 @@ public abstract class AbstractConnection {
 	
 	/**
 	 * Attempts to read a set of models from the input stream
-	 * 
-	 * Models are sent over the stream line by line:
-	 * 
-	 * <code>
-	 * client.model.SomeModel
-	 * field 1
-	 * field 2
-	 * 
-	 * client.model.SomeModel
-	 * field 1
-	 * field 2
-	 * 
-	 * 
-	 * </code>
-	 * @return
 	 */
 	protected ArrayList<Model> readModels() throws IOException {
 		ArrayList<Model> models = new ArrayList<Model>();
 		String line;
 		while(!(line = reader.readLine()).equals("")) {
 			try {
-				Model model = (Model) Class.forName(line).newInstance();
+				Model model = createModel(line);				
 				model.fromStream(reader);
 				models.add(model);
 				reader.readLine(); // Read the empty seperator line
@@ -147,5 +132,10 @@ public abstract class AbstractConnection {
 		return models;
 	}
 	
+	/**
+	 * Create a model object based on the given name
+	 * @param name
+	 */
+	protected abstract Model createModel(String name);
 	
 }

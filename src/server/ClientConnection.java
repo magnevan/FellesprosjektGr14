@@ -7,6 +7,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import server.model.IServerModel;
+import server.model.ServerMeetingModel;
 import server.model.ServerUserModel;
 import client.AbstractConnection;
 import client.model.Model;
@@ -97,6 +99,12 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 								id, method, smethod);
 						
 					}
+				
+				} else if(method.equals("STORE")) {
+					// Store model
+					
+					IServerModel model = (IServerModel) readModels().get(0);
+					
 					
 				} else if(method.equals("LOGOUT")) {
 					writeLine(formatCommand(id, "LOGOUT"));
@@ -137,6 +145,18 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 		} catch(IOException e) {
 			// Ignore
 		}
+	}
+	
+	/**
+	 * Construct client side models for readModels()
+	 */
+	protected Model createModel(String name) {
+		if(name.equals("UserModel")) {
+			return new ServerUserModel();
+		} else if(name.equals("MeetingModel")) {
+			return new ServerMeetingModel();
+		}
+		return null;
 	}
 	
 }

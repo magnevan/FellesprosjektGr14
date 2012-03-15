@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import server.DBConnection;
+import client.model.UserModel;
 
 /**
  * Server side version of the user Model
@@ -13,7 +14,7 @@ import server.DBConnection;
  * 
  * @author Peter Ringset
  */
-public class ServerUserModel extends client.model.UserModel {
+public class ServerUserModel extends UserModel implements IServerModel  {
 	
 	/**
 	 * Create a new ServerUserModel
@@ -24,6 +25,10 @@ public class ServerUserModel extends client.model.UserModel {
 	 */
 	public ServerUserModel(String username, String email, String fullName) {
 		super(username, email, fullName);
+	}
+	
+	public ServerUserModel() {
+		super();
 	}
 	
 	/**
@@ -123,5 +128,14 @@ public class ServerUserModel extends client.model.UserModel {
 			e.printStackTrace();
 		}
 		return ret;
+	}
+
+	/**
+	 * Store user in database
+	 * 
+	 */
+	@Override
+	public IServerModel store() {
+		return null;
 	}
 }

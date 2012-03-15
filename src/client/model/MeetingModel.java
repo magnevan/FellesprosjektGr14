@@ -3,11 +3,11 @@ package client.model;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.sql.Time;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
-
-import client.ServerConnection;
 /**
  * A model for the meetings in the calendar
  * 
@@ -20,9 +20,10 @@ public class MeetingModel extends Model {
 	private Time timeFrom, timeTo;
 	private String name, description;
 	private MeetingRoomModel room;
-	private ServerConnection serverConnection;
 	private boolean active;
 	private UserModel owner;
+	private String ownerId;
+	private ArrayList<UserModel> antendees;
 	
 	/**
 	 * Construct a new meeting model
@@ -39,10 +40,12 @@ public class MeetingModel extends Model {
 		this.timeFrom = timeFrom;
 		this.timeTo = timeTo;
 		this.owner = owner;
-		if(timeFrom.before(timeTo)) {
+		if(!timeFrom.before(timeTo)) {
 			throw new IllegalArgumentException("MeetingModel: From-time is after to-time");
 		}
 	}
+	
+	public MeetingModel() {}
 	
 	public Date getDate() {
 		return date;
@@ -92,14 +95,6 @@ public class MeetingModel extends Model {
 		this.room = room;
 	}
 
-	public ServerConnection getServerConnection() {
-		return serverConnection;
-	}
-
-	public void setServerConnection(ServerConnection serverConnection) {
-		this.serverConnection = serverConnection;
-	}
-
 	public boolean isActive() {
 		return active;
 	}
@@ -111,18 +106,63 @@ public class MeetingModel extends Model {
 	public UserModel getOwner() {
 		return owner;
 	}
-
 	
-	@Override
-	public void fromStream(BufferedReader stream) throws IOException {
-		// TODO Auto-generated method stub
-		
+	public String toString() {
+		return getName() + "(" + date + " " + timeFrom + " - " + timeTo + ")";
 	}
 
+	
+	@SuppressWarnings("deprecation")
 	@Override
-	public void toStream(BufferedWriter stream) throws IOException {
-		// TODO Auto-generated method stub
+	public void fromStream(BufferedReader reader) throws IOException {
+		setName(reader.readLine());
+		StringBuilder desc = new StringBuilder();
+		String line;
+		while(!(line = reader.readLine()).equals("\0"))
+			desc.append(line+"\r\n");
+		setDescription(desc.toString());
 		
+		Date d;	
+		DateFormat df = DateFormat.getDateTimeInstance();		
+		try {
+			line = reader.readLine();
+			d = df.parse(line);
+			setTimeFrom(new Time(d.getHours(), d.getMinutes(), 0));
+			setDate(new Date(d.getYear(), d.getMonth(), d.getDay()));
+	
+			line = reader.readLine();
+			d = df.parse(line);
+			setTimeTo(new Time(d.getHours(), d.getMinutes(), 0));
+		} catch(ParseException e) {
+			e.printStackTrace();
+		}		
+		ownerId = reader.readLine();
+	}
+
+	/**
+	 * Dump the model to stream
+	 * 
+	 */
+	@SuppressWarnings("deprecation")
+	@Override
+	public void toStream(BufferedWriter writer) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("MeetingModel\r\n");
+		sb.append(getName() + "\r\n");
+		sb.append(getDescription().trim() + "\r\n\0\r\n");
+		
+		Date from = new Date(date.getYear(), date.getMonth(), date.getDay(), 
+				timeFrom.getHours(), timeFrom.getMinutes(), 0);		
+		sb.append(DateFormat.getDateTimeInstance().format(from) + "\r\n");
+		
+		Date to = new Date(date.getYear(), date.getMonth(), date.getDay(), 
+				timeTo.getHours(), timeTo.getMinutes(), 0);	
+		sb.append(DateFormat.getDateTimeInstance().format(to) + "\r\n");
+		
+		sb.append(owner.getUsername()+"\r\n");
+		
+		writer.write(sb.toString());
 	}
 	
 }
