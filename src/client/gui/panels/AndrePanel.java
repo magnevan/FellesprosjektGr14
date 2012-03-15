@@ -40,17 +40,17 @@ public class AndrePanel extends JPanel {
 		centerPanel.add(scroll);
 		
 		//button panel
-				JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-				buttonPanel.setPreferredSize(new Dimension(250,60));
-				ImageIcon up = new ImageIcon("src/resources/arrow_up.png");
-				upButton = new JButton(up);
-				upButton.setPreferredSize(new Dimension(65,65));
-				ImageIcon down = new ImageIcon("src/resources/arrow_down.png");
-				downButton = new JButton(down);
-				downButton.setPreferredSize(new Dimension(65,65));
-				buttonPanel.add(upButton);
-				buttonPanel.add(Box.createHorizontalStrut(40));
-				buttonPanel.add(downButton);
+		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		buttonPanel.setPreferredSize(new Dimension(250,60));
+		ImageIcon up = new ImageIcon("src/resources/arrow_up_8.png");
+		upButton = new JButton(up);
+		upButton.setPreferredSize(new Dimension(20,20));
+		ImageIcon down = new ImageIcon("src/resources/arrow_down_8.png");
+		downButton = new JButton(down);
+		downButton.setPreferredSize(new Dimension(20,20));
+		buttonPanel.add(upButton);
+		buttonPanel.add(Box.createHorizontalStrut(40));
+		buttonPanel.add(downButton);
 		
 		
 		//active calenders center
