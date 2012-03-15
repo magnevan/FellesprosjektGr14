@@ -7,34 +7,37 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import client.model.Model;
+import client.model.AbstractModel;
+import client.model.MeetingModel;
+import client.model.UserModel;
 
 /**
  * The clients interface to the remote calendar server
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public class ServerConnection {
+public class ServerConnection extends AbstractConnection {
 
-	private static ServerConnection instance;
-	
 	private static Logger LOGGER = Logger.getLogger("ServerConnection");
+	private static ServerConnection instance;	
 	
-	private final Socket s;
-	private BufferedReader reader;
-	private BufferedWriter writer;
-	private ReaderThread readerThread;
-	
-	private int nextRequestId = 1;
+	private ReaderThread readerThread;	
+	private int nextRequestId = 1;	
+	private UserModel user;
 	
 	// Stores listeners while we wait for the server to respond
 	private Map<Integer, IServerResponseListener> listeners;
+	
+	// Stores models that come back from the server after beeing stored
+	private Map<Integer, AbstractModel> storedModels;
 		
 	/**
 	 * Create a new ServerConnection and attempt to preform a login
@@ -47,24 +50,33 @@ public class ServerConnection {
 	 * @throws InvalidArgumentException or username/password errors
 	 */
 	private ServerConnection(InetAddress address, int port, 
-			String username, String password) throws IOException { 
+			String username, String password) throws IOException {
 		
+		super();		
 		listeners = Collections.synchronizedMap(
-			new HashMap<Integer, IServerResponseListener>()
-		);
+				new HashMap<Integer, IServerResponseListener>()
+			);
+		storedModels = Collections.synchronizedMap(
+				new HashMap<Integer, AbstractModel>()
+			);
+			
 		
 		try {
-			s = new Socket(address, port);			
-			reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
-			writer = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
+			socket = new Socket(address, port);			
+			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 			
-			reader.readLine(); // Read welcome message
+			LOGGER.info(reader.readLine()); // Read welcome message
 			
 			writeLine(String.format("LOGIN %s %s", username, password));			
 			String line = reader.readLine();
 			if(!line.startsWith("OK")) {
 				throw new IllegalArgumentException("Bad login");
 			}
+			
+			line = reader.readLine();// User header
+			// Read user model off stream
+			user = (UserModel) (readModels()).get(0);
 			
 			// Start a reader thread and return
 			readerThread = new ReaderThread();
@@ -94,6 +106,29 @@ public class ServerConnection {
 	}
 	
 	/**
+	 * Logout the currently logged in user
+	 * 
+	 * @return
+	 */
+	public static boolean logout() {
+		if(instance != null) {
+			try {
+				instance.writeLine(instance.formatCommand(0, "LOGOUT"));
+			} catch(IOException e) {
+				// Ignore
+			} finally {
+				instance = null;
+			}			
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean isOnline() {
+		return instance != null;
+	}
+	
+	/**
 	 * Get singleton instance
 	 * 
 	 * @return
@@ -103,28 +138,15 @@ public class ServerConnection {
 	}
 	
 	/**
-	 * Write a line to the server
-	 * 
-	 * @param line
+	 * Construct client side models for readModels()
 	 */
-	private synchronized void writeLine(String line) {
-		try {
-			LOGGER.info(line);
-			writer.write(line + "\r\n");
-			writer.flush();
-		} catch(IOException e) {
-			e.printStackTrace();// TODO handle exception
+	protected AbstractModel createModel(String name) {
+		if(name.equals("UserModel")) {
+			return new UserModel();
+		} else if(name.equals("MeetingModel")) {
+			return new MeetingModel();
 		}
-	}
-
-	/**
-	 * Write a simple request
-	 * 
-	 * @param id
-	 * @param request
-	 */
-	private void writeSimpleRequest(int id, String string) {
-		writeLine(String.format("%d %s", id, string));		
+		return null;
 	}
 	
 	/**
@@ -156,69 +178,52 @@ public class ServerConnection {
 						continue;
 					}
 					
+					ArrayList<AbstractModel> models = readModels();
+					
+					// Stored models are saved
+					if(method.equals("STORE")) {
+						storedModels.put(id, models.get(0));
+						return;
+					} 
+					
+					// All other models are passed to their listeners
 					IServerResponseListener listener = listeners.get(id);
 					if(listener == null) {
 						LOGGER.severe("No listener registered for response "+line);						
-					}
-					
-					// TODO Are there any other valid returns than models?
-					ArrayList<Model> models = new ArrayList<Model>();
-					while(!(line = reader.readLine()).equals("")) {
-						try {
-							Model model = (Model) Class.forName(line).newInstance();
-							model.fromStream(reader);
-							models.add(model);
-							reader.readLine();
-						} catch(Exception e) {
-							LOGGER.severe("Unkown model class sent by server, "+line);
-							LOGGER.severe(e.toString());
-						}
-					}
-					listener.onServerResponse(id, models);
-					
+					} else {
+						listener.onServerResponse(id, models);
+					}	
 				}
 			} catch(IOException e) {
 				
 			} finally {
 				try {
-					s.close();
+					socket.close();
 				} catch(IOException e) {}
+				instance = null;
 			}
 		}
 		
 	}
-	
 	
 	/**
 	 * Return the currently logged in user object
 	 * 
 	 * @return
 	 */
-	/*public UserModel getUser() {
-		
-	}*/
-	
-	/**
-	 * Request a list of users filtered by the given string filter
-	 * 
-	 * @param lisener lister object that will be notified once the response comes
-	 * @param filter text filter
-	 * @return request id
-	 */
-	/*public int requestFilteredUserlist(
-			IServerResponseListener listener, String filter) {
-		
-	}*/
+	public UserModel getUser() {
+		return user;
+	}
 	
 	/**
 	 * Request all meetings within a given time period from this users calendar
 	 * 
 	 * @return request id
 	 */
-	/*public int requestMeetings(
-			IServerResponseListener listener, Date startDate, Date endDate) {
+	public int requestMeetings(
+			IServerResponseListener listener, Calendar startDate, Calendar endDate) {
 		return requestMeetings(listener, new UserModel[]{getUser()}, startDate, endDate);
-	}*/
+	}
 	
 	/**
 	 * Request all meetings within a given time periode from the given users calendars
@@ -226,21 +231,37 @@ public class ServerConnection {
 	 * @param listener
 	 * @return request id
 	 */
-	/*public int requestMeetings(
-			IServerResponseListener listener, UserModel[] users, Date startDate, 
-			Date endDate) {
+	public int requestMeetings(
+			IServerResponseListener listener, UserModel[] users, Calendar startDate, 
+			Calendar endDate) {
 		
-	}*/
-	
-	/**
-	 * Creates a new meeting model with only the title set
-	 * 
-	 * @param title
-	 * @return
-	 */
-	/*public MeetingModel createMeeting(String title) {
+		int id = ++nextRequestId;
 		
-	}*/
+		StringBuilder ul = new StringBuilder();
+		for(UserModel u : users) {
+			ul.append(",");
+			ul.append(u.getUsername());
+		}
+		
+		try {
+			DateFormat df = DateFormat.getDateTimeInstance();
+			
+			listeners.put(id, listener);			
+			writeLine(formatCommand(id, "REQUEST",  "MEETING_LIST"));
+			writeLine(df.format(startDate.getTime()));
+			writeLine(df.format(endDate.getTime()));
+			writeLine(ul.toString().substring(1));
+			writeLine("");
+		} catch(IOException e) {
+			listeners.remove(id);
+			LOGGER.severe("IOException requestMeetings");
+			LOGGER.severe(e.toString());
+			return -1;
+		}
+			
+		return id;
+		
+	}
 	
 	/**
 	 * Stores the given model on the remote server
@@ -260,17 +281,46 @@ public class ServerConnection {
 	 * @param model
 	 * @return
 	 */
-	/*public Model storeModel(Model model) {
-		
-	}*/
+	public AbstractModel storeModel(AbstractModel model) {
+		int id = ++nextRequestId;
+		try {
+			writeModels(new AbstractModel[]{model}, id, "STORE");
+			
+			// Updated model will come in reader thread, halt untill it's there
+			while(!storedModels.containsKey(id)) {
+				try {
+					Thread.sleep(100);
+				} catch(InterruptedException e) {}
+			}
+			model = storedModels.get(id);
+			storedModels.remove(id);
+			return model;
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
-	
+	/**
+	 * Request a list of all users filtered on the given filter
+	 * 
+	 * @param listener
+	 * @param filter
+	 * @return
+	 */
 	public int requestFilteredUserList(IServerResponseListener listener, String filter) {
 		int id = ++nextRequestId;
 				
-		listeners.put(id, listener);
-		writeSimpleRequest(id, "REQUEST FILTERED_USERLIST "+filter);
-		
+		try {
+			listeners.put(id, listener);
+			writeLine(formatCommand(id, "REQUEST",  "FILTERED_USERLIST "+filter));
+		} catch(IOException e) {
+			listeners.remove(id);
+			LOGGER.severe("IOException requestFilteredUserList");
+			LOGGER.severe(e.toString());
+			return -1;
+		}
+			
 		return id;
 	}
 }

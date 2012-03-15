@@ -4,7 +4,7 @@ import java.util.HashSet;
 
 import javax.swing.JComboBox;
 
-public class JTimePicker extends JComboBox<String> {
+public class JTimePicker extends JComboBox {
 	
 	private static final long serialVersionUID = -536854656805235663L;
 	
@@ -36,9 +36,9 @@ public class JTimePicker extends JComboBox<String> {
 	}
 	
 	@Override
-	public void addItem(String item) {
+	public void addItem(Object item) {
 		super.addItem(item);
-		contains.add(item);
+		contains.add((String) item);
 	}
 
 }

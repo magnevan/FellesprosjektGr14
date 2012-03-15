@@ -181,29 +181,5 @@ public class FilteredUserList extends JPanel
 		}
 		
 	}
-	
-	// DEBUG 
-//	public static void main(String[] args) {
-//		JFrame f = new JFrame();
-//		f.setLayout(new GridLayout(2,1, 5, 5));
-//		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		
-//		final FilteredUserList list = new FilteredUserList(new TestModel());
-//		list.setSize(300, 150);
-//		f.add(list);
-//		
-//		JButton b = new JButton("Print selection");
-//		b.addActionListener(new ActionListener(){
-//			@Override
-//			public void actionPerformed(ActionEvent arg0) {
-//				System.out.println("\nCurrent selection:");
-//				for(UserModel u : list.getSelectedUsers()) {
-//					System.out.println(u);
-//				}
-//			}
-//		});
-//		f.add(b);
-//		f.setVisible(true);
-//	}
 
 }

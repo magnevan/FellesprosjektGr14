@@ -16,11 +16,30 @@ import java.util.logging.Logger;
 
 import server.model.ServerUserModel;
 
+/**
+ * ClientConnectionListener
+ * 
+ * The client connection listener is responsable for opening up a tcp port
+ * on the server side and listen for incoming connects. Upon recieving a
+ * connection it will attempt to log the incoming connection in. If the login
+ * fails the client is dropped. Upon successfull login a {@see ClientConnection}
+ * Thread is spawned to take care of request for that connection and this class
+ * returns to listening mode.
+ * 
+ * @author Runar B. Olsen <runar.b.olsen@gmail.com>
+ */
 public class ClientConnectionListener {
 
 	private static Logger LOGGER = Logger.getLogger("ClientConnectionListener");
 	
+	/**
+	 * Maps username and ClientConnection objects
+	 */
 	private Map<String, ClientConnection> clients;
+	
+	/**
+	 * Listening port
+	 */
 	private final int port;
 	
 	/**
@@ -38,15 +57,15 @@ public class ClientConnectionListener {
 	 * 
 	 * @param line
 	 */
-	public void broadcastLine(String line) {
+	/*public void broadcastLine(String line) {
 		for(ClientConnection c : clients.values()) {
 			c.writeLine(line);
 		}
-	}
+	}*/
 	
 	/**
-	 * Removes a client, called by the client it self after a logout
-	 * or a dropped connection
+	 * Removes a client, called by the client it self after a logout or if the
+	 * connection dropped.
 	 * 
 	 * @param user
 	 */
@@ -59,20 +78,23 @@ public class ClientConnectionListener {
 	}
 	
 	/**
-	 * Attempts to open up the port given in the constructor for listening and
-	 * then enters a listen loop that will run forever
+	 * Listen for incoming client connections
+	 * 
+	 * Attempts to open up a port on the portnumber given in the constructor,
+	 * there after it enters a infinite loop accepting connections.
 	 * 
 	 * @throws IOException if port number is taken
 	 */
 	public void listen() throws IOException {
-		ServerSocket ss = new ServerSocket(this.port);
 		
+		ServerSocket ss = new ServerSocket(this.port);		
 		LOGGER.info("Server open for requests on "+this.port);
 		
 		while(true) {
+			Socket s = null;
 			try {
 				// Wait for new clients
-				Socket s = ss.accept();
+				s = ss.accept();
 				
 				LOGGER.info("Accepted client from "+s.getInetAddress().toString());
 				
@@ -80,7 +102,7 @@ public class ClientConnectionListener {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
 				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
 				
-				writer.write("Welcome to "+Main.VERSION+"\r\n");
+				writer.write("Welcome to "+ServerMain.VERSION+"\r\n");
 				writer.flush();
 				String login = reader.readLine();
 				String[] parts = login.split("\\s+");
@@ -93,12 +115,12 @@ public class ClientConnectionListener {
 					continue;
 				}
 				
-				String username = parts[1], password = parts[2];
-					
-				ServerUserModel user = ServerUserModel.findByUsername(
-						username, Main.dbConnection);
+				// Authenicate user in database
+				String username = parts[1], password = parts[2];					
+				ServerUserModel user = ServerUserModel.findByUsernameAndPassword(
+						username, password, ServerMain.dbConnection);
 				
-				if(user != null && user.getPassword().equals(password)) {
+				if(user != null) {
 					writer.write("OK Welcome "+user.getFullName()+"\r\n");
 					writer.flush();
 					
@@ -107,14 +129,21 @@ public class ClientConnectionListener {
 					clients.put(user.getUsername(), cc);
 					LOGGER.info(String.format("Client from %s authenticated as %s", s.getInetAddress().toString(), username));
 					LOGGER.info(String.format("%d client(s) in total", clients.size()));
-					cc.start();
+					new Thread(cc).start();
 				} else {
 					writer.write("ERROR Bad login\r\n");
 					writer.flush();
 					s.close();
 				}
 			} catch(IOException e) {
-				e.printStackTrace();
+				LOGGER.severe("Client dropped due to IOException during authentication phase");
+				LOGGER.severe(e.toString());
+				
+				// Make sure the socket has been closed
+				try {
+					if(s != null)
+						s.close();
+				} catch(IOException ioe) {}
 			}
 		}
 		

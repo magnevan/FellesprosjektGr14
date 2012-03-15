@@ -3,25 +3,39 @@ package server;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.logging.Logger;
 
+import server.model.IServerModel;
+import server.model.ServerMeetingModel;
 import server.model.ServerUserModel;
+import client.AbstractConnection;
+import client.model.AbstractModel;
 
-public class ClientConnection extends Thread {
+/**
+ * ClientConnection
+ * 
+ * ClientConnection is the server side counter part to the client side
+ * ServerConnection. After a client has connected and has authenticated a
+ * ClientConnection thread is created and spawned with the given clients
+ * socket, streams and ServerUserModel.
+ * 
+ * ClientConnection will then enter a read loop reading commands from the
+ * client, executing the request and then returning a response back
+ * 
+ * @author Runar B. Olsen <runar.b.olsen@gmail.com>
+ */
+public class ClientConnection extends AbstractConnection implements Runnable {
 
 	private static Logger LOGGER = Logger.getLogger("ClientConnection");	
 	
-	private final Socket s;
-	private final BufferedReader reader;
-	private final BufferedWriter writer;
-	private final ServerUserModel user;
-	
-	private final ClientConnectionListener handler;
-	
+	// Internal variables
+	private final ServerUserModel user;	
+	private final ClientConnectionListener handler;	
 	private boolean running = true;
 	
 	/**
@@ -33,30 +47,9 @@ public class ClientConnection extends Thread {
 	 */
 	public ClientConnection(Socket s, BufferedReader reader, BufferedWriter writer, 
 			ServerUserModel user, ClientConnectionListener handler) {
-		this.s = s;
+		super(s, writer, reader);
 		this.user = user;
-		this.reader = reader;
-		this.writer = writer;
 		this.handler = handler;
-	}
-	
-	/**
-	 * Send a line to the user
-	 * 
-	 * @param line
-	 */
-	public synchronized void writeLine(String line) {
-		try {
-			writer.write(line + "\r\n");
-			writer.flush();			
-		} catch(IOException e) {
-			LOGGER.info(String.format(
-				"Client %s (%s) dropped due to IOException", 
-				s.getInetAddress().toString(), user
-			));
-			LOGGER.info(e.toString());
-			disconnect();
-		}
 	}
 	
 	/**
@@ -66,26 +59,32 @@ public class ClientConnection extends Thread {
 	public void run() {
 		LOGGER.info(String.format(
 			"Client thread for %s (%s) started", 
-			s.getInetAddress().toString(), user
+			socket.getInetAddress().toString(), user
 		));
-		DBConnection db = null;
+		
+		DBConnection db = ServerMain.dbConnection;
 		try {
-			db = new DBConnection(Main.properties);
+			
+			writeModels(new AbstractModel[]{user}, 0, "USER");
+			
+			// Read loop, read untill we've shutting down or we reach EOF
 			String line = null;
 			while(running && (line = reader.readLine()) != null) {
-				// Read next command
-				String[] parts = line.split("\\s+");
 				
+				// All request starts with a ID followed by the method
+				String[] parts = line.split("\\s+");				
 				if(parts.length < 2) {
 					LOGGER.severe("Malformed command recived from client: "+line);
 					continue;
 				}
-				
 				int id = Integer.parseInt(parts[0]);
 				String method = parts[1];
 				
-				if(method.equals("REQUEST")) {
-					if(parts[2].equals("FILTERED_USERLIST")) {
+				if(method.equals("REQUEST") && parts.length > 2) {
+					String smethod = parts[2];
+					
+					// Request a filtered user list
+					if(smethod.equals("FILTERED_USERLIST")) {
 						// Allow empty filters
 						String filter = "";
 						if(parts.length == 4) {
@@ -93,33 +92,64 @@ public class ClientConnection extends Thread {
 						}
 						
 						ArrayList<ServerUserModel> matches = ServerUserModel.searchByUsernameAndEmail(
-								filter, filter, Main.dbConnection);
+								filter, filter, ServerMain.dbConnection);
+						writeModels((AbstractModel[]) matches.toArray(new AbstractModel[matches.size()]), 
+								id, method, smethod);
 						
-						writeLine(String.format("%d %s %s", id, method, parts[2]));
-						for(ServerUserModel model : matches) {
-							model.toStream(writer);
-							writeLine("");
-						}
-						writeLine("");
+					} else if(smethod.equals("MEETING_LIST")) {
+						DateFormat df = DateFormat.getDateTimeInstance();
+						Calendar startDate = Calendar.getInstance();
+						startDate.setTime(df.parse(reader.readLine().trim()));
+						Calendar endDate = Calendar.getInstance();
+						endDate.setTime(df.parse(reader.readLine().trim()));
+						String[] users = reader.readLine().split(",");
+						reader.readLine(); // filler line
 						
+						ArrayList<ServerMeetingModel> matches = ServerMeetingModel.searchByUsernamesAndPeriod(
+								users, startDate, endDate, ServerMain.dbConnection);
+						writeModels((AbstractModel[]) matches.toArray(new AbstractModel[matches.size()]), 
+								id, method, smethod);		
+						
+					} else if(smethod.equals("MEETING") && parts.length == 4) {
+						int mid = Integer.parseInt(parts[3]);
+						
+						ServerMeetingModel match = ServerMeetingModel.findById(id, ServerMain.dbConnection);
+						writeModels(new AbstractModel[]{match},	id, method, smethod);	
 					}
+				
+				} else if(method.equals("STORE")) {
+					// Store model
+					
+					AbstractModel model = readModels().get(0);		
+					((IServerModel)model).store();					
+					writeModels(new AbstractModel[]{model}, id, method);
+					
+				} else if(method.equals("LOGOUT")) {
+					writeLine(formatCommand(id, "LOGOUT"));
+					disconnect();
 				}
+				
+				else {
+					LOGGER.severe("Malformed command recived from client: "+line);
+					continue;
+				}
+					
 			}
-		} catch(SQLException e) {
+		} catch(ParseException e) {
 			LOGGER.info(String.format(
-					"Client %s (%s) dropped due to SQLException", 
-					s.getInetAddress().toString(), user
+					"Client %s (%s) dropped due to malformed time formats", 
+					socket.getInetAddress().toString(), user
 				));
-				LOGGER.info(e.toString());			
+				LOGGER.info(e.toString());
+			
 		} catch(IOException e) {
+			// Drop client if we cannot read/write socket
 			LOGGER.info(String.format(
 				"Client %s (%s) dropped due to IOException", 
-				s.getInetAddress().toString(), user
+				socket.getInetAddress().toString(), user
 			));
 			LOGGER.info(e.toString());
 		} finally {
-			if(db != null)
-				db.close();
 			disconnect();
 		}
 		
@@ -135,10 +165,22 @@ public class ClientConnection extends Thread {
 			handler.removeClient(user);
 			reader.close();
 			writer.close();
-			s.close();
+			socket.close();
 		} catch(IOException e) {
 			// Ignore
 		}
+	}
+	
+	/**
+	 * Construct client side models for readModels()
+	 */
+	protected AbstractModel createModel(String name) {
+		if(name.equals("UserModel")) {
+			return new ServerUserModel();
+		} else if(name.equals("MeetingModel")) {
+			return new ServerMeetingModel();
+		}
+		return null;
 	}
 	
 }
