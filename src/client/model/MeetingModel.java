@@ -22,8 +22,8 @@ public class MeetingModel extends Model {
 	private String name, description;
 	private MeetingRoomModel room;
 	private boolean active;
-	private UserModel owner;
-	private String ownerId;
+	protected UserModel owner;
+	protected String ownerId;
 	private ArrayList<UserModel> antendees;
 	
 	/**

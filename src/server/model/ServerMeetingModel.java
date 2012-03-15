@@ -5,6 +5,7 @@ import java.sql.Statement;
 
 import server.ServerMain;
 import client.model.MeetingModel;
+import client.model.UserModel;
 
 /**
  * Server Side MeetingModel with methods for reading and writing to server
@@ -17,14 +18,34 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 		super();
 	}
 	
+	/**
+	 * Get user model
+	 * 
+	 * Server side this may not yet be loaded, do JIT loading
+	 */
 	@Override
-	public IServerModel store() {
+	public UserModel getOwner() {
+		if(owner == null) {
+			owner = ServerUserModel.findByUsername(ownerId, ServerMain.dbConnection);
+		}
+		return owner;
+	}
+	
+	/**
+	 * Store model to database
+	 */
+	@Override
+	public void store() {
 		try {
 			if(id == -1) {
 				// Insert
 				Statement st = ServerMain.dbConnection.createStatement();
 				
-				st.executeUpdate("INSERT INTO appo ");
+				// TODO Date 
+				st.executeUpdate(String.format(
+						"INSERT INTO appointment(title, start_date, end_date, description, owner)"
+						+" VALUES('%s', '%s', '%s', '%s', '%s')",						
+						getName(), "", "", getDescription(), getOwner()));
 				
 				
 			} else {
@@ -33,8 +54,6 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
-		return null;
 	}
 
 }

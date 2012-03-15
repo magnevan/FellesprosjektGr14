@@ -8,12 +8,10 @@ package server.model;
 public interface IServerModel {
 
 	/**
-	 * Saves the model to db, and returns the newly stores model
-	 * 
-	 * The returned model should replace the old in any preceeding code
+	 * Saves the model to db
 	 * 
 	 * @return
 	 */
-	public IServerModel store();
+	public void store();
 	
 }

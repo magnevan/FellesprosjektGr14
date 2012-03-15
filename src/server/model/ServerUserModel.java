@@ -35,6 +35,33 @@ public class ServerUserModel extends UserModel implements IServerModel  {
 	}
 	
 	/**
+	 * Look-up in database for a specific username
+	 * 
+	 * @param usr
+	 * @param password
+	 * @param db
+	 * @return the user or null if no matching record was found
+	 * @throws IllegalArgumentException if user name is an empty string
+	 */
+	public static ServerUserModel findByUsername(String usr, DBConnection db) {
+		if (usr.length() == 0) {
+			throw new IllegalArgumentException("ServerUserModel: user name can not be an empty string");
+		}
+		try {
+			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username = '" + usr + "';");
+			if(rs.next()) {
+				String 	dbusername = rs.getString("username"),
+						dbemail = rs.getString("email"),
+						dbfull_name = rs.getString("full_name");
+				return new ServerUserModel(dbusername, dbemail, dbfull_name);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	/**
 	 * Look-up in database for a specific username/password combination
 	 * 
 	 * @param usr
@@ -138,7 +165,5 @@ public class ServerUserModel extends UserModel implements IServerModel  {
 	 * 
 	 */
 	@Override
-	public IServerModel store() {
-		return null;
-	}
+	public void store() {}
 }
