@@ -8,6 +8,7 @@ import java.awt.Font;
 
 import javax.swing.*;
 
+import client.gui.JDefaultTextField;
 import client.gui.VerticalLayout;
 
 public class AndrePanel extends JPanel {
@@ -28,8 +29,8 @@ public class AndrePanel extends JPanel {
 		//employee center
 		JLabel ansatte = new JLabel();
 		ansatte.setText("Ansatte");
-		JTextField inputEmployee = new JTextField(21);
-		inputEmployee.setText("Skriv navn eller epost til ansatt...");
+		JDefaultTextField inputEmployee = new JDefaultTextField("Skriv navn eller epost til ansatt...", 21);
+		//inputEmployee.setText("Skriv navn eller epost til ansatt...");
 		
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		employeeList = new JList(new String[] {"Ola Nordmann","Kari Hansen","Kari Larsen"});
@@ -42,12 +43,8 @@ public class AndrePanel extends JPanel {
 		//button panel
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		buttonPanel.setPreferredSize(new Dimension(250,60));
-		ImageIcon up = new ImageIcon("src/resources/arrow_up_8.png");
-		upButton = new JButton(up);
-		upButton.setPreferredSize(new Dimension(20,20));
-		ImageIcon down = new ImageIcon("src/resources/arrow_down_8.png");
-		downButton = new JButton(down);
-		downButton.setPreferredSize(new Dimension(20,20));
+		upButton = new JButton("Legg til");
+		downButton = new JButton("Fjern");
 		buttonPanel.add(upButton);
 		buttonPanel.add(Box.createHorizontalStrut(40));
 		buttonPanel.add(downButton);
