@@ -1,21 +1,23 @@
 package client.model;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class CalendarModel extends Model {
+public class CalendarModel {
+	
+	private PropertyChangeSupport pcs;
 
 	protected final Set<MeetingModel> 		meetings;
 	protected final TreeSet<MeetingModel> 	meetingsFrom,
 											meetingsTo;
+	
+	public final static String	MEETING_ADDED = "MEETING_ADDED";
+	public final static String  MEETING_REMOVED = "MEETING REMOVE";
 	
 	public CalendarModel() {
 		
@@ -23,6 +25,7 @@ public class CalendarModel extends Model {
 		meetingsFrom = new TreeSet<MeetingModel>();
 		meetingsTo = new TreeSet<MeetingModel>();
 		
+		pcs = new PropertyChangeSupport(this);
 	}
 	
 	public CalendarModel add(MeetingModel meeting) {
@@ -30,6 +33,8 @@ public class CalendarModel extends Model {
 		meetings.add(meeting);
 		meetingsFrom.add(meeting);
 		meetingsTo.add(meeting);
+
+		pcs.firePropertyChange(MEETING_ADDED, null, meeting);
 		
 		return this;
 	}
@@ -38,6 +43,9 @@ public class CalendarModel extends Model {
 		meetings.addAll(c);
 		meetingsFrom.addAll(c);
 		meetingsTo.addAll(c);
+		
+		for (MeetingModel mm : c)
+			pcs.firePropertyChange(MEETING_ADDED, null, mm);
 		
 		return this;
 	}
@@ -48,6 +56,8 @@ public class CalendarModel extends Model {
 		meetingsFrom.remove(meeting);
 		meetingsTo.remove(meeting);
 		
+		pcs.firePropertyChange(MEETING_REMOVED, null, meeting);
+		
 		return this;
 	}
 	
@@ -56,13 +66,10 @@ public class CalendarModel extends Model {
 		meetingsFrom.removeAll(c);
 		meetingsTo.removeAll(c);
 		
+		for (MeetingModel mm : c)
+			pcs.firePropertyChange(MEETING_REMOVED, null, mm);
+		
 		return this;
-	}
-	
-	public void clear() {
-		meetings.clear();
-		meetingsFrom.clear();
-		meetingsTo.clear();
 	}
 	
 	public boolean contains(MeetingModel meeting) {
@@ -112,14 +119,12 @@ public class CalendarModel extends Model {
 		return meetings.size();
 	}
 	
-	@Override
-	public void fromStream(BufferedReader stream) throws IOException {
-		//TODO
+	public void addPropertyChangeListner(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
 	}
-
-	@Override
-	public void toStream(BufferedWriter stream) throws IOException {
-		//TODO
+	
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		pcs.removePropertyChangeListener(listener);
 	}
-
+	
 }

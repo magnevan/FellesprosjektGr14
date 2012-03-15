@@ -1,9 +1,9 @@
 package client.model;
 
+import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 
 /**
  * A class for modelling a meeting room
@@ -13,7 +13,11 @@ import java.io.OutputStream;
  */
 public class MeetingRoomModel extends Model {
 	
+	PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	
 	private String roomNumber;
+	
+	private final static String ROOMNUMBER_CHANGED = "ROOMNUMBER_CHANGED";
 	
 	/**
 	 * Construct the meeting room model
@@ -28,7 +32,11 @@ public class MeetingRoomModel extends Model {
 	}
 
 	public void setRoomNumber(String roomNumber) {
+		String oldValue = this.roomNumber;
+		
 		this.roomNumber = roomNumber;
+		
+		pcs.firePropertyChange(ROOMNUMBER_CHANGED, oldValue, roomNumber);
 	}
 	
 	@Override
