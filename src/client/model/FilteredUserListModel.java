@@ -7,31 +7,44 @@ import client.ServerConnection;
 import client.gui.usersearch.AbstractFilteredUserListModel;
 
 /**
- * A model for the filtered user list.
- * 
+ * A implementation of IFilteredUserList that searches the user database using
+ * the currently active ServerConnection instance.
+ *  
  * @author Peter Ringset
- *
+ * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public class FilteredUserListModel extends AbstractFilteredUserListModel implements IServerResponseListener{
+public class FilteredUserListModel 
+	extends AbstractFilteredUserListModel 
+	implements IServerResponseListener {
 
-	private ServerConnection sc;
+	// Internal variables
 	private int lastRequestId;
-	private ArrayList<UserModel> filtered;		
+	private UserModel[] filtered;
+	private String lastFilter = null;
 	
+	/**
+	 * Setup a new FilteredUserListModel
+	 * 
+	 */
 	public FilteredUserListModel() {
-		sc = ServerConnection.instance();
-		filtered = new ArrayList<UserModel>();
+		filtered = new UserModel[0];
 	}
 
 	/**
 	 * Set the filter for the list
-	 * This method propagates the filter to the server, response is asynchronously given in {@code onServerResponse}
+	 * This method propagates the filter to the server, response is
+	 * asynchronously given in {@code onServerResponse()}
 	 * 
+	 * @TODO limit the number of requests/s ? Could be done with a Timer
 	 * @param filter
 	 */
 	@Override
 	public void setFilter(String filter) {
-		lastRequestId = sc.requestFilteredUserList(this, filter);
+		// Only send a request if we've actually updated the filter
+		if(lastFilter == null || !filter.equals(lastFilter)) {
+			lastFilter = filter;
+			lastRequestId = ServerConnection.instance().requestFilteredUserList(this, filter);
+		}
 	}
 
 	/**
@@ -43,29 +56,29 @@ public class FilteredUserListModel extends AbstractFilteredUserListModel impleme
 	}
 
 	/**
-	 * Get an array of all filtered users.
+	 * Get an array of users matching the filter
 	 */
 	@Override
 	public UserModel[] getUserList() {
-		return filtered.toArray(new UserModel[filtered.size()]);
+		return filtered;
 	}
 
 	/**
-	 * Server response comes here.
+	 * Server response comes here
 	 * 
-	 * @param requestId
-	 * @param data
+	 * @param requestId id of the request that caused this response
+	 * @param data actual data returned
 	 */
 	@Override
 	public void onServerResponse(int requestId, Object data) {
 		// We're only interested in the newest responses, throw out old ones
 		if (lastRequestId == requestId) {
-			ArrayList<UserModel> responseData = (ArrayList<UserModel>)data;
-			// Clear the current list and add the filtered response
-			filtered.clear();
-			for (UserModel userModel : responseData) {
-				filtered.add(userModel);
-			}
+			UserModel[] old = filtered;
+			
+			ArrayList<UserModel> response = (ArrayList<UserModel>)data;			
+			filtered = response.toArray(new UserModel[response.size()]);
+			
+			fireUserListChangeEvent(old, filtered);
 		}
 	}
 

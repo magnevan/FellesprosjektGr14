@@ -8,14 +8,11 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-public class Main {
+public class ServerMain {
 
-	private static Logger LOGGER = Logger.getLogger("Main");
-	
-	public static String VERSION = "calendar-server-0.0.1";
-	
-	public static Properties properties;
-	
+	private static Logger LOGGER = Logger.getLogger("Main");	
+	public static String VERSION = "calendar-server-0.0.1";	
+	public static Properties properties;	
 	public static DBConnection dbConnection;
 	
 	/**
@@ -23,7 +20,7 @@ public class Main {
 	 * @param p server configuration
 	 * @throws NumberFormatException on badly formatted number in properties
 	 */
-	public Main(Properties p) throws NumberFormatException {		
+	public ServerMain(Properties p) throws NumberFormatException {		
 		properties = p;
 		
 		try {
@@ -60,7 +57,7 @@ public class Main {
 			File f = new File("src/server.properties");
 			p.load(new FileReader(f));
 			
-			new Main(p);
+			new ServerMain(p);
 		} catch (FileNotFoundException e) {
 			LOGGER.severe("Missing server.properties");
 			LOGGER.severe(e.toString());

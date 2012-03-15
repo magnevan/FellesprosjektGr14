@@ -21,7 +21,7 @@ public class MainPanel extends JPanel {
 		JTabbedPane optionTabbedPane = new JTabbedPane();
 		JTabbedPane calendarTabbedPane = new JTabbedPane();
 		
-		AvtalePanel ap = new AvtalePanel();
+		//AvtalePanel ap = new AvtalePanel();
 		HovedPanel hp = new HovedPanel();
 		VarselPanel vp = new VarselPanel();
 		AndrePanel akp = new AndrePanel();

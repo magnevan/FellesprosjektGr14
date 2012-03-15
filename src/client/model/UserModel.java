@@ -11,10 +11,10 @@ import java.io.InputStream;
  * @author Peter Ringset
  * 
  */
-public class UserModel extends Model {
+public class UserModel extends AbstractModel {
 	
 	protected String	username,
-						password,
+						//password,
 						email,
 						fullName;
 	
@@ -22,31 +22,54 @@ public class UserModel extends Model {
 	 * Create a user object
 	 * 
 	 * @param username
-	 * @param password
 	 * @param email
 	 * @param fullName
 	 */
-	public UserModel(String username, String password, String email, String fullName) {
+	public UserModel(String username, String email, String fullName) {
 		this.username = username;
-		this.password = password;
 		this.email = email;
 		this.fullName = fullName;
 	}
 	
+	/**
+	 * Empty constructor 
+	 * 
+	 * Should only be used in combination with fromStream() otherwise the object
+	 * will be unusable
+	 */
 	public UserModel() {}
 	
+	
+	/**
+	 * Get username
+	 * 
+	 * @return
+	 */
 	public String getUsername() {
 		return username;
 	}
 
+	/**
+	 * Get full name
+	 * 
+	 * @return
+	 */
 	public String getFullName() {
 		return fullName;
 	}
 	
+	/**
+	 * Get email
+	 * 
+	 * @return
+	 */
 	public String getEmail() {
 		return email;
 	}
 
+	/**
+	 * 
+	 */
 	@Override
 	public String toString() {
 		return this.fullName + " | " + this.email;
@@ -59,7 +82,7 @@ public class UserModel extends Model {
 	public void toStream(BufferedWriter os) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("client.UserModel\r\n");
+		sb.append("UserModel\r\n");
 		sb.append(getUsername() + "\r\n");
 		//sb.append(getPassword() + "\r\n");
 		sb.append(getEmail() + "\r\n");

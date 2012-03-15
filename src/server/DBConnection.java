@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import client.model.AbstractModel;
+
 /**
  * A wrapper around the java sql framework
  * 
@@ -51,6 +53,17 @@ public class DBConnection {
 	public ResultSet preformQuery(String query) throws SQLException {
 		Statement st = connection.createStatement();
 		return st.executeQuery(query);
+	}
+	
+	/**
+	 * Create a statement
+	 * 
+	 * @param query
+	 * @return
+	 * @throws SQLException
+	 */
+	public Statement createStatement() throws SQLException {
+		return connection.createStatement();
 	}
 	
 	/**

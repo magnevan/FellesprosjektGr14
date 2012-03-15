@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 
-public abstract class Model {
+public abstract class AbstractModel {
 	
 	public abstract void fromStream(BufferedReader stream) throws IOException ;
 	
