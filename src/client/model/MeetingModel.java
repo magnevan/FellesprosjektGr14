@@ -24,7 +24,7 @@ public class MeetingModel extends AbstractModel{
 	protected boolean active;
 	protected UserModel owner;
 	protected String ownerId;
-	protected ArrayList<UserModel> antendees;
+	protected ArrayList<UserModel> attendees;
 	
 	/**
 	 * Construct a new meeting model
@@ -152,9 +152,9 @@ public class MeetingModel extends AbstractModel{
 		sb.append(getId() + "\r\n");
 		sb.append(getName() + "\r\n");
 		sb.append(getDescription().trim() + "\r\n\0\r\n");	
-		sb.append(df.format(timeFrom.getTime()) + "\r\n");
-		sb.append(df.format(timeTo.getTime()) + "\r\n");		
-		sb.append(owner.getUsername()+"\r\n");
+		sb.append(df.format(getTimeFrom().getTime()) + "\r\n");
+		sb.append(df.format(getTimeTo().getTime()) + "\r\n");		
+		sb.append(getOwner().getUsername()+"\r\n");
 		
 		writer.write(sb.toString());
 	}

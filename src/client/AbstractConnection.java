@@ -104,8 +104,10 @@ public abstract class AbstractConnection {
 		synchronized(writer) {
 			writer.write(formatCommand(id, method, smethod)+"\r\n");
 			for(AbstractModel m : models) {
-				m.toStream(writer);
-				writer.write("\r\n");
+				if(m != null) {
+					m.toStream(writer);
+					writer.write("\r\n");
+				}
 			}
 			writer.write("\r\n");
 			writer.flush();

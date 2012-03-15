@@ -7,14 +7,16 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import client.model.MeetingModel;
 import client.model.AbstractModel;
+import client.model.MeetingModel;
 import client.model.UserModel;
 
 /**
@@ -218,10 +220,10 @@ public class ServerConnection extends AbstractConnection {
 	 * 
 	 * @return request id
 	 */
-	/*public int requestMeetings(
-			IServerResponseListener listener, Date startDate, Date endDate) {
+	public int requestMeetings(
+			IServerResponseListener listener, Calendar startDate, Calendar endDate) {
 		return requestMeetings(listener, new UserModel[]{getUser()}, startDate, endDate);
-	}*/
+	}
 	
 	/**
 	 * Request all meetings within a given time periode from the given users calendars
@@ -229,21 +231,37 @@ public class ServerConnection extends AbstractConnection {
 	 * @param listener
 	 * @return request id
 	 */
-	/*public int requestMeetings(
-			IServerResponseListener listener, UserModel[] users, Date startDate, 
-			Date endDate) {
+	public int requestMeetings(
+			IServerResponseListener listener, UserModel[] users, Calendar startDate, 
+			Calendar endDate) {
 		
-	}*/
-	
-	/**
-	 * Creates a new meeting model with only the title set
-	 * 
-	 * @param title
-	 * @return
-	 */
-	/*public MeetingModel createMeeting(String title) {
+		int id = ++nextRequestId;
 		
-	}*/
+		StringBuilder ul = new StringBuilder();
+		for(UserModel u : users) {
+			ul.append(",");
+			ul.append(u.getUsername());
+		}
+		
+		try {
+			DateFormat df = DateFormat.getDateTimeInstance();
+			
+			listeners.put(id, listener);			
+			writeLine(formatCommand(id, "REQUEST",  "MEETING_LIST"));
+			writeLine(df.format(startDate.getTime()));
+			writeLine(df.format(endDate.getTime()));
+			writeLine(ul.toString().substring(1));
+			writeLine("");
+		} catch(IOException e) {
+			listeners.remove(id);
+			LOGGER.severe("IOException requestMeetings");
+			LOGGER.severe(e.toString());
+			return -1;
+		}
+			
+		return id;
+		
+	}
 	
 	/**
 	 * Stores the given model on the remote server
@@ -268,7 +286,7 @@ public class ServerConnection extends AbstractConnection {
 		try {
 			writeModels(new AbstractModel[]{model}, id, "STORE");
 			
-			// Updated model will come in reader thread, halt till its there
+			// Updated model will come in reader thread, halt untill it's there
 			while(!storedModels.containsKey(id)) {
 				try {
 					Thread.sleep(100);

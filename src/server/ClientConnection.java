@@ -4,7 +4,10 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.logging.Logger;
 
 import server.model.IServerModel;
@@ -23,9 +26,6 @@ import client.model.AbstractModel;
  * 
  * ClientConnection will then enter a read loop reading commands from the
  * client, executing the request and then returning a response back
- * 
- * TODO writer access has to be synchronized, or else a notification from above
- * might collide with a normal response
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
@@ -93,11 +93,28 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 						
 						ArrayList<ServerUserModel> matches = ServerUserModel.searchByUsernameAndEmail(
 								filter, filter, ServerMain.dbConnection);
-						
-						// Pull models from database and write them back to client
 						writeModels((AbstractModel[]) matches.toArray(new AbstractModel[matches.size()]), 
 								id, method, smethod);
 						
+					} else if(smethod.equals("MEETING_LIST")) {
+						DateFormat df = DateFormat.getDateTimeInstance();
+						Calendar startDate = Calendar.getInstance();
+						startDate.setTime(df.parse(reader.readLine().trim()));
+						Calendar endDate = Calendar.getInstance();
+						endDate.setTime(df.parse(reader.readLine().trim()));
+						String[] users = reader.readLine().split(",");
+						reader.readLine(); // filler line
+						
+						ArrayList<ServerMeetingModel> matches = ServerMeetingModel.searchByUsernamesAndPeriod(
+								users, startDate, endDate, ServerMain.dbConnection);
+						writeModels((AbstractModel[]) matches.toArray(new AbstractModel[matches.size()]), 
+								id, method, smethod);		
+						
+					} else if(smethod.equals("MEETING") && parts.length == 4) {
+						int mid = Integer.parseInt(parts[3]);
+						
+						ServerMeetingModel match = ServerMeetingModel.findById(id, ServerMain.dbConnection);
+						writeModels(new AbstractModel[]{match},	id, method, smethod);	
 					}
 				
 				} else if(method.equals("STORE")) {
@@ -118,6 +135,12 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 				}
 					
 			}
+		} catch(ParseException e) {
+			LOGGER.info(String.format(
+					"Client %s (%s) dropped due to malformed time formats", 
+					socket.getInetAddress().toString(), user
+				));
+				LOGGER.info(e.toString());
 			
 		} catch(IOException e) {
 			// Drop client if we cannot read/write socket
