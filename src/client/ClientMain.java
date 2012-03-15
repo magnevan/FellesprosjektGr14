@@ -3,10 +3,9 @@ package client;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Calendar;
 
+import client.model.InvitationModel;
 import client.model.MeetingModel;
-import client.model.UserModel;
 
 /**
  * Main entry point for the client
@@ -21,22 +20,7 @@ public class ClientMain implements IServerResponseListener {
 		
 		ServerConnection sc = ServerConnection.instance();
 		
-		//System.out.println(sc.getUser());
-		
-		Calendar c = Calendar.getInstance();
-		c.set(2012, 3, 14, 10, 15);
-		Calendar c1 = Calendar.getInstance();
-		c1.set(2012, 3, 18, 11, 15);		
-		sc.requestMeetings(this, new UserModel[]{sc.getUser()}, c, c1);
-		
-		//MeetingModel model = new MeetingModel(c, c1, sc.getUser());
-		
-		//model.setName("Super viktig møte!");
-		//model.setDescription("Dette er beskrivelsen\r\nOg denne er da følgelig minst like viktig\r\n\r\n");
-		
-		//model = (MeetingModel) sc.storeModel(model);
-		
-		//System.out.println("Stored! "+model.getId());
+		int id = sc.requestMeeting(this, 1);
 		
 		//ServerConnection.instance().requestFilteredUserList(this, "");
 		/*JFrame frame = new JFrame("Search test");
@@ -55,8 +39,12 @@ public class ClientMain implements IServerResponseListener {
 		ArrayList<MeetingModel> meetings = (ArrayList<MeetingModel>) data;
 		
 		for(MeetingModel m : meetings) {
-			System.out.println(m);
-			//System.out.println(m.getOwner());
+			System.out.println(m.getName());
+			System.out.println(m.getOwner());
+			System.out.println(m.getInvitations().size());
+			for(InvitationModel u : m.getInvitations()) {
+				System.out.println(u);
+			}
 		}
 		
 	}
