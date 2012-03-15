@@ -226,7 +226,7 @@ public class ServerConnection extends AbstractConnection {
 	}
 	
 	/**
-	 * Request all meetings within a given time periode from the given users calendars
+	 * Request all meetings within a given time period from the given users calendars
 	 * 
 	 * @param listener
 	 * @return request id
@@ -261,6 +261,28 @@ public class ServerConnection extends AbstractConnection {
 			
 		return id;
 		
+	}
+	
+	/**
+	 * Request a meeting based on id
+	 * 
+	 * @param listener
+	 * @param id
+	 * @return
+	 */
+	public int requestMeeting(IServerResponseListener listener, int mid) {
+		int id = ++nextRequestId;
+		
+		try {
+			listeners.put(id, listener);
+			writeLine(formatCommand(id, "REQUEST",  "MEETING "+mid));
+		} catch(IOException e) {
+			listeners.remove(id);
+			LOGGER.severe("IOException requestMeeting");
+			LOGGER.severe(e.toString());
+			return -1;
+		}			
+		return id;
 	}
 	
 	/**

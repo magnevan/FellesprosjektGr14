@@ -32,12 +32,9 @@ public class MeetingModel extends AbstractModel {
 	protected String name, description, location;
 	protected MeetingRoomModel room;
 	protected boolean active;
-	protected UserModel owner;
-	protected String ownerId;
-	protected ArrayList<UserModel> attendees;
-
-	
+	protected UserModel owner;	
 	private PropertyChangeSupport changeSupport;
+	protected ArrayList<InvitationModel> invitations;
 	
 	/**
 	 * Construct a new meeting model
@@ -61,13 +58,13 @@ public class MeetingModel extends AbstractModel {
 		}
 	}
 	
-	public int getId() {
-		return id;
-	}
-
-	
 	public MeetingModel() {
 		id = -1;
+		invitations = new ArrayList<InvitationModel>();
+	}
+	
+	public int getId() {
+		return id;
 	}
 	
 	public Calendar getTimeFrom() {
@@ -149,6 +146,10 @@ public class MeetingModel extends AbstractModel {
 	public String toString() {
 		return getName() + "(" + timeFrom + " - " + timeTo + ")";
 	}
+	
+	public ArrayList<InvitationModel> getInvitations() {
+		return invitations;
+	}
 
 	/**
 	 * Read model from stream
@@ -177,7 +178,18 @@ public class MeetingModel extends AbstractModel {
 		} catch(ParseException e) {
 			e.printStackTrace();
 		}		
-		ownerId = reader.readLine();
+		
+		reader.readLine(); // Class name
+		
+		owner = new UserModel();
+		owner.fromStream(reader);
+		int no = Integer.parseInt(reader.readLine());
+		for( ; no > 0 ; no-- ) {
+			reader.readLine(); // Class name
+			InvitationModel i = new InvitationModel();
+			i.fromStream(reader);
+			invitations.add(i);
+		}
 	}
 
 	/**
@@ -194,10 +206,16 @@ public class MeetingModel extends AbstractModel {
 		sb.append(getName() + "\r\n");
 		sb.append(getDescription().trim() + "\r\n\0\r\n");	
 		sb.append(df.format(getTimeFrom().getTime()) + "\r\n");
-		sb.append(df.format(getTimeTo().getTime()) + "\r\n");		
-		sb.append(getOwner().getUsername()+"\r\n");
+		sb.append(df.format(getTimeTo().getTime()) + "\r\n");
+		writer.write(sb.toString());		
 		
-		writer.write(sb.toString());
+		getOwner().toStream(writer);
+		
+		writer.write(getInvitations().size()+"\r\n");
+		for(InvitationModel invitation : getInvitations()) {
+			invitation.toStream(writer);
+		}
+		
 	}
 	
 	public static final Comparator<MeetingModel> timeFromComparator = 
