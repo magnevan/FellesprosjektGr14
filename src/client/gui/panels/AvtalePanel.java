@@ -23,7 +23,7 @@ public class AvtalePanel extends JPanel {
 	private final JTextField tittelText;
 	private final JDateChooser dateChooser;
 	private final JTimePicker fromTime, toTime;
-	private final JComboBox<String> moteromComboBox;
+	private final JComboBox moteromComboBox;
 	private final JTextField moteromText;
 	private final JTextArea beskrivelseTextArea;
 //	private final FilteredUserList filteredUserList;
