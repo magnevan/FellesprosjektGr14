@@ -125,7 +125,7 @@ public abstract class AbstractConnection {
 				AbstractModel model = createModel(line);				
 				model.fromStream(reader);
 				models.add(model);
-				reader.readLine(); // Read the empty seperator line
+				reader.readLine(); // Read the empty separator line
 			} catch(Exception e) {
 				LOGGER.severe("Unkown model class sent by server, "+line);
 				LOGGER.severe(e.toString());

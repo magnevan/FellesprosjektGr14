@@ -34,6 +34,15 @@ public class InvitationModel extends AbstractModel {
 		this.status = status;
 	}
 	
+	/**
+	 * Create a new invitation with INVITED status
+	 * @param user
+	 * @param meetingModel
+	 */
+	public InvitationModel(UserModel user, MeetingModel meetingModel) {
+		this(user, meetingModel, InvitationStatus.INVITED);
+	}
+	
 	public InvitationModel() {}
 	
 	/**

@@ -167,7 +167,9 @@ public class MeetingModel extends AbstractModel{
 		sb.append("MeetingModel\r\n");
 		sb.append(getId() + "\r\n");
 		sb.append(getName() + "\r\n");
-		sb.append(getDescription().trim() + "\r\n\0\r\n");	
+		if(getDescription() != null) 
+			sb.append(getDescription().trim() + "\r\n");
+		sb.append("\0\r\n");
 		sb.append(df.format(getTimeFrom().getTime()) + "\r\n");
 		sb.append(df.format(getTimeTo().getTime()) + "\r\n");
 		writer.write(sb.toString());		
@@ -196,6 +198,64 @@ public class MeetingModel extends AbstractModel{
 					return A.getTimeTo().compareTo(B.getTimeTo());
 				}
 			};
+
+	/**
+	 * Check if this meeting is actually a meeting and not a appointment
+	 * 
+	 * @return
+	 */
+	public boolean isMeeting() {
+		return getInvitations().size() != 0;
+	}
+	
+	/**
+	 * True if the given user has been invited to this meeting
+	 * 
+	 * @param user
+	 * @return
+	 */
+	public boolean isInvited(UserModel user) {
+		return getInvitation(user) != null;
+	}
+	
+	/**
+	 * If this user has been invited to this meeting this will return
+	 * the invitation model representing that invitation
+	 * 
+	 * @param user
+	 * @return
+	 */
+	public InvitationModel getInvitation(UserModel user) {
+		for(InvitationModel invitation : getInvitations()) {
+			if(invitation.getUser().equals(user)) {
+				return invitation;
+			}
+		}
+		return null;
+		
+	}
+			
+	/**
+	 * Add a attendee to the meeting
+	 * 
+	 * @param user
+	 */
+	public void addAttendee(UserModel user) {
+		addAttendee(new UserModel[]{user});
+	}
+		
+	/**
+	 * Add a array of attendees to the meeting
+	 * 
+	 * @param users
+	 */
+	public void addAttendee(UserModel[] users) {
+		for(UserModel user : users) {
+			if(!isInvited(user)) {
+				invitations.add(new InvitationModel(user, this));
+			}
+		}		
+	}
 			
 			
 }
