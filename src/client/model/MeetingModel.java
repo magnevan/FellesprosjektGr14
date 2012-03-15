@@ -114,23 +114,6 @@ public class MeetingModel extends Model{
 	public void toStream(BufferedWriter stream) throws IOException {
 		// TODO Auto-generated method stub
 		
-	}
-	
-	public static final Comparator<MeetingModel> timeFromComparator = 
-			new Comparator<MeetingModel>() {
-				@Override
-				public int compare(MeetingModel A, MeetingModel B) {					
-					return A.getTimeFrom().compareTo(B.getTimeFrom());
-				}
-			};
-			
-	public static final Comparator<MeetingModel> timeToComparator = 
-			new Comparator<MeetingModel>() {
-				@Override
-				public int compare(MeetingModel A, MeetingModel B) {					
-					return A.getTimeTo().compareTo(B.getTimeTo());
-				}
-			};
-			
+	}			
 			
 }
