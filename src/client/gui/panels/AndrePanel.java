@@ -17,6 +17,7 @@ public class AndrePanel extends JPanel {
 	private final JList employeeList;
 	private final JList activeCalenders;
 	private final JButton upButton, downButton;
+	private ListSelectionModel selectionModel = new DefaultListSelectionModel();
 	
 	public AndrePanel(){
 		super(new VerticalLayout(5,SwingConstants.LEFT));
@@ -55,15 +56,14 @@ public class AndrePanel extends JPanel {
 		aktiveKalendere.setText("Aktive kalendere");
 		
 		JPanel bottomPanel = new JPanel(new BorderLayout());
-		
-		activeCalenders = new JList(new String[] {"Ola Nordmann"});
+		activeCalenders = new JList(new String[] {"Ola Nordmann", "Kari Larsen", "Kari Hansen"});
+		activeCalenders.setCellRenderer(new CheckListCellRenderer(activeCalenders.getCellRenderer(), selectionModel));
 		bottomPanel.setPreferredSize(new Dimension(270,100));
 		bottomPanel.add(activeCalenders);
 		JScrollPane scroll2 = new JScrollPane(activeCalenders);
 		scroll2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		bottomPanel.add(scroll2);
-		
-		
+
 		
 		//add elements
 		this.add(nameLabel);
@@ -71,12 +71,16 @@ public class AndrePanel extends JPanel {
 		this.add(ansatte);
 		this.add(inputEmployee);
 		this.add(centerPanel);
+		this.add(Box.createVerticalStrut(10));
 		this.add(buttonPanel);
 		this.add(Box.createVerticalStrut(2));
 		this.add(aktiveKalendere);
 		this.add(bottomPanel);
 		
-		
 	}
+	
+	public ListSelectionModel getSelectionModel(){ 
+        return selectionModel; 
+  }
 
 }
