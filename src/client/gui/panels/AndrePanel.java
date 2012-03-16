@@ -3,16 +3,12 @@ package client.gui.panels;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeListener;
-
 
 import javax.swing.*;
 
 import client.gui.JDefaultTextField;
 import client.gui.VerticalLayout;
 import client.model.UserModel;
-import client.gui.usersearch.FilteredUserList;
-import client.gui.usersearch.IFilteredUserListModel;
 
 public class AndrePanel extends JPanel {
 	
@@ -23,11 +19,9 @@ public class AndrePanel extends JPanel {
 	private ListSelectionModel selectionModel = new DefaultListSelectionModel();
 	final PersonLabel personLabel;
 	final UserModel person;
-	ListModel lm;
 	
 	public AndrePanel(){
 		super(new VerticalLayout(5,SwingConstants.LEFT));
-		
 
 		//top
 		JPanel topPanel = new JPanel();
