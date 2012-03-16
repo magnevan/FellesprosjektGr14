@@ -80,7 +80,7 @@ public class UserModel extends TransferableModel {
 	 */
 	@Override
 	public String toString() {
-		return this.fullName + " | " + this.email;
+		return this.username + " | " + this.email;
 	}
 
 	/**

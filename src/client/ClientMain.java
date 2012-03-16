@@ -1,106 +1,103 @@
 package client;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Calendar;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Toolkit;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import client.gui.usersearch.FilteredUserList;
-import client.model.FilteredUserListModel;
-import client.model.InvitationModel;
-import client.model.MeetingModel;
-import client.model.UserModel;
+import client.gui.panels.LoginPanel;
+import client.gui.panels.MainPanel;
 
 /**
- * Demonstrasjon av ServerConnection
+ * Main entry point for the client
  * 
- * @author Runar B. Olsen <runar.b.olsen@gmail.com>
+ * @author Magne
+ *
  */
-public class ClientMain implements IServerResponseListener {
+public class ClientMain extends JFrame implements IServerConnectionListener{
 
-	private int meetingRequest;
-	private MeetingModel newMeeting;
-	private FilteredUserList ful;
-	private ServerConnection sc;
+	private LoginPanel loginPanel;
+	private MainPanel  mainPanel;
 	
+	private JPanel contentPane;
 	
-	public ClientMain() throws IOException {
-		// Login connects to server, tries to authenticate and throws an exception of anything fails
-		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
+	private static ClientMain client;
+	
+	public ClientMain() {
+		super("Kalender");
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
-		// Get singleton instance for use later.
-		sc = ServerConnection.instance();
+		contentPane = new JPanel(new GridBagLayout());
+		this.setContentPane(contentPane);
 		
-		// sc.request*(listener, parameters) requests data off the server, result comes in onServerResponse() 
-		meetingRequest = sc.requestMeeting(this, 1);
+		loginPanel = new LoginPanel();
+		mainPanel = new MainPanel();
+		
+		contentPane.add(loginPanel,new GridBagConstraints());
+		this.pack();
+		centerOnScreen();
+		this.setResizable(false);
+		
+		ServerConnection.addServerConnectionListener(this);
+		
+		this.setVisible(true);
+	}
+	
 
-		// Current online user can be found in ServerConnection
-		UserModel user = sc.getUser();
+	@Override
+	public void serverConnectionChange(String change) {
+		if (change == IServerConnectionListener.LOGIN) {
+			this.setResizable(true);
+			contentPane.remove(loginPanel);
+			this.setLayout(new BorderLayout());
+			contentPane.add(mainPanel, BorderLayout.CENTER);
+			this.pack();
+			centerOnScreen();
+		}
+	}
+	
+	private void centerOnScreen() {
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		Dimension screenSize = tk.getScreenSize();
+		Dimension frameSize = this.getSize();
+		final int WIDTH = screenSize.width;
+		final int HEIGHT = screenSize.height;
+		// Setup the frame accordingly
+		// This is assuming you are extending the JFrame //class
 		
-		// New models are created using their default constructor
-		Calendar from = Calendar.getInstance();
-		from.set(2012, 3, 16, 14, 30);
-		Calendar to = Calendar.getInstance();
-		to.set(2012, 3, 16, 16, 30);
-		newMeeting = new MeetingModel(from, to, user);
-		
-		System.out.println("Meeting has id: "+newMeeting.getId()+" (ie. not stored yet)");
-		newMeeting = (MeetingModel) sc.storeModel(newMeeting);
-		System.out.println("Meeting now has id: "+newMeeting.getId()+" (ie. has been stored)");
-				
-		// Test adding users to the newly created meeting by showing a user list and a add button
-		JFrame frame = new JFrame("Search test");
-		JPanel panel = new JPanel();
-		frame.add(panel);
-		
-		ful = new FilteredUserList(new FilteredUserListModel());
-		panel.add(ful);
-		JButton add = new JButton("Add");
-		add.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				addAttendees();
-			}
-		});
-		panel.add(add);
-		frame.pack();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
+		this.setLocation(
+				screenSize.width/2 - frameSize.width/2, 
+				(int)Math.max(screenSize.height * 0.4 - frameSize.height/2,0)
+				);
 	}
 	
 	/**
-	 * Add attendees on button click
+	 * Get Singleton instance
+	 * @return
 	 */
-	public void addAttendees() {
-		newMeeting.addAttendee(ful.getSelectedUsers());
-		newMeeting = (MeetingModel) sc.storeModel(newMeeting);
+	public static ClientMain client() {
+		return client;
 	}
 	
-	public static void main(String[] args) throws IOException {
-		new ClientMain();
+	public static void main(String[] args) {
+		client = new ClientMain();
 	}
-
-	@Override
-	public void onServerResponse(int requestId, Object data) {
-		if(requestId == meetingRequest) {
-			ArrayList<MeetingModel> meetings = (ArrayList<MeetingModel>) data;
-			if(meetings.size() == 1) {
-				MeetingModel m = meetings.get(0);
-				System.out.println(m.getName());
-				System.out.println(m.getOwner());
-				System.out.println(m.getInvitations().size());
-				for(InvitationModel u : m.getInvitations()) {
-					System.out.println(u);
-				}
-			}
-		}
-		
-	}
+	
+//	public static void main(String[] args) {
+//	    JFrame frame = new JFrame();
+//	    frame.setLayout(new GridBagLayout());
+//	    JPanel panel = new JPanel();
+//	    panel.add(new JLabel("This is a label"));
+//	    panel.setBorder(new LineBorder(Color.BLACK)); // make it easy to see
+//	    frame.add(panel, new GridBagConstraints());
+//	    frame.setSize(400, 400);
+//	    frame.setLocationRelativeTo(null);
+//	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//	    frame.setVisible(true);
+//	}
 
 }

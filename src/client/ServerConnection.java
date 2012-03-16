@@ -1,5 +1,7 @@
 package client;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -12,7 +14,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import client.model.TransferableModel;
@@ -25,7 +29,10 @@ import client.model.UserModel;
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
 public class ServerConnection extends AbstractConnection {
-
+	
+	// Stores listeners interested in server connection changes
+	private static final Set<IServerConnectionListener> serverConnectionListeners = new HashSet<IServerConnectionListener>();
+	
 	private static Logger LOGGER = Logger.getLogger("ServerConnection");
 	private static ServerConnection instance = null;	
 	
@@ -64,6 +71,7 @@ public class ServerConnection extends AbstractConnection {
 	 * @return
 	 */
 	public static boolean logout() {
+		fireServerConnectionChange(IServerConnectionListener.LOGOUT);
 		if(instance != null) {
 			try {
 				instance.writeLine(instance.formatCommand(0, "LOGOUT"));
@@ -344,5 +352,17 @@ public class ServerConnection extends AbstractConnection {
 		}
 			
 		return id;
+	}
+	
+	public static void addServerConnectionListener(IServerConnectionListener listener) {
+		serverConnectionListeners.add(listener);
+	}
+	public static void removeServerConnectionListener(IServerConnectionListener listener) {
+		serverConnectionListeners.remove(listener);
+	}
+	
+	private static void fireServerConnectionChange(String change) {
+		for (IServerConnectionListener listener : serverConnectionListeners)
+			listener.serverConnectionChange(change);
 	}
 }
