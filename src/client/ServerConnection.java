@@ -50,7 +50,7 @@ public class ServerConnection extends AbstractConnection {
 	/**
 	 * Attempt to login
 	 * 
-	 * If successfull a ServerConnection instance will be accessable from
+	 * If successfull a ServerConnection instance will be accessible from
 	 * instance();
 	 * 
 	 * @param address
