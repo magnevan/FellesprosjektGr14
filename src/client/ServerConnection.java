@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import client.model.AbstractModel;
+import client.model.TransferableModel;
 import client.model.MeetingModel;
 import client.model.UserModel;
 
@@ -37,21 +37,20 @@ public class ServerConnection extends AbstractConnection {
 	private static ServerConnection instance = null;	
 	
 	private ReaderThread readerThread;	
-	private int nextRequestId = 1;	
+	private int nextRequestId = 1;
 	private UserModel user;
 	
 	// Stores listeners while we wait for the server to respond
 	private Map<Integer, IServerResponseListener> listeners;
 	
-	// Stores models that come back from the server after beeing stored
-	private Map<Integer, AbstractModel> storedModels;
-	
+	// Stores models that come back from the server after being stored
+	private Map<Integer, TransferableModel> storedModels;
 		
 	
 	/**
 	 * Attempt to login
 	 * 
-	 * If successfull a ServerConnection instance will be accessable from
+	 * If successfull a ServerConnection instance will be accessible from
 	 * instance();
 	 * 
 	 * @param address
@@ -118,7 +117,7 @@ public class ServerConnection extends AbstractConnection {
 				new HashMap<Integer, IServerResponseListener>()
 			);
 		storedModels = Collections.synchronizedMap(
-				new HashMap<Integer, AbstractModel>()
+				new HashMap<Integer, TransferableModel>()
 			);
 			
 		
@@ -151,7 +150,7 @@ public class ServerConnection extends AbstractConnection {
 	/**
 	 * Construct client side models for readModels()
 	 */
-	protected AbstractModel createModel(String name) {
+	protected TransferableModel createModel(String name) {
 		if(name.equals("UserModel")) {
 			return new UserModel();
 		} else if(name.equals("MeetingModel")) {
@@ -189,7 +188,7 @@ public class ServerConnection extends AbstractConnection {
 						continue;
 					}
 					
-					ArrayList<AbstractModel> models = readModels();
+					ArrayList<TransferableModel> models = readModels();
 					
 					// Stored models are saved
 					if(method.equals("STORE")) {
@@ -314,10 +313,10 @@ public class ServerConnection extends AbstractConnection {
 	 * @param model
 	 * @return
 	 */
-	public AbstractModel storeModel(AbstractModel model) {
+	public TransferableModel storeModel(TransferableModel model) {
 		int id = ++nextRequestId;
 		try {
-			writeModels(new AbstractModel[]{model}, id, "STORE");
+			writeModels(new TransferableModel[]{model}, id, "STORE");
 			
 			// Updated model will come in reader thread, halt untill it's there
 			while(!storedModels.containsKey(id)) {
@@ -325,9 +324,7 @@ public class ServerConnection extends AbstractConnection {
 					Thread.sleep(100);
 				} catch(InterruptedException e) {}
 			}
-			model = storedModels.get(id);
-			storedModels.remove(id);
-			return model;
+			return storedModels.remove(id);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}

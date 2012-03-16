@@ -15,7 +15,7 @@ import server.model.ServerUserModel;
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public class InvitationModel extends AbstractModel {
+public class InvitationModel extends TransferableModel {
 
 	protected UserModel user;
 	protected MeetingModel meeting;
@@ -52,6 +52,19 @@ public class InvitationModel extends AbstractModel {
 	 */
 	public InvitationModel(ResultSet rs) throws SQLException {
 		this.status = InvitationStatus.valueOf(rs.getString("status"));
+	}
+	
+
+	/**
+	 * Unique ID
+	 */
+	@Override
+	protected Object getMID() {
+		if(getUser() != null && getUser().getUsername() != null && 
+				getMeeting() != null && getMeeting().getId() != -1) {
+			return getUser().getUsername() + "_" + getMeeting().getId();
+		}
+		return null;
 	}
 	
 	public UserModel getUser() {

@@ -3,7 +3,6 @@ package client.model;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * A model for the users in the calendar system
@@ -11,7 +10,7 @@ import java.io.InputStream;
  * @author Peter Ringset
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public class UserModel extends AbstractModel {
+public class UserModel extends TransferableModel {
 	
 	protected String	username,
 						//password,
@@ -46,6 +45,15 @@ public class UserModel extends AbstractModel {
 	 * @return
 	 */
 	public String getUsername() {
+		return username;
+	}
+	
+
+	/**
+	 * Get unique ID
+	 */
+	@Override
+	protected Object getMID() {
 		return username;
 	}
 

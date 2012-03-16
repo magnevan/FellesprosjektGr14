@@ -11,7 +11,7 @@ import java.io.IOException;
  * @author peterringset
  *
  */
-public class MeetingRoomModel extends AbstractModel {
+public class MeetingRoomModel extends TransferableModel {
 	
 	PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
@@ -27,6 +27,15 @@ public class MeetingRoomModel extends AbstractModel {
 		this.roomNumber = roomNumber;
 	}
 
+
+	/**
+	 * Get unique ID
+	 */
+	@Override
+	protected Object getMID() {
+		return roomNumber;
+	}
+	
 	public String getRoomNumber() {
 		return roomNumber;
 	}
