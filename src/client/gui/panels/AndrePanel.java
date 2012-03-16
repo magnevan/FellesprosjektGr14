@@ -1,35 +1,38 @@
 package client.gui.panels;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeListener;
+
 
 import javax.swing.*;
 
 import client.gui.JDefaultTextField;
 import client.gui.VerticalLayout;
 import client.model.UserModel;
+import client.gui.usersearch.FilteredUserList;
+import client.gui.usersearch.IFilteredUserListModel;
 
 public class AndrePanel extends JPanel {
 	
-	private final JLabel nameLabel;
+	//private final JLabel nameLabel;
 	private final JList employeeList;
 	private final JList activeCalenders;
-	private final JButton upButton, downButton;
+	private final JButton upButton, downButton, newAppointmentButton;
 	private ListSelectionModel selectionModel = new DefaultListSelectionModel();
+	final PersonLabel personLabel;
+	final UserModel person;
+	ListModel lm;
 	
 	public AndrePanel(){
 		super(new VerticalLayout(5,SwingConstants.LEFT));
 		
+
 		//top
-		ImageIcon icon = new ImageIcon("src/resources/man_silhouette_clip_art_alt.png");
-		nameLabel = new JLabel("Ola Nordmann", icon, SwingConstants.LEFT);
-		nameLabel.setFont(new Font("Times New Roman", Font.PLAIN, 18));
+		JPanel topPanel = new JPanel();
+		personLabel = new PersonLabel();
+		topPanel.add(personLabel);
 		
 		//employee center
 		JLabel ansatte = new JLabel();
@@ -44,7 +47,7 @@ public class AndrePanel extends JPanel {
 		model.addElement(createUser("Test", "test@test.no"));
 		model.addElement(createUser("Test2","Test2@test.no"));
 		
-		final UserModel person = new UserModel();
+		person = new UserModel();
 		employeeList = new JList(model);
 		centerPanel.setPreferredSize(new Dimension(270,100));
 		centerPanel.add(employeeList);
@@ -76,6 +79,12 @@ public class AndrePanel extends JPanel {
 		scroll2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		bottomPanel.add(scroll2);
 		
+		JPanel addMeetingPanel = new JPanel(new BorderLayout());
+		addMeetingPanel.setPreferredSize(new Dimension(270,100));
+		newAppointmentButton = new JButton("Opprett en avtale/m¿te");
+		newAppointmentButton.setOpaque(true);
+		addMeetingPanel.add(newAppointmentButton);
+		
 		
 		upButton.addActionListener(new ActionListener() {
 			@Override
@@ -83,7 +92,7 @@ public class AndrePanel extends JPanel {
 				// TODO Auto-generated method stub
 				//model.addElement(new UserModel());
 				//model.addElement(createUser(person.getUsername(), person.getEmail()));
-				model2.addElement(employeeList.getSelectedValue());
+				model2.addElement(employeeList.getSelectedValue()); 
 			}
 		});
 		
@@ -95,12 +104,12 @@ public class AndrePanel extends JPanel {
 				model2.removeElement(activeCalenders.getSelectedValue());
 				person.setName("");
 				person.setEmail("");
-				
-			}
+ 			}
 		});
 		
+		
 		//add elements
-		this.add(nameLabel);
+		this.add(topPanel);
 		this.add(Box.createVerticalStrut(30));
 		this.add(ansatte);
 		this.add(inputEmployee);
@@ -110,6 +119,7 @@ public class AndrePanel extends JPanel {
 		this.add(Box.createVerticalStrut(2));
 		this.add(aktiveKalendere);
 		this.add(bottomPanel);
+		this.add(addMeetingPanel);
 		
 	}
 	
