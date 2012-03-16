@@ -26,9 +26,6 @@ public class AndrePanel extends JPanel {
 	public AndrePanel(){
 		super(new VerticalLayout(5,SwingConstants.LEFT));
 		
-		
-		
-		
 
 		//top
 		JPanel topPanel = new JPanel();
@@ -40,6 +37,7 @@ public class AndrePanel extends JPanel {
 		ansatte.setText("Ansatte");
 		JDefaultTextField inputEmployee = new JDefaultTextField("Skriv navn eller epost til ansatt...", 21);
 		
+		//search panel
 		search = new FilteredUserList(new FilteredUserListModel());
 		
 		JPanel centerPanel = new JPanel(new BorderLayout());
@@ -93,9 +91,7 @@ public class AndrePanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				//model.addElement(new UserModel());
-				//model.addElement(createUser(person.getUsername(), person.getEmail()));
-				model2.addElement(search.getSelectedValue()); 
+				model2.addElement(search.getSelectedUsers()); 
 			}
 		});
 		
@@ -105,8 +101,6 @@ public class AndrePanel extends JPanel {
 				// TODO Auto-generated method stub
 				//int index = activeCalenders.getSelectedIndex();
 				model2.removeElement(activeCalenders.getSelectedValue());
-				//person.setName("");
-				//person.setEmail("");
  			}
 		});
 		
@@ -115,7 +109,7 @@ public class AndrePanel extends JPanel {
 		this.add(Box.createVerticalStrut(30));
 		this.add(ansatte);
 		this.add(search);
-		this.add(centerPanel);
+		//this.add(centerPanel);
 		this.add(Box.createVerticalStrut(10));
 		this.add(buttonPanel);
 		this.add(Box.createVerticalStrut(2));
