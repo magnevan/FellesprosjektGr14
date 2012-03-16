@@ -14,19 +14,17 @@ import client.model.UserModel;
 
 public class AndrePanel extends JPanel {
 	
-	//private final JLabel nameLabel;
 	private final JList employeeList;
 	private final JList activeCalenders;
 	private final JButton upButton, downButton, newAppointmentButton;
 	private ListSelectionModel selectionModel = new DefaultListSelectionModel();
 	final PersonLabel personLabel;
 	final UserModel person;
-	private final FilteredUserList search;
+	//private final FilteredUserList search;
 	
 	public AndrePanel(){
 		super(new VerticalLayout(5,SwingConstants.LEFT));
 		
-
 		//top
 		JPanel topPanel = new JPanel();
 		personLabel = new PersonLabel();
@@ -38,7 +36,10 @@ public class AndrePanel extends JPanel {
 		JDefaultTextField inputEmployee = new JDefaultTextField("Skriv navn eller epost til ansatt...", 21);
 		
 		//search panel
-		search = new FilteredUserList(new FilteredUserListModel());
+		//search = new FilteredUserList(new FilteredUserListModel());
+		person = new UserModel();
+		
+		//old employeelist panel
 		
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		final DefaultListModel model = new DefaultListModel();
@@ -48,13 +49,14 @@ public class AndrePanel extends JPanel {
 		model.addElement(createUser("Test", "test@test.no"));
 		model.addElement(createUser("Test2","Test2@test.no"));
 		
-		person = new UserModel();
+		
 		employeeList = new JList(model);
 		centerPanel.setPreferredSize(new Dimension(270,100));
 		centerPanel.add(employeeList);
 		JScrollPane scroll = new JScrollPane(employeeList);
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		centerPanel.add(scroll);
+		
 		
 		//button panel
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -91,7 +93,8 @@ public class AndrePanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				model2.addElement(search.getSelectedUsers()); 
+				model2.addElement(employeeList.getSelectedValue());
+				//model2.addElement(search.getSelectedUsers()); 
 			}
 		});
 		
@@ -108,8 +111,8 @@ public class AndrePanel extends JPanel {
 		this.add(topPanel);
 		this.add(Box.createVerticalStrut(30));
 		this.add(ansatte);
-		this.add(search);
-		//this.add(centerPanel);
+		//this.add(search);
+		this.add(centerPanel);
 		this.add(Box.createVerticalStrut(10));
 		this.add(buttonPanel);
 		this.add(Box.createVerticalStrut(2));
@@ -126,6 +129,8 @@ public class AndrePanel extends JPanel {
 	public static UserModel createUser(String userName, String email){
 		
 		UserModel person = new UserModel();
+		userName = "Susanne";
+		email = "lool";
 		//person.setName(userName);
 		//person.setEmail(email);
 		return person;

@@ -3,6 +3,7 @@ package client.gui.panels;
 import java.awt.Dimension;
 import java.util.Calendar;
 
+import javax.swing.Box;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -26,10 +27,19 @@ public class AvtalePanel extends JPanel {
 	private final JComboBox moteromComboBox;
 	private final JTextField moteromText;
 	private final JTextArea beskrivelseTextArea;
+	final PersonLabel personLabel;
 //	private final FilteredUserList filteredUserList;
 	
 	public AvtalePanel() {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
+		
+		//top
+		JPanel topPanel = new JPanel();
+		personLabel = new PersonLabel();
+		topPanel.add(personLabel);
+		
+		this.add(topPanel);
+		this.add(Box.createVerticalStrut(30));
 		
 		//Tittel
 		this.add(new JLabel("Tittel:"));
@@ -72,7 +82,9 @@ public class AvtalePanel extends JPanel {
 		this.add(beskrivelseScroll);
 		
 		//Ansatte
+		
 		this.add(new JLabel("Ansatte:"));
+		
 //		filteredUserList = new FilteredUserList(new TestModel());
 //		this.add(filteredUserList);
 		
