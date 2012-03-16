@@ -22,8 +22,6 @@ import client.ServerConnection;
 
 public class LoginPanel extends JPanel implements ActionListener{
 	
-	private final PropertyChangeSupport pcs;
-	
 	private final JTextField txtUsername, txtPassword;
 	private final JButton loginButton;
 	
@@ -71,7 +69,6 @@ public class LoginPanel extends JPanel implements ActionListener{
 		txtPassword.addActionListener(this);
 		loginButton.addActionListener(this);
 		
-		pcs = new PropertyChangeSupport(this);
 	}
 
 	@Override
@@ -100,25 +97,17 @@ public class LoginPanel extends JPanel implements ActionListener{
 		int port = Integer.parseInt(p.getProperty("fp.target.port"));
 		
 		ServerConnection.login(target, port, username, password);
-		pcs.firePropertyChange(ServerConnection.LOGIN, false, ServerConnection.isOnline());
 	}
 	
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		pcs.addPropertyChangeListener(listener);
-	}
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		pcs.addPropertyChangeListener(listener);
-	}
-	
-	public static void main(String[] args) {
-		
-		JFrame frame = new JFrame("Kalender");
-		
-		JPanel content = new LoginPanel();
-		frame.setContentPane(content);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.pack();
-		frame.setVisible(true);
-	}
+//	public static void main(String[] args) {
+//		
+//		JFrame frame = new JFrame("Kalender");
+//		
+//		JPanel content = new LoginPanel();
+//		frame.setContentPane(content);
+//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		frame.pack();
+//		frame.setVisible(true);
+//	}
 
 }
