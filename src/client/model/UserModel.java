@@ -66,14 +66,6 @@ public class UserModel extends AbstractModel {
 	public String getEmail() {
 		return email;
 	}
-	
-	public void setName(String userName){
-		this.username = userName;
-	}
-	
-	public void setEmail(String email){
-		this.email = email;
-	}
 
 	/**
 	 * 
