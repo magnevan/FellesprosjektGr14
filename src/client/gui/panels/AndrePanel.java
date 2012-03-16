@@ -8,6 +8,8 @@ import javax.swing.*;
 
 import client.gui.JDefaultTextField;
 import client.gui.VerticalLayout;
+import client.gui.usersearch.FilteredUserList;
+import client.model.FilteredUserListModel;
 import client.model.UserModel;
 
 public class AndrePanel extends JPanel {
@@ -19,9 +21,14 @@ public class AndrePanel extends JPanel {
 	private ListSelectionModel selectionModel = new DefaultListSelectionModel();
 	final PersonLabel personLabel;
 	final UserModel person;
+	private final FilteredUserList search;
 	
 	public AndrePanel(){
 		super(new VerticalLayout(5,SwingConstants.LEFT));
+		
+		
+		
+		
 
 		//top
 		JPanel topPanel = new JPanel();
@@ -32,6 +39,8 @@ public class AndrePanel extends JPanel {
 		JLabel ansatte = new JLabel();
 		ansatte.setText("Ansatte");
 		JDefaultTextField inputEmployee = new JDefaultTextField("Skriv navn eller epost til ansatt...", 21);
+		
+		search = new FilteredUserList(new FilteredUserListModel());
 		
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		final DefaultListModel model = new DefaultListModel();
@@ -86,7 +95,7 @@ public class AndrePanel extends JPanel {
 				// TODO Auto-generated method stub
 				//model.addElement(new UserModel());
 				//model.addElement(createUser(person.getUsername(), person.getEmail()));
-				model2.addElement(employeeList.getSelectedValue()); 
+				model2.addElement(search.getSelectedValue()); 
 			}
 		});
 		
@@ -96,17 +105,16 @@ public class AndrePanel extends JPanel {
 				// TODO Auto-generated method stub
 				//int index = activeCalenders.getSelectedIndex();
 				model2.removeElement(activeCalenders.getSelectedValue());
-				person.setName("");
-				person.setEmail("");
+				//person.setName("");
+				//person.setEmail("");
  			}
 		});
-		
 		
 		//add elements
 		this.add(topPanel);
 		this.add(Box.createVerticalStrut(30));
 		this.add(ansatte);
-		this.add(inputEmployee);
+		this.add(search);
 		this.add(centerPanel);
 		this.add(Box.createVerticalStrut(10));
 		this.add(buttonPanel);
@@ -124,10 +132,8 @@ public class AndrePanel extends JPanel {
 	public static UserModel createUser(String userName, String email){
 		
 		UserModel person = new UserModel();
-		
-		person.setName(userName);
-		person.setEmail(email);
-		
+		//person.setName(userName);
+		//person.setEmail(email);
 		return person;
 		
 	}
