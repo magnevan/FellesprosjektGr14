@@ -93,7 +93,6 @@ public class WeekView extends JPanel {
 	/**
 	 * 
 	 * @param hour The hour it should focus on, between 0 and 23 inclusive.
-	 * @throws Exception
 	 */
 	public void focusOnHour(int hour) {
 		if (hour > 23 || hour < 0) return;
