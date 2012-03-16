@@ -23,6 +23,8 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 	
 	private JPanel contentPane;
 	
+	private static ClientMain client;
+	
 	public ClientMain() {
 		super("Kalender");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -43,9 +45,6 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 		this.setVisible(true);
 	}
 	
-	public static void main(String[] args) {
-		new ClientMain();
-	}
 
 	@Override
 	public void serverConnectionChange(String change) {
@@ -55,7 +54,20 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 			this.setLayout(new BorderLayout());
 			contentPane.add(mainPanel, BorderLayout.CENTER);
 			this.pack();
+			this.setLocationRelativeTo(getRootPane()); //TODO This doesn't place it perfectly in the center as it should
 		}
+	}
+	
+	/**
+	 * Get Singleton instance
+	 * @return
+	 */
+	public static ClientMain client() {
+		return client;
+	}
+	
+	public static void main(String[] args) {
+		client = new ClientMain();
 	}
 	
 //	public static void main(String[] args) {

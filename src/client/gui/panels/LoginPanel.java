@@ -18,6 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import client.ClientMain;
+import client.IServerConnectionListener;
 import client.ServerConnection;
 
 public class LoginPanel extends JPanel implements ActionListener{
@@ -77,7 +79,7 @@ public class LoginPanel extends JPanel implements ActionListener{
 			txtUsername.requestFocusInWindow();
 			
 		} else if 	(txtPassword.getText().length() == 0) {
-			txtUsername.requestFocusInWindow();
+			txtPassword.requestFocusInWindow();
 			
 		} else {
 			try {
@@ -90,6 +92,10 @@ public class LoginPanel extends JPanel implements ActionListener{
 	}
 	
 	private void attemptLogin(String username, String password) throws IOException{
+		//TODO temp
+		ClientMain.client().serverConnectionChange(IServerConnectionListener.LOGIN);
+		if (true) return;
+		
 		Properties p = new Properties();
 		p.load(new FileReader(new File("src/client.properties")));
 		
