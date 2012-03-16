@@ -10,16 +10,17 @@ import client.gui.VerticalLayout;
 
 public class VarselPanel extends JPanel{
 	
-	private final JLabel nameLabel;
+	//private final JLabel nameLabel;
 	private final JList noteList;
 	
 	public VarselPanel(){
 		super(new VerticalLayout(5,SwingConstants.LEFT));
 		
 		//top
-		ImageIcon icon = new ImageIcon("src/resources/man_silhouette_clip_art_alt.png");
-		nameLabel = new JLabel("Ola Nordmann", icon, SwingConstants.LEFT);
-		nameLabel.setFont(new Font("Times New Roman", Font.PLAIN, 18));
+		JPanel topPanel = new JPanel();
+		PersonLabel personLabel = new PersonLabel();
+		topPanel.add(personLabel);
+		
 		JLabel notifications = new JLabel();
 		notifications.setText("Varsler: ");
 		
@@ -38,7 +39,7 @@ public class VarselPanel extends JPanel{
 		
 		
 		//add elements
-		this.add(nameLabel);
+		this.add(topPanel);
 		this.add(label);
 		this.add(notifications);
 		this.add(centerPanel, BorderLayout.CENTER);
