@@ -1,8 +1,10 @@
 package client;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Toolkit;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -37,7 +39,7 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 		
 		contentPane.add(loginPanel,new GridBagConstraints());
 		this.pack();
-		this.setLocationRelativeTo(getRootPane());
+		centerOnScreen();
 		this.setResizable(false);
 		
 		ServerConnection.addServerConnectionListener(this);
@@ -54,8 +56,23 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 			this.setLayout(new BorderLayout());
 			contentPane.add(mainPanel, BorderLayout.CENTER);
 			this.pack();
-			this.setLocationRelativeTo(getRootPane()); //TODO This doesn't place it perfectly in the center as it should
+			centerOnScreen();
 		}
+	}
+	
+	private void centerOnScreen() {
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		Dimension screenSize = tk.getScreenSize();
+		Dimension frameSize = this.getSize();
+		final int WIDTH = screenSize.width;
+		final int HEIGHT = screenSize.height;
+		// Setup the frame accordingly
+		// This is assuming you are extending the JFrame //class
+		
+		this.setLocation(
+				screenSize.width/2 - frameSize.width/2, 
+				(int)Math.max(screenSize.height * 0.4 - frameSize.height/2,0)
+				);
 	}
 	
 	/**
