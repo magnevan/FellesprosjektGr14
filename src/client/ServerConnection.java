@@ -63,6 +63,7 @@ public class ServerConnection extends AbstractConnection {
 	public static boolean login(InetAddress address, int port, 
 			String username, String password) throws IOException {
 		instance = new ServerConnection(address, port, username, password);
+		fireServerConnectionChange(IServerConnectionListener.LOGIN);
 		return true;
 	}
 	

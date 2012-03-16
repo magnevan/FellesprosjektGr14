@@ -102,8 +102,6 @@ public class AndrePanel extends JPanel {
 				// TODO Auto-generated method stub
 				//int index = activeCalenders.getSelectedIndex();
 				model2.removeElement(activeCalenders.getSelectedValue());
-				person.setName("");
-				person.setEmail("");
  			}
 		});
 		
@@ -131,8 +129,6 @@ public class AndrePanel extends JPanel {
 		
 		UserModel person = new UserModel();
 		
-		person.setName(userName);
-		person.setEmail(email);
 		
 		return person;
 		
