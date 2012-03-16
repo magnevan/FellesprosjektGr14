@@ -13,6 +13,7 @@ import javax.swing.*;
 
 import client.gui.JDefaultTextField;
 import client.gui.VerticalLayout;
+import client.model.UserModel;
 
 public class AndrePanel extends JPanel {
 	
@@ -34,10 +35,17 @@ public class AndrePanel extends JPanel {
 		JLabel ansatte = new JLabel();
 		ansatte.setText("Ansatte");
 		JDefaultTextField inputEmployee = new JDefaultTextField("Skriv navn eller epost til ansatt...", 21);
-		//inputEmployee.setText("Skriv navn eller epost til ansatt...");
 		
 		JPanel centerPanel = new JPanel(new BorderLayout());
-		employeeList = new JList(new String[] {"Ola Nordmann","Kari Hansen","Kari Larsen"});
+		final DefaultListModel model = new DefaultListModel();
+		
+		//adding some test persons
+		model.addElement(createUser("Susanngu","susanngu@stud.ntnu.no"));
+		model.addElement(createUser("Test", "test@test.no"));
+		model.addElement(createUser("Test2","Test2@test.no"));
+		
+		final UserModel person = new UserModel();
+		employeeList = new JList(model);
 		centerPanel.setPreferredSize(new Dimension(270,100));
 		centerPanel.add(employeeList);
 		JScrollPane scroll = new JScrollPane(employeeList);
@@ -57,9 +65,10 @@ public class AndrePanel extends JPanel {
 		JLabel aktiveKalendere = new JLabel();
 		aktiveKalendere.setText("Aktive kalendere");
 		
+		//bottomPanel
 		final JPanel bottomPanel = new JPanel(new BorderLayout());
-		
-		activeCalenders = new JList(new String[] {"Ola Nordmann", "Kari Larsen", "Kari Hansen"});
+		final DefaultListModel model2 = new DefaultListModel();
+		activeCalenders = new JList(model2);
 		activeCalenders.setCellRenderer(new CheckListCellRenderer(activeCalenders.getCellRenderer(), selectionModel));
 		bottomPanel.setPreferredSize(new Dimension(270,100));
 		bottomPanel.add(activeCalenders);
@@ -67,15 +76,14 @@ public class AndrePanel extends JPanel {
 		scroll2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		bottomPanel.add(scroll2);
 		
-		//Actions
-		final JLabel label = new JLabel();
-		label.setPreferredSize(new Dimension(200,200));
 		
 		upButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				label.setText("Ny person");
+				//model.addElement(new UserModel());
+				//model.addElement(createUser(person.getUsername(), person.getEmail()));
+				model2.addElement(employeeList.getSelectedValue());
 			}
 		});
 		
@@ -83,7 +91,11 @@ public class AndrePanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				label.setText("");
+				//int index = activeCalenders.getSelectedIndex();
+				model2.removeElement(activeCalenders.getSelectedValue());
+				person.setName("");
+				person.setEmail("");
+				
 			}
 		});
 		
@@ -98,12 +110,22 @@ public class AndrePanel extends JPanel {
 		this.add(Box.createVerticalStrut(2));
 		this.add(aktiveKalendere);
 		this.add(bottomPanel);
-		this.add(label);
 		
 	}
 	
 	public ListSelectionModel getSelectionModel(){ 
         return selectionModel; 
   }
+	
+	public static UserModel createUser(String userName, String email){
+		
+		UserModel person = new UserModel();
+		
+		person.setName(userName);
+		person.setEmail(email);
+		
+		return person;
+		
+	}
 
 }

@@ -26,19 +26,14 @@ public class CheckListCellRenderer extends JPanel implements ListCellRenderer{
         checkBox.setSelected(selectionModel.isSelectedIndex(index)); 
         
         //set random colour
-        /*
+        
         Random color = new Random();
         int red = color.nextInt(256);
         int green = color.nextInt(256);
         int blue = color.nextInt(256);
         Color backDrop = new Color(red, green, blue);
         checkBox.setBackground(backDrop);
-        */
         
-        int red = 0;
-        
-        Color color=new Color(254,0,0);
-        checkBox.setBackground(color);
         
         removeAll(); 
         add(checkBox, BorderLayout.WEST); 
