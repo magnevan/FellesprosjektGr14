@@ -3,14 +3,22 @@ package client.gui.week;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 
 
 /**
@@ -20,6 +28,8 @@ public class WeekView extends JPanel {
 	
 	private static final long serialVersionUID = -8533878088518459485L;
 	
+	public static final String WEEKCLICK = "";
+	
 	public static final int 
 		HOURHEIGHT = 50,
 		HOURWIDTH = 100,
@@ -28,6 +38,9 @@ public class WeekView extends JPanel {
 	
 	private final Calendar date;
 	private final JScrollPane weekScroll;
+	private final JLabel weekLabel;
+	private final JButton prevWeekButton, todayButton, nextWeekButton;
+	private PropertyChangeSupport pcs;
 	
 	
 	public WeekView() {
@@ -36,28 +49,50 @@ public class WeekView extends JPanel {
 		
 		this.setLayout(new BorderLayout());
 		
+		//North
+		JPanel northPanel = new JPanel(new BorderLayout());
+		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		
+		weekLabel = new JLabel("Uke 5",SwingConstants.CENTER);
+		weekLabel.setFont(new Font("Times New Roman", Font.BOLD,20));
+		
+		prevWeekButton = new JButton("<<");
+		nextWeekButton = new JButton(">>");
+		todayButton = new JButton("I dag");
+		buttonPanel.add(prevWeekButton);
+		buttonPanel.add(todayButton);
+		buttonPanel.add(nextWeekButton);
+		
+		northPanel.add(weekLabel, BorderLayout.CENTER);
+		northPanel.add(buttonPanel, BorderLayout.EAST);
+		
+		//Center
+		JPanel centerPanel = new JPanel(new BorderLayout());
+		
 		JPanel dayPanel = createDayPanel(date);
 		JPanel dayPanelWithPadding = new JPanel(); //Because of the field on the left side that contains the times, e.g. "13:00", we need some extra padding.
-		JPanel padding = new JPanel();
-		padding.setPreferredSize(new Dimension(12,25));
-		dayPanelWithPadding.add(padding);
+		dayPanelWithPadding.add(Box.createHorizontalStrut(12));
 		dayPanelWithPadding.add(dayPanel);
 		JPanel wvi = createWeekViewInternal();
 		
-		this.add(dayPanelWithPadding, BorderLayout.NORTH);
-		this.add(wvi, BorderLayout.CENTER);
+		centerPanel.add(dayPanelWithPadding, BorderLayout.NORTH);
+		centerPanel.add(wvi, BorderLayout.CENTER);
 		
 		weekScroll = new JScrollPane(wvi);
 		weekScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		weekScroll.setPreferredSize(new Dimension(HOURWIDTH*7 + 55,HOURHEIGHT*SHOWHOURS));
-		this.add(weekScroll);
+		centerPanel.add(weekScroll);
+		
+		this.add(northPanel, BorderLayout.NORTH);
+		this.add(centerPanel, BorderLayout.CENTER);
+		
+		pcs = new PropertyChangeSupport(this);
 	}
 	
 	
 	/**
 	 * 
 	 * @param hour The hour it should focus on, between 0 and 23 inclusive.
-	 * @throws Exception
 	 */
 	public void focusOnHour(int hour) {
 		if (hour > 23 || hour < 0) return;
@@ -129,6 +164,7 @@ public class WeekView extends JPanel {
 		
 		for (int i = 0; i < 24*7; i++) {
 			HourCell hc = new HourCell(i / 7, HOURWIDTH,HOURHEIGHT);
+			hc.addMouseListener(new MouseClickListener(i));
 			hourCellPanel.add(hc);
 		}
 		
@@ -136,5 +172,56 @@ public class WeekView extends JPanel {
 		weekViewInternal.add(hourCellPanel);
 		
 		return weekViewInternal;
+	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
+	
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		pcs.removePropertyChangeListener(listener);
+	}
+	
+	class MouseClickListener implements MouseListener {
+		long timestamp;
+		boolean secondClick;
+		int day, hour;
+		
+		public MouseClickListener(int index) {
+			// Calculate which day and hour this listener is for
+			hour = index / 7;
+			day = index % 7 + 1;
+			// Create a timestamp;
+			timestamp = System.currentTimeMillis();
+			secondClick = false;
+		}
+		
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			// Clock the click and calculate delta time since last click
+			long now = System.currentTimeMillis();
+			long delta = now - timestamp;
+			timestamp = now;
+			// Only care about double clicks with delta < 500 ms
+			if (delta < 500 && !secondClick) {
+				// Propagate event to all listeners
+				pcs.firePropertyChange(WEEKCLICK, null, new int[]{day, hour});
+				secondClick = true;
+			} else {
+				secondClick = false;
+			}
+		}
+
+		/*
+		 * Unused methods
+		 */
+		@Override
+		public void mouseEntered(MouseEvent arg0) {}
+		@Override
+		public void mouseExited(MouseEvent arg0) {}
+		@Override
+		public void mousePressed(MouseEvent arg0) {}
+		@Override
+		public void mouseReleased(MouseEvent arg0) {}
 	}
 }

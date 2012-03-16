@@ -1,5 +1,7 @@
 package client;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -12,7 +14,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import client.model.AbstractModel;
@@ -25,9 +29,12 @@ import client.model.UserModel;
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
 public class ServerConnection extends AbstractConnection {
-
+	
+	// Stores listeners interested in server connection changes
+	private static final Set<IServerConnectionListener> serverConnectionListeners = new HashSet<IServerConnectionListener>();
+	
 	private static Logger LOGGER = Logger.getLogger("ServerConnection");
-	private static ServerConnection instance;	
+	private static ServerConnection instance = null;	
 	
 	private ReaderThread readerThread;	
 	private int nextRequestId = 1;	
@@ -38,7 +45,61 @@ public class ServerConnection extends AbstractConnection {
 	
 	// Stores models that come back from the server after beeing stored
 	private Map<Integer, AbstractModel> storedModels;
+	
 		
+	
+	/**
+	 * Attempt to login
+	 * 
+	 * If successfull a ServerConnection instance will be accessable from
+	 * instance();
+	 * 
+	 * @param address
+	 * @param port
+	 * @param username
+	 * @param password
+	 * @throws IOException
+	 */
+	public static boolean login(InetAddress address, int port, 
+			String username, String password) throws IOException {
+		instance = new ServerConnection(address, port, username, password);
+		return true;
+	}
+	
+	/**
+	 * Logout the currently logged in user
+	 * 
+	 * @return
+	 */
+	public static boolean logout() {
+		fireServerConnectionChange(IServerConnectionListener.LOGOUT);
+		if(instance != null) {
+			try {
+				instance.writeLine(instance.formatCommand(0, "LOGOUT"));
+			} catch(IOException e) {
+				// Ignore
+			} finally {
+				instance = null;
+			}			
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean isOnline() {
+		return instance != null;
+	}
+	
+	/**
+	 * Get singleton instance
+	 * 
+	 * @return
+	 */
+	public static ServerConnection instance() {
+		return instance;
+	}
+	
+
 	/**
 	 * Create a new ServerConnection and attempt to preform a login
 	 * 
@@ -88,56 +149,6 @@ public class ServerConnection extends AbstractConnection {
 	}
 	
 	/**
-	 * Attempt to login
-	 * 
-	 * If successfull a ServerConnection instance will be accessable from
-	 * instance();
-	 * 
-	 * @param address
-	 * @param port
-	 * @param username
-	 * @param password
-	 * @throws IOException
-	 */
-	public static boolean login(InetAddress address, int port, 
-			String username, String password) throws IOException {
-		instance = new ServerConnection(address, port, username, password);
-		return true;
-	}
-	
-	/**
-	 * Logout the currently logged in user
-	 * 
-	 * @return
-	 */
-	public static boolean logout() {
-		if(instance != null) {
-			try {
-				instance.writeLine(instance.formatCommand(0, "LOGOUT"));
-			} catch(IOException e) {
-				// Ignore
-			} finally {
-				instance = null;
-			}			
-			return true;
-		}
-		return false;
-	}
-	
-	public static boolean isOnline() {
-		return instance != null;
-	}
-	
-	/**
-	 * Get singleton instance
-	 * 
-	 * @return
-	 */
-	public static ServerConnection instance() {
-		return instance;
-	}
-	
-	/**
 	 * Construct client side models for readModels()
 	 */
 	protected AbstractModel createModel(String name) {
@@ -183,7 +194,7 @@ public class ServerConnection extends AbstractConnection {
 					// Stored models are saved
 					if(method.equals("STORE")) {
 						storedModels.put(id, models.get(0));
-						return;
+						continue;
 					} 
 					
 					// All other models are passed to their listeners
@@ -195,7 +206,7 @@ public class ServerConnection extends AbstractConnection {
 					}	
 				}
 			} catch(IOException e) {
-				
+				e.printStackTrace();
 			} finally {
 				try {
 					socket.close();
@@ -226,7 +237,7 @@ public class ServerConnection extends AbstractConnection {
 	}
 	
 	/**
-	 * Request all meetings within a given time periode from the given users calendars
+	 * Request all meetings within a given time period from the given users calendars
 	 * 
 	 * @param listener
 	 * @return request id
@@ -261,6 +272,28 @@ public class ServerConnection extends AbstractConnection {
 			
 		return id;
 		
+	}
+	
+	/**
+	 * Request a meeting based on id
+	 * 
+	 * @param listener
+	 * @param id
+	 * @return
+	 */
+	public int requestMeeting(IServerResponseListener listener, int mid) {
+		int id = ++nextRequestId;
+		
+		try {
+			listeners.put(id, listener);
+			writeLine(formatCommand(id, "REQUEST",  "MEETING "+mid));
+		} catch(IOException e) {
+			listeners.remove(id);
+			LOGGER.severe("IOException requestMeeting");
+			LOGGER.severe(e.toString());
+			return -1;
+		}			
+		return id;
 	}
 	
 	/**
@@ -322,5 +355,17 @@ public class ServerConnection extends AbstractConnection {
 		}
 			
 		return id;
+	}
+	
+	public static void addServerConnectionListener(IServerConnectionListener listener) {
+		serverConnectionListeners.add(listener);
+	}
+	public static void removeServerConnectionListener(IServerConnectionListener listener) {
+		serverConnectionListeners.remove(listener);
+	}
+	
+	private static void fireServerConnectionChange(String change) {
+		for (IServerConnectionListener listener : serverConnectionListeners)
+			listener.serverConnectionChange(change);
 	}
 }

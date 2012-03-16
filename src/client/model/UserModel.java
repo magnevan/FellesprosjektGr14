@@ -9,7 +9,7 @@ import java.io.InputStream;
  * A model for the users in the calendar system
  * 
  * @author Peter Ringset
- * 
+ * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
 public class UserModel extends AbstractModel {
 	
@@ -65,14 +65,6 @@ public class UserModel extends AbstractModel {
 	 */
 	public String getEmail() {
 		return email;
-	}
-	
-	public void setName(String userName){
-		this.username = userName;
-	}
-	
-	public void setEmail(String email){
-		this.email = email;
 	}
 
 	/**

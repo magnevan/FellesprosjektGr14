@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import server.DBConnection;
+import client.model.InvitationModel;
+import client.model.MeetingModel;
 import client.model.UserModel;
 
 /**
@@ -28,10 +30,18 @@ public class ServerUserModel extends UserModel implements IServerModel  {
 	}
 	
 	/**
-	 * Emptry constructor
+	 * Empty constructor
 	 */
 	public ServerUserModel() {
 		super();
+	}
+	
+	/**
+	 * Create a user from a ResultSet
+	 * @param rs
+	 */
+	public ServerUserModel(ResultSet rs) throws SQLException {
+		super(rs.getString("username"), rs.getString("email"), rs.getString("full_name"));
 	}
 	
 	/**
@@ -50,10 +60,7 @@ public class ServerUserModel extends UserModel implements IServerModel  {
 		try {
 			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username = '" + usr + "';");
 			if(rs.next()) {
-				String 	dbusername = rs.getString("username"),
-						dbemail = rs.getString("email"),
-						dbfull_name = rs.getString("full_name");
-				return new ServerUserModel(dbusername, dbemail, dbfull_name);
+				return new ServerUserModel(rs);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -77,10 +84,7 @@ public class ServerUserModel extends UserModel implements IServerModel  {
 		try {
 			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username = '" + usr + "' AND password = '" + password + "';");
 			if(rs.next()) {
-				String 	dbusername = rs.getString("username"),
-						dbemail = rs.getString("email"),
-						dbfull_name = rs.getString("full_name");
-				return new ServerUserModel(dbusername, dbemail, dbfull_name);
+				return new ServerUserModel(rs);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -149,10 +153,7 @@ public class ServerUserModel extends UserModel implements IServerModel  {
 		try {
 			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username LIKE '%" + usr + "%' AND email LIKE '%" + em + "%';");
 			while (rs.next()) {
-				String 	dbusername = rs.getString("username"),
-						dbemail = rs.getString("email"),
-						dbfull_name = rs.getString("full_name");
-				ret.add(new ServerUserModel(dbusername, dbemail, dbfull_name));
+				ret.add(new ServerUserModel(rs));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -166,4 +167,5 @@ public class ServerUserModel extends UserModel implements IServerModel  {
 	 */
 	@Override
 	public void store() {}
+
 }

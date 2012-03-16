@@ -1,64 +1,103 @@
 package client;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Calendar;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Toolkit;
 
-import client.model.MeetingModel;
-import client.model.UserModel;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import client.gui.panels.LoginPanel;
+import client.gui.panels.MainPanel;
 
 /**
  * Main entry point for the client
  * 
- * @author Runar B. Olsen <runar.b.olsen@gmail.com>
+ * @author Magne
+ *
  */
-public class ClientMain implements IServerResponseListener {
+public class ClientMain extends JFrame implements IServerConnectionListener{
 
-	public ClientMain() throws IOException {
-		// Attempt to login, will throw a IOException login error
-		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
+	private LoginPanel loginPanel;
+	private MainPanel  mainPanel;
+	
+	private JPanel contentPane;
+	
+	private static ClientMain client;
+	
+	public ClientMain() {
+		super("Kalender");
+		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
-		ServerConnection sc = ServerConnection.instance();
+		contentPane = new JPanel(new GridBagLayout());
+		this.setContentPane(contentPane);
 		
-		//System.out.println(sc.getUser());
+		loginPanel = new LoginPanel();
+		mainPanel = new MainPanel();
 		
-		Calendar c = Calendar.getInstance();
-		c.set(2012, 3, 14, 10, 15);
-		Calendar c1 = Calendar.getInstance();
-		c1.set(2012, 3, 18, 11, 15);		
-		sc.requestMeetings(this, new UserModel[]{sc.getUser()}, c, c1);
+		contentPane.add(loginPanel,new GridBagConstraints());
+		this.pack();
+		centerOnScreen();
+		this.setResizable(false);
 		
-		//MeetingModel model = new MeetingModel(c, c1, sc.getUser());
+		ServerConnection.addServerConnectionListener(this);
 		
-		//model.setName("Super viktig møte!");
-		//model.setDescription("Dette er beskrivelsen\r\nOg denne er da følgelig minst like viktig\r\n\r\n");
-		
-		//model = (MeetingModel) sc.storeModel(model);
-		
-		//System.out.println("Stored! "+model.getId());
-		
-		//ServerConnection.instance().requestFilteredUserList(this, "");
-		/*JFrame frame = new JFrame("Search test");
-		frame.add(new FilteredUserList(new FilteredUserListModel()));
-		frame.pack();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);*/
+		this.setVisible(true);
 	}
 	
-	public static void main(String[] args) throws IOException {
-		new ClientMain();
-	}
 
 	@Override
-	public void onServerResponse(int requestId, Object data) {
-		ArrayList<MeetingModel> meetings = (ArrayList<MeetingModel>) data;
-		
-		for(MeetingModel m : meetings) {
-			System.out.println(m);
-			//System.out.println(m.getOwner());
+	public void serverConnectionChange(String change) {
+		if (change == IServerConnectionListener.LOGIN) {
+			this.setResizable(true);
+			contentPane.remove(loginPanel);
+			this.setLayout(new BorderLayout());
+			contentPane.add(mainPanel, BorderLayout.CENTER);
+			this.pack();
+			centerOnScreen();
 		}
-		
 	}
+	
+	private void centerOnScreen() {
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		Dimension screenSize = tk.getScreenSize();
+		Dimension frameSize = this.getSize();
+		final int WIDTH = screenSize.width;
+		final int HEIGHT = screenSize.height;
+		// Setup the frame accordingly
+		// This is assuming you are extending the JFrame //class
+		
+		this.setLocation(
+				screenSize.width/2 - frameSize.width/2, 
+				(int)Math.max(screenSize.height * 0.4 - frameSize.height/2,0)
+				);
+	}
+	
+	/**
+	 * Get Singleton instance
+	 * @return
+	 */
+	public static ClientMain client() {
+		return client;
+	}
+	
+	public static void main(String[] args) {
+		client = new ClientMain();
+	}
+	
+//	public static void main(String[] args) {
+//	    JFrame frame = new JFrame();
+//	    frame.setLayout(new GridBagLayout());
+//	    JPanel panel = new JPanel();
+//	    panel.add(new JLabel("This is a label"));
+//	    panel.setBorder(new LineBorder(Color.BLACK)); // make it easy to see
+//	    frame.add(panel, new GridBagConstraints());
+//	    frame.setSize(400, 400);
+//	    frame.setLocationRelativeTo(null);
+//	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//	    frame.setVisible(true);
+//	}
 
 }
