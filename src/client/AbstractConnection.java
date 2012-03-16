@@ -11,7 +11,7 @@ import client.model.AbstractModel;
 
 /**
  * Abstract connection implements helper methods for reading and 
- * writing generic structures to a private static Logger LOGGER = Logger.getLogger("AbstractConnection");stream. Both the ServerConnection
+ * writing generic structures to a stream. Both the ServerConnection
  * and ClientConnection inherits from this.
  * 
  * AbstractConnection is thread safe.
@@ -127,6 +127,7 @@ public abstract class AbstractConnection {
 				models.add(model);
 				reader.readLine(); // Read the empty separator line
 			} catch(Exception e) {
+				// TODO This is way to generic, makes debugging hard
 				LOGGER.severe("Unkown model class sent by server, "+line);
 				LOGGER.severe(e.toString());
 			}

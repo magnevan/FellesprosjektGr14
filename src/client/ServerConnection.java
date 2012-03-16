@@ -30,13 +30,13 @@ public class ServerConnection extends AbstractConnection {
 	private static ServerConnection instance = null;	
 	
 	private ReaderThread readerThread;	
-	private int nextRequestId = 1;	
+	private int nextRequestId = 1;
 	private UserModel user;
 	
 	// Stores listeners while we wait for the server to respond
 	private Map<Integer, IServerResponseListener> listeners;
 	
-	// Stores models that come back from the server after beeing stored
+	// Stores models that come back from the server after being stored
 	private Map<Integer, AbstractModel> storedModels;
 		
 	
@@ -316,9 +316,7 @@ public class ServerConnection extends AbstractConnection {
 					Thread.sleep(100);
 				} catch(InterruptedException e) {}
 			}
-			model = storedModels.get(id);
-			storedModels.remove(id);
-			return model;
+			return storedModels.remove(id);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
