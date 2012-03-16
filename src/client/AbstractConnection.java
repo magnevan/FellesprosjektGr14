@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import client.model.AbstractModel;
+import client.model.TransferableModel;
 
 /**
  * Abstract connection implements helper methods for reading and 
@@ -86,7 +86,7 @@ public abstract class AbstractConnection {
 	 * 
 	 * @param models
 	 */	
-	protected void writeModels(AbstractModel[] models, int id, String method) throws IOException {
+	protected void writeModels(TransferableModel[] models, int id, String method) throws IOException {
 		writeModels(models, id, method, "");
 	}
 	
@@ -98,12 +98,12 @@ public abstract class AbstractConnection {
 	 * @param method
 	 * @param smethod
 	 */
-	protected void writeModels(AbstractModel[] models, int id, String method, String smethod) 
+	protected void writeModels(TransferableModel[] models, int id, String method, String smethod) 
 			throws IOException {
 
 		synchronized(writer) {
 			writer.write(formatCommand(id, method, smethod)+"\r\n");
-			for(AbstractModel m : models) {
+			for(TransferableModel m : models) {
 				if(m != null) {
 					m.toStream(writer);
 					writer.write("\r\n");
@@ -117,12 +117,12 @@ public abstract class AbstractConnection {
 	/**
 	 * Attempts to read a set of models from the input stream
 	 */
-	protected ArrayList<AbstractModel> readModels() throws IOException {
-		ArrayList<AbstractModel> models = new ArrayList<AbstractModel>();
+	protected ArrayList<TransferableModel> readModels() throws IOException {
+		ArrayList<TransferableModel> models = new ArrayList<TransferableModel>();
 		String line;
 		while(!(line = reader.readLine()).equals("")) {
 			try {
-				AbstractModel model = createModel(line);				
+				TransferableModel model = createModel(line);				
 				model.fromStream(reader);
 				models.add(model);
 				reader.readLine(); // Read the empty separator line
@@ -139,6 +139,6 @@ public abstract class AbstractConnection {
 	 * Create a model object based on the given name
 	 * @param name
 	 */
-	protected abstract AbstractModel createModel(String name);
+	protected abstract TransferableModel createModel(String name);
 	
 }

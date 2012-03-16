@@ -16,7 +16,7 @@ import java.util.Comparator;
  * @author peterringset
  *
  */
-public class MeetingModel extends AbstractModel {
+public class MeetingModel extends TransferableModel {
 	
 
 	public final static String TIME_FROM_PROPERTY = "timeFrom";
@@ -48,7 +48,6 @@ public class MeetingModel extends AbstractModel {
 
 	public MeetingModel(Calendar timeFrom, Calendar timeTo, UserModel owner) {
 		this();
-		changeSupport = new PropertyChangeSupport(this);
 
 		this.timeFrom = timeFrom;
 		this.timeTo = timeTo;
@@ -59,12 +58,23 @@ public class MeetingModel extends AbstractModel {
 	}
 	
 	public MeetingModel() {
+		changeSupport = new PropertyChangeSupport(this);
 		id = -1;
 		invitations = new ArrayList<InvitationModel>();
 	}
 	
 	public int getId() {
 		return id;
+	}
+	
+	/**
+	 * Get a ID that will identify a MeetingModel
+	 */
+	@Override
+	protected Object getMID() {
+		if(getId() != -1)
+			return getId();
+		return null;
 	}
 	
 	public Calendar getTimeFrom() {
@@ -292,7 +302,6 @@ public class MeetingModel extends AbstractModel {
 				invitations.add(new InvitationModel(user, this));
 			}
 		}		
-	}
-			
+	}		
 			
 }
