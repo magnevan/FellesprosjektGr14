@@ -1,5 +1,7 @@
 package client;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -26,6 +28,10 @@ import client.model.UserModel;
  */
 public class ServerConnection extends AbstractConnection {
 
+	private final PropertyChangeSupport pcs;
+	
+	public static final String LOGIN = "login";
+	
 	private static Logger LOGGER = Logger.getLogger("ServerConnection");
 	private static ServerConnection instance = null;	
 	
@@ -137,6 +143,7 @@ public class ServerConnection extends AbstractConnection {
 			throw e;
 		}
 		
+		pcs = new PropertyChangeSupport(this);
 	}
 	
 	/**
@@ -346,5 +353,12 @@ public class ServerConnection extends AbstractConnection {
 		}
 			
 		return id;
+	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		pcs.removePropertyChangeListener(listener);
 	}
 }

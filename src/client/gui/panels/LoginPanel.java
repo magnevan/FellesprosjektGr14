@@ -1,5 +1,15 @@
 package client.gui.panels;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.Properties;
+
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -8,11 +18,11 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import client.gui.MainPanel;
-import client.gui.week.WeekView;
+import client.ServerConnection;
 
-public class LoginPanel extends JPanel {
+public class LoginPanel extends JPanel implements ActionListener{
 	
+	private final PropertyChangeSupport pcs;
 	
 	private final JTextField txtUsername, txtPassword;
 	private final JButton loginButton;
@@ -24,8 +34,6 @@ public class LoginPanel extends JPanel {
 				lblPassword = new JLabel("Passord:");
 		txtUsername = new JTextField(15);
 		txtPassword = new JPasswordField(15);
-		
-		
 		
 		loginButton = new JButton("Logg inn");
 		
@@ -59,5 +67,58 @@ public class LoginPanel extends JPanel {
 		
 		//Behaviors
 		
+		txtUsername.addActionListener(this);
+		txtPassword.addActionListener(this);
+		loginButton.addActionListener(this);
+		
+		pcs = new PropertyChangeSupport(this);
 	}
+
+	@Override
+	public void actionPerformed(ActionEvent actE) {
+		if 			(txtUsername.getText().length() == 0) {
+			txtUsername.requestFocusInWindow();
+			
+		} else if 	(txtPassword.getText().length() == 0) {
+			txtUsername.requestFocusInWindow();
+			
+		} else {
+			try {
+				attemptLogin(txtUsername.getText(), txtPassword.getText());
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+		
+	}
+	
+	private void attemptLogin(String username, String password) throws IOException{
+		Properties p = new Properties();
+		p.load(new FileReader(new File("src/client.properties")));
+		
+		InetAddress target = InetAddress.getByName(p.getProperty("fp.target.url"));
+		int port = Integer.parseInt(p.getProperty("fp.target.port"));
+		
+		ServerConnection.login(target, port, username, password);
+		pcs.firePropertyChange(ServerConnection.LOGIN, false, ServerConnection.isOnline());
+	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
+	
+	public static void main(String[] args) {
+		
+		JFrame frame = new JFrame("Kalender");
+		
+		JPanel content = new LoginPanel();
+		frame.setContentPane(content);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.pack();
+		frame.setVisible(true);
+	}
+
 }
