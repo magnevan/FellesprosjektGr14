@@ -17,7 +17,7 @@ public class ClientMain implements IServerResponseListener {
 
 	public ClientMain() throws IOException {
 		// Attempt to login, will throw a IOException login error
-		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
+		ServerConnection.login(InetAddress.getLocalHost(), 3306, "root", "root");
 		
 		ServerConnection sc = ServerConnection.instance();
 		
