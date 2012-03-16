@@ -1,10 +1,13 @@
 package client.gui.panels;
 
-
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
@@ -50,12 +53,12 @@ public class AndrePanel extends JPanel {
 		buttonPanel.add(Box.createHorizontalStrut(40));
 		buttonPanel.add(downButton);
 		
-		
 		//active calenders center
 		JLabel aktiveKalendere = new JLabel();
 		aktiveKalendere.setText("Aktive kalendere");
 		
-		JPanel bottomPanel = new JPanel(new BorderLayout());
+		final JPanel bottomPanel = new JPanel(new BorderLayout());
+		
 		activeCalenders = new JList(new String[] {"Ola Nordmann", "Kari Larsen", "Kari Hansen"});
 		activeCalenders.setCellRenderer(new CheckListCellRenderer(activeCalenders.getCellRenderer(), selectionModel));
 		bottomPanel.setPreferredSize(new Dimension(270,100));
@@ -63,7 +66,26 @@ public class AndrePanel extends JPanel {
 		JScrollPane scroll2 = new JScrollPane(activeCalenders);
 		scroll2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		bottomPanel.add(scroll2);
-
+		
+		//Actions
+		final JLabel label = new JLabel();
+		label.setPreferredSize(new Dimension(200,200));
+		
+		upButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				label.setText("Ny person");
+			}
+		});
+		
+		downButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				label.setText("");
+			}
+		});
 		
 		//add elements
 		this.add(nameLabel);
@@ -76,6 +98,7 @@ public class AndrePanel extends JPanel {
 		this.add(Box.createVerticalStrut(2));
 		this.add(aktiveKalendere);
 		this.add(bottomPanel);
+		this.add(label);
 		
 	}
 	
