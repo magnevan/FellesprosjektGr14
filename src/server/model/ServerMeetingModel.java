@@ -8,6 +8,7 @@ import java.util.Calendar;
 
 import server.DBConnection;
 import server.ServerMain;
+import client.model.InvitationModel;
 import client.model.MeetingModel;
 import client.model.UserModel;
 
@@ -18,6 +19,8 @@ import client.model.UserModel;
  */
 public class ServerMeetingModel extends MeetingModel implements IServerModel {
 
+	protected String ownerId; 
+	
 	public ServerMeetingModel() {
 		super();
 	}
@@ -27,7 +30,7 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 	 * 
 	 * @param rs
 	 */
-	public ServerMeetingModel(ResultSet rs, DBConnection db) throws SQLException {
+	public ServerMeetingModel(ResultSet rs, DBConnection db) throws SQLException {		
 		id = rs.getInt("id");
 		setName(rs.getString("title"));
 		setDescription(rs.getString("description"));
@@ -41,14 +44,8 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 		toTime.setTime(rs.getDate("start_date"));
 		setTimeTo(toTime);
 		
-		// Create a list of all invited users
-		do {
-			if(rs.getString("username") != null)
-				attendees.add(ServerUserModel.findByUsername(rs.getString("username"), db));
-			if(!rs.next()) 
-				return;
-		} while(rs.getInt("id") == id); 
-		rs.previous();
+		// Set invitations to null forcing a re-fetch on next getInvitations()
+		invitations = null;
 	}
 
 	/**
@@ -62,6 +59,19 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 			owner = ServerUserModel.findByUsername(ownerId, ServerMain.dbConnection);
 		}
 		return owner;
+	}
+	
+	/**
+	 * Get meeting attenddes
+	 * 
+	 * Server side this may not yet be loaded, do JIT loading
+	 */
+	@Override
+	public ArrayList<InvitationModel> getInvitations() {
+		if(invitations == null) {
+			invitations = InvitationModel.findByMeeting(this, ServerMain.dbConnection);
+		}
+		return invitations;
 	}
 	
 	/**
@@ -85,7 +95,9 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 				id = rs.getInt(1);
 				st.close();
 			} else {
-				// TODO Update
+				// TODO Update, her må vi finne ut hva som er endret, sende notifications og eventuelt reset invitasjoner
+				System.err.println("Update is not implemented");
+				System.err.println(this.getInvitations().size() + " invitations would have been stored");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -131,7 +143,7 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 			String userList = userIn.toString().substring(1);
 			
 			ResultSet rs = db.preformQuery(
-					 "SELECT * FROM appointment as a " +
+					"SELECT DISTINCT a.* FROM appointment as a " +
 					"LEFT JOIN user_appointment as ap ON a.id = ap.appointment_id " +
 					"WHERE start_date >= '"+getFormattedDate(startDate)+"' " +
 					"AND start_date < '"+getFormattedDate(endDate)+"'" +

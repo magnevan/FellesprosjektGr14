@@ -5,6 +5,10 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -24,6 +28,8 @@ public class WeekView extends JPanel {
 	
 	private static final long serialVersionUID = -8533878088518459485L;
 	
+	public static final String WEEKCLICK = "";
+	
 	public static final int 
 		HOURHEIGHT = 50,
 		HOURWIDTH = 100,
@@ -34,6 +40,7 @@ public class WeekView extends JPanel {
 	private final JScrollPane weekScroll;
 	private final JLabel weekLabel;
 	private final JButton prevWeekButton, todayButton, nextWeekButton;
+	private PropertyChangeSupport pcs;
 	
 	
 	public WeekView() {
@@ -78,6 +85,8 @@ public class WeekView extends JPanel {
 		
 		this.add(northPanel, BorderLayout.NORTH);
 		this.add(centerPanel, BorderLayout.CENTER);
+		
+		pcs = new PropertyChangeSupport(this);
 	}
 	
 	
@@ -156,6 +165,7 @@ public class WeekView extends JPanel {
 		
 		for (int i = 0; i < 24*7; i++) {
 			HourCell hc = new HourCell(i / 7, HOURWIDTH,HOURHEIGHT);
+			hc.addMouseListener(new MouseClickListener(i));
 			hourCellPanel.add(hc);
 		}
 		
@@ -163,5 +173,56 @@ public class WeekView extends JPanel {
 		weekViewInternal.add(hourCellPanel);
 		
 		return weekViewInternal;
+	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
+	
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		pcs.removePropertyChangeListener(listener);
+	}
+	
+	class MouseClickListener implements MouseListener {
+		long timestamp;
+		boolean secondClick;
+		int day, hour;
+		
+		public MouseClickListener(int index) {
+			// Calculate which day and hour this listener is for
+			hour = index / 7;
+			day = index % 7 + 1;
+			// Create a timestamp;
+			timestamp = System.currentTimeMillis();
+			secondClick = false;
+		}
+		
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			// Clock the click and calculate delta time since last click
+			long now = System.currentTimeMillis();
+			long delta = now - timestamp;
+			timestamp = now;
+			// Only care about double clicks with delta < 500 ms
+			if (delta < 500 && !secondClick) {
+				// Propagate event to all listeners
+				pcs.firePropertyChange(WEEKCLICK, null, new int[]{day, hour});
+				secondClick = true;
+			} else {
+				secondClick = false;
+			}
+		}
+
+		/*
+		 * Unused methods
+		 */
+		@Override
+		public void mouseEntered(MouseEvent arg0) {}
+		@Override
+		public void mouseExited(MouseEvent arg0) {}
+		@Override
+		public void mousePressed(MouseEvent arg0) {}
+		@Override
+		public void mouseReleased(MouseEvent arg0) {}
 	}
 }

@@ -113,7 +113,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 					} else if(smethod.equals("MEETING") && parts.length == 4) {
 						int mid = Integer.parseInt(parts[3]);
 						
-						ServerMeetingModel match = ServerMeetingModel.findById(id, ServerMain.dbConnection);
+						ServerMeetingModel match = ServerMeetingModel.findById(mid, ServerMain.dbConnection);
 						writeModels(new AbstractModel[]{match},	id, method, smethod);	
 					}
 				

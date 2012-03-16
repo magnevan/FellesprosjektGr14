@@ -52,7 +52,7 @@ public class FilteredUserListModel
 	 */
 	@Override
 	public void setFilter() {
-		setFilter("");
+		setFilter(null);
 	}
 
 	/**
