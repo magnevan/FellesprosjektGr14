@@ -28,7 +28,6 @@ public class AndrePanel extends JPanel {
 	public AndrePanel(){
 		super(new VerticalLayout(5,SwingConstants.LEFT));
 		
-
 		//top
 		JPanel topPanel = new JPanel();
 		personLabel = new PersonLabel();
