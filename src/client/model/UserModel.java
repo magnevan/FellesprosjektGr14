@@ -1,5 +1,6 @@
 package client.model;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.io.IOException;
  * 
  * @author Peter Ringset
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
+ * @author Magne vikjord
  */
 public class UserModel extends TransferableModel {
 	
@@ -16,6 +18,31 @@ public class UserModel extends TransferableModel {
 						//password,
 						email,
 						fullName;
+	
+	private Color color;
+	
+	//These variables control which colors are given to new user calendars.
+	private static final Color[] availiableColors = new Color[]{
+		new Color(0x00E78649),
+		new Color(0x005E72AC),
+		new Color(0x00646BD0),
+		new Color(0x00223AF8),
+		new Color(0x003C57FA),
+		new Color(0x003775FF),
+		new Color(0x0046ADFF),
+		new Color(0x0092D642),
+		new Color(0x0065A716),
+		new Color(0x0048D17B),
+		new Color(0x006CDCB3),
+		new Color(0x0083E9FB),
+		new Color(0x0065D1FA),
+		new Color(0x00C0E192),
+		new Color(0x00E7E19F),
+		new Color(0x00E7C69F),
+		new Color(0x00FF9C9A),
+		new Color(0x00FF9AB9)
+	};
+	private static int nextColor = 0;
 	
 	/**
 	 * Create a user object
@@ -28,6 +55,7 @@ public class UserModel extends TransferableModel {
 		this.username = username;
 		this.email = email;
 		this.fullName = fullName;
+		this.color = UserModel.getNextColor();
 	}
 	
 	/**
@@ -107,5 +135,15 @@ public class UserModel extends TransferableModel {
 		username = in.readLine();
 		email = in.readLine();
 		fullName = in.readLine();
+	}
+	
+	public Color getColor() {
+		return this.color;
+	}
+	
+	private static Color getNextColor() {
+		Color c = availiableColors[nextColor];
+		nextColor = (nextColor + 1) % availiableColors.length;
+		return c;
 	}
 }
