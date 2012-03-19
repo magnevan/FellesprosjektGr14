@@ -65,10 +65,6 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 		Toolkit tk = Toolkit.getDefaultToolkit();
 		Dimension screenSize = tk.getScreenSize();
 		Dimension frameSize = this.getSize();
-		final int WIDTH = screenSize.width;
-		final int HEIGHT = screenSize.height;
-		// Setup the frame accordingly
-		// This is assuming you are extending the JFrame //class
 		
 		this.setLocation(
 				screenSize.width/2 - frameSize.width/2, 

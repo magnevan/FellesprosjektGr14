@@ -294,6 +294,16 @@ public class MeetingModel extends TransferableModel {
 	public void addAttendee(UserModel user) {
 		addAttendee(new UserModel[]{user});
 	}
+	
+	/**
+	 * Removes a attendee from the meeting
+	 * 
+	 * @param user
+	 */
+	public void removeAttendee(UserModel user) {
+		invitations.remove(getInvitation(user));
+	}
+	
 		
 	/**
 	 * Add a array of attendees to the meeting
