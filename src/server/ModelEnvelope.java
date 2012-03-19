@@ -10,7 +10,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
+import server.model.ServerInvitationModel;
+import server.model.ServerMeetingModel;
+import server.model.ServerMeetingRoomModel;
+import server.model.ServerNotificationModel;
 import server.model.ServerUserModel;
+import client.ModelCacher;
 import client.model.InvitationModel;
 import client.model.MeetingModel;
 import client.model.MeetingRoomModel;
@@ -78,7 +83,6 @@ public class ModelEnvelope {
 	 * @param server true if we're server side, false on client side
 	 */
 	public ModelEnvelope(BufferedReader reader, boolean server) throws IOException {
-		LinkedList<TransferableModel> list = new LinkedList<TransferableModel>();
 		HashMap<String, TransferableModel> modelBuff = new HashMap<String, TransferableModel>(); 
 		
 		String line = reader.readLine();
@@ -89,19 +93,22 @@ public class ModelEnvelope {
 		int numModels = Integer.parseInt(reader.readLine());
 		countModels = Integer.parseInt(reader.readLine());
 		
+		TransferableModel[] list = new TransferableModel[numModels];
+		
 		// create models
-		for(int i = 0; i < numModels; i++) {
-			TransferableModel model = createModel(reader.readLine(), reader, modelBuff, server);
+		for(int i = 0; i < numModels; i++) {			
+			list[i] = createModel(reader.readLine(), reader, modelBuff, server); 
 		}
 		
+		// Validate that we're at the end
 		if(!reader.readLine().equals("")) {
 			throw new IOException("Expected empty line after envelope, got "+line);
 		}
 		
 		// Turn around the models and push to list
-		for(int i = list.size()-1; i >= list.size()-countModels; i--) {
-			models.push(list.get(i));
-			modelUMIDs.add(list.get(i).getUMID());
+		for(int i = list.length-1; i >= list.length-countModels; i--) {
+			models.push(list[i]);
+			modelUMIDs.add(list[i].getUMID());
 		}
 	}
 
@@ -208,20 +215,43 @@ public class ModelEnvelope {
 	private TransferableModel createModel(String modelName,
 			BufferedReader reader, HashMap<String, TransferableModel> modelBuff,
 			boolean server) {
+
+		TransferableModel model = null;
+		try {
+			if(modelName.equals("UserModel"))
+				if(server) 
+					model = new ServerUserModel(reader, modelBuff);
+				else
+					model = new UserModel(reader, modelBuff);
+			else if(modelName.equals("MeetingModel"))
+				if(server)
+					model = new ServerMeetingModel(reader, modelBuff);
+				else
+					model = new MeetingModel(reader, modelBuff);
+			else if(modelName.equals("MeetingRoomModel"))
+				if(server)
+					model = new ServerMeetingRoomModel(reader, modelBuff);
+				else
+					model = new MeetingRoomModel(reader, modelBuff);
+			else if(modelName.equals("InvitationModel"))
+				if(server)
+					model = new ServerInvitationModel(reader, modelBuff);
+				else
+					model = new InvitationModel(reader, modelBuff);
+			else if(modelName.equals("NotificationModel"))
+				if(server)
+					model = new ServerNotificationModel(reader, modelBuff);
+				else
+					model = new NotificationModel(reader, modelBuff);
+					
+			// If we're on client run model through the cacher 
+			if(!server && model != null) 
+				model = ModelCacher.cache(model);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+		return model;
 		
-		TransferableModel model;
-		if(modelName.equals("UserModel"))
-			if(server) 
-				model = new ServerUserModel(reader, modelBuff);
-			else
-				model = new UserModel(reader, modelBuff);
-		else if(modelName.equals("MeetingModel"))
-			if(server)
-				model = new ServerMeetingModel(reader, modelBuff);
-			else
-				model = new MeetingModel(reader, modelBuff);
-		
-		return null;
 	}
 	
 }

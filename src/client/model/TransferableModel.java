@@ -1,5 +1,9 @@
 package client.model;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.HashMap;
+
 import server.ModelEnvelope;
 
 /**
@@ -26,6 +30,19 @@ public abstract class TransferableModel {
 	 * @throws IOException
 	 */
 	//public abstract void toStream(BufferedWriter stream) throws IOException ;
+	
+	/**
+	 * Create a model object based on data read from the given BufferedReader
+	 * and buffered models from the model buffer HashMap
+	 * 
+	 * @param reader
+	 * @param modelBuff
+	 */
+	//public TransferableModel(BufferedReader reader, 
+	//		HashMap<String, TransferableModel> modelBuff) {
+	//}
+	
+	public TransferableModel() {}
 	
 	/**
 	 * Called by the envelope as its about to dump itself to a stream. In this
