@@ -5,22 +5,27 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
+import client.gui.CheckListManager;
 import client.gui.JDefaultTextField;
 import client.gui.VerticalLayout;
 import client.gui.usersearch.FilteredUserList;
 import client.model.FilteredUserListModel;
 import client.model.UserModel;
 
-public class AndrePanel extends JPanel {
+public class AndrePanel extends JPanel{
 	
 	private final JList employeeList;
 	private final JList activeCalenders;
 	private final JButton upButton, downButton, newAppointmentButton;
-	private ListSelectionModel selectionModel = new DefaultListSelectionModel();
 	final PersonLabel personLabel;
 	final UserModel person;
-	//private final FilteredUserList search;
+	static JCheckBox checkBox;
+	 // make your JList as check list 
+	CheckListManager checkListManager; 
+	
 	
 	public AndrePanel(){
 		super(new VerticalLayout(5,SwingConstants.LEFT));
@@ -73,14 +78,23 @@ public class AndrePanel extends JPanel {
 		
 		//bottomPanel
 		final JPanel bottomPanel = new JPanel(new BorderLayout());
-		final DefaultListModel model2 = new DefaultListModel();
-		activeCalenders = new JList(model2);
-		activeCalenders.setCellRenderer(new CheckListCellRenderer(activeCalenders.getCellRenderer(), selectionModel));
+		 
+		 // to get checked items 
+		// checkListManager.getSelectionModel().isSelectedIndex(index);
+		
+		//private final FilteredUserList search;
+		
+		final DefaultListModel lol = new DefaultListModel();
+		activeCalenders = new JList(lol);
+		checkListManager = new CheckListManager(activeCalenders);
 		bottomPanel.setPreferredSize(new Dimension(270,100));
+		//activeCalenders.setEnabled(false);
+		activeCalenders.setForeground(Color.black);
 		bottomPanel.add(activeCalenders);
 		JScrollPane scroll2 = new JScrollPane(activeCalenders);
 		scroll2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		bottomPanel.add(scroll2);
+		
 		
 		JPanel addMeetingPanel = new JPanel(new BorderLayout());
 		addMeetingPanel.setPreferredSize(new Dimension(270,100));
@@ -93,8 +107,10 @@ public class AndrePanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				model2.addElement(employeeList.getSelectedValue());
 				//model2.addElement(search.getSelectedUsers()); 
+				
+				lol.addElement(employeeList.getSelectedValue());
+				
 			}
 		});
 		
@@ -103,7 +119,7 @@ public class AndrePanel extends JPanel {
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
 				//int index = activeCalenders.getSelectedIndex();
-				model2.removeElement(activeCalenders.getSelectedValue());
+				lol.removeElement(activeCalenders.getSelectedValue());
  			}
 		});
 		
@@ -122,10 +138,6 @@ public class AndrePanel extends JPanel {
 		
 	}
 	
-	public ListSelectionModel getSelectionModel(){ 
-        return selectionModel; 
-  }
-	
 	public static UserModel createUser(String userName, String email){
 		
 		UserModel person = new UserModel();
@@ -136,5 +148,6 @@ public class AndrePanel extends JPanel {
 		return person;
 		
 	}
-
+	
+		 
 }
