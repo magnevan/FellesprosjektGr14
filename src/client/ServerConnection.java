@@ -417,7 +417,7 @@ public class ServerConnection extends AbstractConnection {
 		from.set(2012, 3, 19, 11, 15);
 		Calendar to = Calendar.getInstance();
 		to.set(2012, 3, 19, 16, 00);
-		ServerConnection.instance().requestFilteredUserList(new Listener(), "");
+		ServerConnection.instance().requestMeeting(new Listener(), 23);
 	}
 	
 }
@@ -426,11 +426,10 @@ class Listener implements IServerResponseListener {
 
 	@Override
 	public void onServerResponse(int requestId, Object data) {
-		ArrayList<UserModel> users = (ArrayList<UserModel>) data;
-		for(UserModel u : users) {
-			System.out.println(u.getFullName());
-		}
+		MeetingModel meeting = ((ArrayList<MeetingModel>) data).get(0);
 		
+		System.out.println(meeting.getName());
+		System.out.println(meeting.getRoom());
 	}
 	
 }

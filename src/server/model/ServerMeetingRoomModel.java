@@ -62,6 +62,31 @@ public class ServerMeetingRoomModel extends MeetingRoomModel implements IServerM
 		 */
 		
 	}
+
+	/**
+	 * Find the room thats reserved for the given meeting, if any
+	 * 
+	 * @param id
+	 * @param db
+	 * @return
+	 */
+	public static ServerMeetingRoomModel findReservedRoom(int id, DBConnection db) {
+		try {
+			ResultSet rs = db.preformQuery(
+					"SELECT * FROM meeting_room AS mr " +
+					"LEFT JOIN meeting_room_booking AS mrb ON mr.room_number = mrb.meeting_room_number " +
+					"WHERE mrb.appointment_id = " + id + ";");
+			
+			if(rs.next()) {
+				return new ServerMeetingRoomModel(rs);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	
 
 	/**
@@ -77,7 +102,7 @@ public class ServerMeetingRoomModel extends MeetingRoomModel implements IServerM
 				c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND)				
 		);
 	}
-	
+
 	@Override
 	public void store() {
 		// TODO Auto-generated method stub

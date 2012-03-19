@@ -196,6 +196,13 @@ public class MeetingModel extends TransferableModel {
 		owner.fromStream(reader);
 		owner = (UserModel) ModelCacher.cache(owner);
 		
+		location = reader.readLine();
+		room = null;
+		if(!reader.readLine().equals("")) {
+			room = new MeetingRoomModel();
+			room.fromStream(reader);
+		}
+		
 		int no = Integer.parseInt(reader.readLine());
 		for( ; no > 0 ; no-- ) {
 			//reader.readLine(); // Class name
@@ -225,6 +232,14 @@ public class MeetingModel extends TransferableModel {
 		writer.write(sb.toString());		
 		
 		getOwner().toStream(writer);
+
+		writer.write(location+"\r\n");
+		if(room != null) {
+			writer.write("room\r\n");
+			room.toStream(writer);
+		} else {
+			writer.write("\r\n");
+		}
 		
 		writer.write(getInvitations().size()+"\r\n");
 		for(InvitationModel invitation : getInvitations()) {

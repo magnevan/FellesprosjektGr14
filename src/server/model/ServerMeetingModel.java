@@ -36,6 +36,10 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 		setDescription(rs.getString("description"));
 		ownerId = rs.getString("owner");
 		setActive(rs.getBoolean("active"));
+		setLocation(rs.getString("location"));
+		
+		// Pull in reserved room
+		setRoom(ServerMeetingRoomModel.findReservedRoom(id, db));
 		
 		Calendar fromTime = Calendar.getInstance();
 		fromTime.setTime(rs.getDate("start_date"));
@@ -46,6 +50,8 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 		
 		// Set invitations to null forcing a re-fetch on next getInvitations()
 		invitations = null;
+		
+		
 	}
 
 	/**
