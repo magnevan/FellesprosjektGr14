@@ -3,6 +3,7 @@ package client.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.util.Random;
 
 import javax.swing.*;
@@ -20,8 +21,7 @@ public class CheckListCellRenderer extends JPanel implements ListCellRenderer{
         setOpaque(false); 
         checkBox.setOpaque(true);
         
-       initComponents();
-        
+        initComponents();
         
     } 
  
@@ -30,6 +30,7 @@ public class CheckListCellRenderer extends JPanel implements ListCellRenderer{
         checkBox.setSelected(selectionModel.isSelectedIndex(index)); 
         
         //initComponents();
+       // checkBox.setPreferredSize(new Dimension(23,3));
         
         removeAll(); 
         add(checkBox, BorderLayout.WEST); 
@@ -39,7 +40,7 @@ public class CheckListCellRenderer extends JPanel implements ListCellRenderer{
     
     public void initComponents(){
     	
-    	  //Icon normal = UIManager.getIcon("CheckBox.icon");
+    	//Icon normal = UIManager.getIcon("CheckBox.icon");
         checkBox.setOpaque(true);
         Random random = new Random();
         int red = random.nextInt(256);

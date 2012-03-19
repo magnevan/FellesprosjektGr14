@@ -3,6 +3,8 @@ package client.gui.panels;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
@@ -24,11 +26,25 @@ public class PersonLabel extends JPanel {
 		JPanel logoutButtonPanel = new JPanel(); //this panel is here to avoid that the button stretches vertically
 		logoutButtonPanel.add(logoutButton);
 		
+		
+		
 		JPanel topPanel = new JPanel(new BorderLayout(10,0));
+		
+		logoutButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				//logout
+				JOptionPane.showMessageDialog(null, "Logger ut..");
+			}
+		});
+		
 		topPanel.add(nameLabel, BorderLayout.WEST);
 		topPanel.add(logoutButtonPanel, BorderLayout.EAST);
 		
 		this.add(topPanel,    BorderLayout.NORTH);
+		
+		
 		
 	}
 
