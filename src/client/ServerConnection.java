@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.logging.Logger;
 
 import client.gui.exceptions.BadLoginException;
@@ -423,30 +424,8 @@ public class ServerConnection extends AbstractConnection {
 	}	
 	
 	public static void main(String args[]) throws IOException {
-		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
-		Calendar from = Calendar.getInstance();
-		from.set(2012, 3, 19, 11, 15);
-		Calendar to = Calendar.getInstance();
-		to.set(2012, 3, 19, 16, 00);
+		//ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
 		
-		MeetingModel model = new MeetingModel(from, to, ServerConnection.instance().getUser());
-		model.addAttendee(ServerConnection.instance().getUser());
-		model = (MeetingModel) ServerConnection.instance().storeModel(model);
-		
-		System.out.println("Stored model, now has id "+model.getId());
-		System.out.println(model.getInvitation(ServerConnection.instance().getUser()).getStatus());
-	}
-	
-}
-
-class Listener implements IServerResponseListener {
-
-	@Override
-	public void onServerResponse(int requestId, Object data) {
-		MeetingModel meeting = ((ArrayList<MeetingModel>) data).get(0);
-		
-		System.out.println(meeting.getName());
-		System.out.println(meeting.getRoom());
 	}
 	
 }
