@@ -20,6 +20,8 @@ public class MeetingRoomModel extends TransferableModel {
 	private int places;
 	
 	private final static String ROOMNUMBER_CHANGED = "ROOMNUMBER_CHANGED";
+	private final static String NAME_CHANGED = "NAME_CHANGED";
+	private final static String PLACES_CHANGED = "PLACES_CHANGED";
 	
 	/**
 	 * Construct the meeting room model
@@ -56,7 +58,9 @@ public class MeetingRoomModel extends TransferableModel {
 	}
 	
 	public void setName(String name) {
+		String oldValue = this.name;
 		this.name = name;
+		pcs.firePropertyChange(NAME_CHANGED, oldValue, name);
 	}
 	
 	public int getNoPlaces() {
@@ -64,7 +68,9 @@ public class MeetingRoomModel extends TransferableModel {
 	}
 	
 	public void setNoPlaces(int places) {
+		int oldValue  = this.places;
 		this.places = places;
+		pcs.firePropertyChange(PLACES_CHANGED, oldValue, places);
 	}
 
 	public void setRoomNumber(String roomNumber) {
