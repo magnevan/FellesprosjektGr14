@@ -1,41 +1,55 @@
 package client.gui.panels;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.util.Properties;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import client.ClientMain;
-import client.IServerConnectionListener;
 import client.ServerConnection;
+import client.gui.exceptions.BadLoginException;
 
 public class LoginPanel extends JPanel implements ActionListener{
 	
 	private final JTextField txtUsername, txtPassword;
 	private final JButton loginButton;
+	private final JLabel lblStatus;
 	
 	public LoginPanel() {
 		
 		//GUI setup
+		lblStatus = new JLabel("test");
+		lblStatus.setForeground(Color.RED);
+		lblStatus.setFont(new Font(
+					lblStatus.getFont().getName(),
+					lblStatus.getFont().getStyle(),
+					11
+				));
+		
 		JLabel  lblUsername = new JLabel("Brukernavn:"), 
 				lblPassword = new JLabel("Passord:");
-		txtUsername = new JTextField(15);
-		txtPassword = new JPasswordField(15);
+		txtUsername = new JTextField(20);
+		txtPassword = new JPasswordField(20);
 		
 		loginButton = new JButton("Logg inn");
+		loginButton.setMinimumSize(new Dimension(
+					txtPassword.getPreferredSize().width,
+					loginButton.getMinimumSize().height
+				));
+		
 		
 		GroupLayout layout = new GroupLayout(this);
 		this.setLayout(layout);
@@ -49,6 +63,7 @@ public class LoginPanel extends JPanel implements ActionListener{
 							.addComponent(lblUsername)
 							.addComponent(lblPassword))
 					.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+							.addComponent(lblStatus)
 							.addComponent(txtUsername)
 							.addComponent(txtPassword)
 							.addComponent(loginButton))
@@ -56,6 +71,7 @@ public class LoginPanel extends JPanel implements ActionListener{
 		
 		layout.setVerticalGroup(
 				layout.createSequentialGroup()
+					.addComponent(lblStatus)
 					.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 							.addComponent(lblUsername)
 							.addComponent(txtUsername))
@@ -82,27 +98,43 @@ public class LoginPanel extends JPanel implements ActionListener{
 			txtPassword.requestFocusInWindow();
 			
 		} else {
-			try {
-				attemptLogin(txtUsername.getText(), txtPassword.getText());
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
+			attemptLogin(txtUsername.getText(), txtPassword.getText());
 		}
 		
 	}
 	
-	private void attemptLogin(String username, String password) throws IOException{
+	private void attemptLogin(String username, String password) {
 		//TODO temp
 		//ClientMain.client().serverConnectionChange(IServerConnectionListener.LOGIN);
 		//if (true) return;
 		
-		Properties p = new Properties();
-		p.load(new FileReader(new File("src/client.properties")));
+		InetAddress target;
+		int port;
 		
-		InetAddress target = InetAddress.getByName(p.getProperty("fp.target.url"));
-		int port = Integer.parseInt(p.getProperty("fp.target.port"));
+		try {
+			Properties p = new Properties();
+			p.load(new FileReader(new File("src/client.properties")));
+			
+			target = InetAddress.getByName(p.getProperty("fp.target.url"));
+			port = Integer.parseInt(p.getProperty("fp.target.port"));
+		} catch (IOException exp) {
+			System.out.println("Couldn't read properties");
+			exp.printStackTrace();
+			return;
+		}
 		
-		ServerConnection.login(target, port, username, password);
+		
+		try {
+			ServerConnection.login(target, port, username, password);
+		} catch (BadLoginException e) {
+			System.out.println("Bad login");
+			lblStatus.setText("Ugyldig brukernavn/passord");
+		} catch (ConnectException e) {
+			System.out.println("Could not connect");
+			lblStatus.setText("Klarte ikke opprette tilkobling til server");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 //	public static void main(String[] args) {
