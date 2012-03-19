@@ -1,6 +1,8 @@
 package client.model;
 
 import java.awt.Color;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -21,26 +23,31 @@ public class UserModel extends TransferableModel {
 	
 	private Color color;
 	
+	private CalendarModel calendar;
+	
+	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	public static final String NAME_CHANGE = "name change";
+	
 	//These variables control which colors are given to new user calendars.
 	private static final Color[] availiableColors = new Color[]{
-		new Color(0x00E78649),
-		new Color(0x005E72AC),
-		new Color(0x00646BD0),
-		new Color(0x00223AF8),
-		new Color(0x003C57FA),
-		new Color(0x003775FF),
-		new Color(0x0046ADFF),
-		new Color(0x0092D642),
-		new Color(0x0065A716),
-		new Color(0x0048D17B),
-		new Color(0x006CDCB3),
-		new Color(0x0083E9FB),
-		new Color(0x0065D1FA),
-		new Color(0x00C0E192),
-		new Color(0x00E7E19F),
-		new Color(0x00E7C69F),
-		new Color(0x00FF9C9A),
-		new Color(0x00FF9AB9)
+		new Color(0xE78649),
+		new Color(0x5E72AC),
+		new Color(0x646BD0),
+		new Color(0x223AF8),
+		new Color(0x3C57FA),
+		new Color(0x3775FF),
+		new Color(0x46ADFF),
+		new Color(0x92D642),
+		new Color(0x65A716),
+		new Color(0x48D17B),
+		new Color(0x6CDCB3),
+		new Color(0x83E9FB),
+		new Color(0x65D1FA),
+		new Color(0xC0E192),
+		new Color(0xE7E19F),
+		new Color(0xE7C69F),
+		new Color(0xFF9C9A),
+		new Color(0xFF9AB9)
 	};
 	private static int nextColor = 0;
 	
@@ -56,6 +63,7 @@ public class UserModel extends TransferableModel {
 		this.email = email;
 		this.fullName = fullName;
 		this.color = UserModel.getNextColor();
+		this.calendar = new CalendarModel(this);
 	}
 	
 	/**
@@ -102,6 +110,10 @@ public class UserModel extends TransferableModel {
 	public String getEmail() {
 		return email;
 	}
+	
+	public CalendarModel getCalendarModel() {
+		return this.calendar;
+	}
 
 	/**
 	 * 
@@ -145,5 +157,18 @@ public class UserModel extends TransferableModel {
 		Color c = availiableColors[nextColor];
 		nextColor = (nextColor + 1) % availiableColors.length;
 		return c;
+	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
+	
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		pcs.removePropertyChangeListener(listener);
+	}
+	
+	public void clearListeners() {
+		for (PropertyChangeListener listener : pcs.getPropertyChangeListeners())
+			pcs.removePropertyChangeListener(listener);
 	}
 }

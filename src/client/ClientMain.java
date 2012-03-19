@@ -19,6 +19,7 @@ import client.model.ActiveUserModel;
  * @author Magne
  *
  */
+@SuppressWarnings("serial")
 public class ClientMain extends JFrame implements IServerConnectionListener{
 
 	private LoginPanel loginPanel;
@@ -33,13 +34,12 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 		super("Kalender");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
-		contentPane = new JPanel(new GridBagLayout());
+		contentPane = new JPanel(new BorderLayout());
 		this.setContentPane(contentPane);
 		
 		loginPanel = new LoginPanel();
-		mainPanel = new MainPanel();
 		
-		contentPane.add(loginPanel,new GridBagConstraints());
+		contentPane.add(loginPanel,BorderLayout.CENTER);
 		this.pack();
 		centerOnScreen();
 		this.setResizable(false);
@@ -55,10 +55,21 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 		if (change == IServerConnectionListener.LOGIN) {
 			this.setResizable(true);
 			contentPane.remove(loginPanel);
-			this.setLayout(new BorderLayout());
+			
+			mainPanel = new MainPanel();
+			
 			contentPane.add(mainPanel, BorderLayout.CENTER);
 			this.pack();
 			centerOnScreen();
+		}
+		else if (change == IServerConnectionListener.LOGOUT){
+			contentPane.remove(mainPanel);
+			contentPane.add(loginPanel, BorderLayout.CENTER);
+			this.pack();
+			this.setResizable(false);
+			centerOnScreen();
+			
+			mainPanel = null; //Dispose of mainPanel. This might need more work.
 		}
 	}
 	
@@ -82,6 +93,9 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 	}
 	
 	public static void setActiveUser(ActiveUserModel aumodel) {
+		if (activeUser != null)
+			activeUser.clearListeners();
+		
 		activeUser = aumodel;
 	}
 	

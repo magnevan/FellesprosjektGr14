@@ -19,7 +19,11 @@ public class CalendarModel {
 	public final static String	MEETING_ADDED = "MEETING_ADDED";
 	public final static String  MEETING_REMOVED = "MEETING REMOVE";
 	
-	public CalendarModel() {
+	public final UserModel owner;
+	
+	public CalendarModel(UserModel owner) {
+		
+		this.owner = owner;
 		
 		meetings = new HashSet<MeetingModel>();
 		meetingsFrom = new TreeSet<MeetingModel>();

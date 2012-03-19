@@ -22,6 +22,7 @@ import javax.swing.JTextField;
 import client.ServerConnection;
 import client.gui.exceptions.BadLoginException;
 
+@SuppressWarnings("serial")
 public class LoginPanel extends JPanel implements ActionListener{
 	
 	private final JTextField txtUsername, txtPassword;
@@ -41,8 +42,8 @@ public class LoginPanel extends JPanel implements ActionListener{
 		
 		JLabel  lblUsername = new JLabel("Brukernavn:"), 
 				lblPassword = new JLabel("Passord:");
-		txtUsername = new JTextField(20);
-		txtPassword = new JPasswordField(20);
+		txtUsername = new JTextField("runar",20);
+		txtPassword = new JPasswordField("runar",20);
 		
 		loginButton = new JButton("Logg inn");
 		loginButton.setMinimumSize(new Dimension(
@@ -104,9 +105,6 @@ public class LoginPanel extends JPanel implements ActionListener{
 	}
 	
 	private void attemptLogin(String username, String password) {
-		//TODO temp
-		//ClientMain.client().serverConnectionChange(IServerConnectionListener.LOGIN);
-		//if (true) return;
 		
 		InetAddress target;
 		int port;
