@@ -26,8 +26,6 @@ public class PersonLabel extends JPanel {
 		JPanel logoutButtonPanel = new JPanel(); //this panel is here to avoid that the button stretches vertically
 		logoutButtonPanel.add(logoutButton);
 		
-		
-		
 		JPanel topPanel = new JPanel(new BorderLayout(10,0));
 		
 		logoutButton.addActionListener(new ActionListener() {
@@ -35,7 +33,7 @@ public class PersonLabel extends JPanel {
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
 				//logout
-				JOptionPane.showMessageDialog(null, "Logger ut..");
+				JOptionPane.showMessageDialog(null, "Er du sikker på at du vil logge ut?");
 			}
 		});
 		

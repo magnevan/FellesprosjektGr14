@@ -35,7 +35,7 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 		this.setContentPane(contentPane);
 		
 		loginPanel = new LoginPanel();
-		mainPanel = new MainPanel();
+		//mainPanel = new MainPanel();
 		
 		contentPane.add(loginPanel,new GridBagConstraints());
 		this.pack();
@@ -54,6 +54,7 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 			this.setResizable(true);
 			contentPane.remove(loginPanel);
 			this.setLayout(new BorderLayout());
+			mainPanel = new MainPanel();
 			contentPane.add(mainPanel, BorderLayout.CENTER);
 			this.pack();
 			centerOnScreen();

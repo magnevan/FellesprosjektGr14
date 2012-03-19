@@ -93,8 +93,8 @@ public class LoginPanel extends JPanel implements ActionListener{
 	
 	private void attemptLogin(String username, String password) throws IOException{
 		//TODO temp
-		ClientMain.client().serverConnectionChange(IServerConnectionListener.LOGIN);
-		if (true) return;
+		//ClientMain.client().serverConnectionChange(IServerConnectionListener.LOGIN);
+		//if (true) return;
 		
 		Properties p = new Properties();
 		p.load(new FileReader(new File("src/client.properties")));

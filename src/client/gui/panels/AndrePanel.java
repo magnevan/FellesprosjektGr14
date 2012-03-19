@@ -25,7 +25,7 @@ public class AndrePanel extends JPanel{
 	static JCheckBox checkBox;
 	 // make your JList as check list 
 	CheckListManager checkListManager; 
-	
+	FilteredUserList search;
 	
 	public AndrePanel(){
 		super(new VerticalLayout(5,SwingConstants.LEFT));
@@ -41,11 +41,10 @@ public class AndrePanel extends JPanel{
 		JDefaultTextField inputEmployee = new JDefaultTextField("Skriv navn eller epost til ansatt...", 21);
 		
 		//search panel
-		//search = new FilteredUserList(new FilteredUserListModel());
+		search = new FilteredUserList(new FilteredUserListModel());
 		person = new UserModel();
 		
 		//old employeelist panel
-		
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		final DefaultListModel model = new DefaultListModel();
 		
@@ -54,14 +53,12 @@ public class AndrePanel extends JPanel{
 		model.addElement(createUser("Test", "test@test.no"));
 		model.addElement(createUser("Test2","Test2@test.no"));
 		
-		
 		employeeList = new JList(model);
 		centerPanel.setPreferredSize(new Dimension(270,100));
 		centerPanel.add(employeeList);
 		JScrollPane scroll = new JScrollPane(employeeList);
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		centerPanel.add(scroll);
-		
 		
 		//button panel
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -107,9 +104,9 @@ public class AndrePanel extends JPanel{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				//model2.addElement(search.getSelectedUsers()); 
+				lol.addElement(search.getSelectedUsers()); 
 				
-				lol.addElement(employeeList.getSelectedValue());
+				//lol.addElement(employeeList.getSelectedValue());
 				
 			}
 		});
@@ -127,8 +124,8 @@ public class AndrePanel extends JPanel{
 		this.add(topPanel);
 		this.add(Box.createVerticalStrut(30));
 		this.add(ansatte);
-		//this.add(search);
-		this.add(centerPanel);
+		this.add(search);
+		//this.add(centerPanel);
 		this.add(Box.createVerticalStrut(10));
 		this.add(buttonPanel);
 		this.add(Box.createVerticalStrut(2));
