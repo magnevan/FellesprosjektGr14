@@ -1,9 +1,10 @@
 package client.gui.panels;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -13,30 +14,42 @@ import java.util.Properties;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import client.ClientMain;
-import client.IServerConnectionListener;
 import client.ServerConnection;
+import client.gui.exceptions.BadLoginException;
 
 public class LoginPanel extends JPanel implements ActionListener{
 	
 	private final JTextField txtUsername, txtPassword;
 	private final JButton loginButton;
+	private final JLabel lblStatus;
 	
 	public LoginPanel() {
 		
 		//GUI setup
+		lblStatus = new JLabel("test");
+		lblStatus.setForeground(Color.RED);
+		lblStatus.setFont(new Font(
+					lblStatus.getFont().getName(),
+					lblStatus.getFont().getStyle(),
+					11
+				));
+		
 		JLabel  lblUsername = new JLabel("Brukernavn:"), 
 				lblPassword = new JLabel("Passord:");
-		txtUsername = new JTextField(15);
-		txtPassword = new JPasswordField(15);
+		txtUsername = new JTextField(20);
+		txtPassword = new JPasswordField(20);
 		
 		loginButton = new JButton("Logg inn");
+		loginButton.setMinimumSize(new Dimension(
+					txtPassword.getPreferredSize().width,
+					loginButton.getMinimumSize().height
+				));
+		
 		
 		GroupLayout layout = new GroupLayout(this);
 		this.setLayout(layout);
@@ -50,6 +63,7 @@ public class LoginPanel extends JPanel implements ActionListener{
 							.addComponent(lblUsername)
 							.addComponent(lblPassword))
 					.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+							.addComponent(lblStatus)
 							.addComponent(txtUsername)
 							.addComponent(txtPassword)
 							.addComponent(loginButton))
@@ -57,6 +71,7 @@ public class LoginPanel extends JPanel implements ActionListener{
 		
 		layout.setVerticalGroup(
 				layout.createSequentialGroup()
+					.addComponent(lblStatus)
 					.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
 							.addComponent(lblUsername)
 							.addComponent(txtUsername))
@@ -111,13 +126,13 @@ public class LoginPanel extends JPanel implements ActionListener{
 		
 		try {
 			ServerConnection.login(target, port, username, password);
-		} catch (ConnectException e) {
-			System.out.println("Connect Exception");
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
+		} catch (BadLoginException e) {
 			System.out.println("Bad login");
-			e.printStackTrace();
-		} catch (IOException e) {
+			lblStatus.setText("Ugyldig brukernavn/passord");
+		} catch (ConnectException e) {
+			System.out.println("Could not connect");
+			lblStatus.setText("Klarte ikke opprette tilkobling til server");
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

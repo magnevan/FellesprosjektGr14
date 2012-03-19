@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import client.gui.exceptions.BadLoginException;
 import client.model.InvitationModel;
 import client.model.MeetingModel;
 import client.model.MeetingRoomModel;
@@ -133,8 +134,7 @@ public class ServerConnection extends AbstractConnection {
 			writeLine(String.format("LOGIN %s %s", username, password));			
 			String line = reader.readLine();
 			if(!line.startsWith("OK")) {
-//				throw new BadLoginException();
-				throw new IllegalArgumentException("Bad login");
+				throw new BadLoginException();
 			}
 			
 			line = reader.readLine();// User header
