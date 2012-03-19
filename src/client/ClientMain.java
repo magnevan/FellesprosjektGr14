@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 
 import client.gui.panels.LoginPanel;
 import client.gui.panels.MainPanel;
+import client.model.ActiveUserModel;
 
 /**
  * Main entry point for the client
@@ -26,6 +27,7 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 	private JPanel contentPane;
 	
 	private static ClientMain client;
+	private static ActiveUserModel activeUser;
 	
 	public ClientMain() {
 		super("Kalender");
@@ -77,6 +79,14 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 	 */
 	public static ClientMain client() {
 		return client;
+	}
+	
+	public static void setActiveUser(ActiveUserModel aumodel) {
+		activeUser = aumodel;
+	}
+	
+	public static ActiveUserModel getActiveUser() {
+		return activeUser;
 	}
 	
 	public static void main(String[] args) {

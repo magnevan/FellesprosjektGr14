@@ -12,13 +12,16 @@ public class ActiveUserModel extends UserModel {
 	protected PropertyChangeSupport changeSupport;
 	
 	
-
-	
 	public ActiveUserModel(String username, String email, String fullName) {
 		super(username, email, fullName);
 		changeSupport = new PropertyChangeSupport(this);
 		notifications = new ArrayList<NotificationModel>();
 	}
+	
+	public ActiveUserModel(UserModel model) {
+		this(model.username,  model.email, model.fullName);
+	}
+	
 
 	public void addNotification(NotificationModel notification) {
 
