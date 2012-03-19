@@ -83,8 +83,7 @@ public class MeetingRoomModel extends TransferableModel {
 	public void fromStream(BufferedReader reader) throws IOException {
 		setRoomNumber(reader.readLine());
 		setName(reader.readLine());
-		setNoPlaces(Integer.parseInt(reader.readLine()));
-		reader.readLine(); // filler line		
+		setNoPlaces(Integer.parseInt(reader.readLine()));		
 	}
 
 	/**
@@ -95,12 +94,9 @@ public class MeetingRoomModel extends TransferableModel {
 	public void toStream(BufferedWriter writer) throws IOException {
 		StringBuffer sb = new StringBuffer();
 		
-		sb.append("MeetingRoomModel\r\n");
 		sb.append(getRoomNumber()+"\r\n");
 		sb.append(getName()+"\r\n");
-		sb.append(getNoPlaces()+"\r\n");
-		sb.append("\r\n");
-		
+		sb.append(getNoPlaces()+"\r\n");		
 		writer.write(sb.toString());
 		
 	}

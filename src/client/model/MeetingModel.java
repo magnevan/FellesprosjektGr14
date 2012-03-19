@@ -191,14 +191,14 @@ public class MeetingModel extends TransferableModel {
 			e.printStackTrace();
 		}		
 		
-		reader.readLine(); // Class name		
+		//reader.readLine(); // Class name		
 		owner = new UserModel();
 		owner.fromStream(reader);
 		owner = (UserModel) ModelCacher.cache(owner);
 		
 		int no = Integer.parseInt(reader.readLine());
 		for( ; no > 0 ; no-- ) {
-			reader.readLine(); // Class name
+			//reader.readLine(); // Class name
 			InvitationModel i = new InvitationModel();
 			i.fromStream(reader);
 			i = (InvitationModel) ModelCacher.cache(i);
@@ -215,7 +215,6 @@ public class MeetingModel extends TransferableModel {
 		StringBuilder sb = new StringBuilder();
 		DateFormat df = DateFormat.getDateTimeInstance();
 		
-		sb.append("MeetingModel\r\n");
 		sb.append(getId() + "\r\n");
 		sb.append(getName() + "\r\n");
 		if(getDescription() != null) 

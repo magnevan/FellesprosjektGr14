@@ -109,6 +109,7 @@ public abstract class AbstractConnection {
 			writer.write(formatCommand(id, method, smethod)+"\r\n");
 			for(TransferableModel m : models) {
 				if(m != null) {
+					writer.write(getModelName(m) + "\r\n");
 					m.toStream(writer);
 					writer.write("\r\n");
 				}

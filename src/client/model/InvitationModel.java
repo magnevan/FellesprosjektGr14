@@ -109,7 +109,6 @@ public class InvitationModel extends TransferableModel {
 	 */
 	@Override
 	public void toStream(BufferedWriter writer) throws IOException {
-		writer.write("InvitationModel\r\n");
 		writer.write(status.toString()+"\r\n");
 		user.toStream(writer);
 	}

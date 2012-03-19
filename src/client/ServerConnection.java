@@ -414,10 +414,10 @@ public class ServerConnection extends AbstractConnection {
 	public static void main(String args[]) throws IOException {
 		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
 		Calendar from = Calendar.getInstance();
-		from.set(2012, 3, 19, 13, 15);
+		from.set(2012, 3, 19, 11, 15);
 		Calendar to = Calendar.getInstance();
 		to.set(2012, 3, 19, 16, 00);
-		ServerConnection.instance().requestAvailableRooms(new Listener(), from, to);
+		ServerConnection.instance().requestFilteredUserList(new Listener(), "");
 	}
 	
 }
@@ -426,9 +426,9 @@ class Listener implements IServerResponseListener {
 
 	@Override
 	public void onServerResponse(int requestId, Object data) {
-		ArrayList<MeetingRoomModel> rooms = (ArrayList<MeetingRoomModel>) data;
-		for(MeetingRoomModel m : rooms) {
-			System.out.println(m.getName());
+		ArrayList<UserModel> users = (ArrayList<UserModel>) data;
+		for(UserModel u : users) {
+			System.out.println(u.getFullName());
 		}
 		
 	}

@@ -90,7 +90,6 @@ public class UserModel extends TransferableModel {
 	public void toStream(BufferedWriter os) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("UserModel\r\n");
 		sb.append(getUsername() + "\r\n");
 		//sb.append(getPassword() + "\r\n");
 		sb.append(getEmail() + "\r\n");
