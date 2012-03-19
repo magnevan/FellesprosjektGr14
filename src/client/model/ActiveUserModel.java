@@ -21,11 +21,10 @@ public class ActiveUserModel extends UserModel {
 	}
 
 	public void addNotification(NotificationModel notification) {
-		ArrayList<NotificationModel> oldValue = notifications;
+
 		notifications.add(notification);
-		
-		//Ikke sikker på om dette blir riktig
-		changeSupport.firePropertyChange(NOTIFICATIONS_PROPERTY, oldValue, this.notifications);
+
+		changeSupport.firePropertyChange(NOTIFICATIONS_PROPERTY, null, notification);
 		
 	}
 
