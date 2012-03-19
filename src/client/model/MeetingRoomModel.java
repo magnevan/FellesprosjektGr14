@@ -11,24 +11,66 @@ import java.io.IOException;
  * @author peterringset
  *
  */
-public class MeetingRoomModel extends AbstractModel {
+public class MeetingRoomModel extends TransferableModel {
 	
-	PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	PropertyChangeSupport pcs;
 	
 	private String roomNumber;
+	private String name;
+	private int places;
 	
 	private final static String ROOMNUMBER_CHANGED = "ROOMNUMBER_CHANGED";
+	private final static String NAME_CHANGED = "NAME_CHANGED";
+	private final static String PLACES_CHANGED = "PLACES_CHANGED";
 	
 	/**
 	 * Construct the meeting room model
 	 * @param roomNumber
 	 */
 	public MeetingRoomModel(String roomNumber) {
-		this.roomNumber = roomNumber;
+		this();
+		this.roomNumber = roomNumber;		
+	}
+	
+	/**
+	 * Empty constructor for stream transfer support
+	 */
+	public MeetingRoomModel() {
+		pcs = new PropertyChangeSupport(this);
+		name = "";
+		places = 0;
 	}
 
+	/**
+	 * Get unique ID
+	 */
+	@Override
+	protected Object getMID() {
+		return roomNumber;
+	}
+	
 	public String getRoomNumber() {
 		return roomNumber;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		String oldValue = this.name;
+		this.name = name;
+		pcs.firePropertyChange(NAME_CHANGED, oldValue, name);
+	}
+	
+	public int getNoPlaces() {
+		return places;
+	}
+	
+	public void setNoPlaces(int places) {
+		int oldValue  = this.places;
+		this.places = places;
+		pcs.firePropertyChange(PLACES_CHANGED, oldValue, places);
 	}
 
 	public void setRoomNumber(String roomNumber) {
@@ -39,15 +81,33 @@ public class MeetingRoomModel extends AbstractModel {
 		pcs.firePropertyChange(ROOMNUMBER_CHANGED, oldValue, roomNumber);
 	}
 	
+	/**
+	 * Read model from stream
+	 * 
+	 */
 	@Override
-	public void fromStream(BufferedReader stream) throws IOException {
-		// TODO Auto-generated method stub
-		
+	public void fromStream(BufferedReader reader) throws IOException {
+		setRoomNumber(reader.readLine());
+		setName(reader.readLine());
+		setNoPlaces(Integer.parseInt(reader.readLine()));
+		reader.readLine(); // filler line		
 	}
 
+	/**
+	 * Dump model to stream
+	 * 
+	 */
 	@Override
-	public void toStream(BufferedWriter stream) throws IOException {
-		// TODO Auto-generated method stub
+	public void toStream(BufferedWriter writer) throws IOException {
+		StringBuffer sb = new StringBuffer();
+		
+		sb.append("MeetingRoomModel\r\n");
+		sb.append(getRoomNumber()+"\r\n");
+		sb.append(getName()+"\r\n");
+		sb.append(getNoPlaces()+"\r\n");
+		sb.append("\r\n");
+		
+		writer.write(sb.toString());
 		
 	}
 }

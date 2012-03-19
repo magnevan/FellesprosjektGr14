@@ -49,9 +49,9 @@ public class AndrePanel extends JPanel{
 		final DefaultListModel model = new DefaultListModel();
 		
 		//adding some test persons
-		model.addElement(createUser("Susanngu","susanngu@stud.ntnu.no"));
-		model.addElement(createUser("Test", "test@test.no"));
-		model.addElement(createUser("Test2","Test2@test.no"));
+		model.addElement(createUser("Susanngu","susanngu@stud.ntnu.no", "Susanne"));
+		model.addElement(createUser("Test", "test@test.no", "Test 1"));
+		model.addElement(createUser("Test2","Test2@test.no", "Test 2"));
 		
 		employeeList = new JList(model);
 		centerPanel.setPreferredSize(new Dimension(270,100));
@@ -116,7 +116,11 @@ public class AndrePanel extends JPanel{
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
 				//int index = activeCalenders.getSelectedIndex();
-				lol.removeElement(activeCalenders.getSelectedValue());
+
+				//lol.removeElement(activeCalenders.getSelectedValue());
+
+				//model2.removeElement(activeCalenders.getSelectedValue());
+
  			}
 		});
 		
@@ -135,13 +139,31 @@ public class AndrePanel extends JPanel{
 		
 	}
 	
+
 	public static UserModel createUser(String userName, String email){
 		
 		UserModel person = new UserModel();
-		userName = "Susanne";
-		email = "lool";
+		//userName = "Susanne";
+		//email = "lool";
 		//person.setName(userName);
 		//person.setEmail(email);
+		
+		return person;
+		
+	}
+		
+		/*
+		 * 
+=======
+	public ListSelectionModel getSelectionModel(){ 
+        return selectionModel; 
+  }
+  */
+	
+	public static UserModel createUser(String userName, String email, String fullName){
+		
+		UserModel person = new UserModel(userName, email, fullName);
+		
 		return person;
 		
 	}
