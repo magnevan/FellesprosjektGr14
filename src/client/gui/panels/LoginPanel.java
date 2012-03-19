@@ -7,6 +7,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.util.Properties;
 
@@ -82,27 +83,43 @@ public class LoginPanel extends JPanel implements ActionListener{
 			txtPassword.requestFocusInWindow();
 			
 		} else {
-			try {
-				attemptLogin(txtUsername.getText(), txtPassword.getText());
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
+			attemptLogin(txtUsername.getText(), txtPassword.getText());
 		}
 		
 	}
 	
-	private void attemptLogin(String username, String password) throws IOException{
+	private void attemptLogin(String username, String password) {
 		//TODO temp
 		//ClientMain.client().serverConnectionChange(IServerConnectionListener.LOGIN);
 		//if (true) return;
 		
-		Properties p = new Properties();
-		p.load(new FileReader(new File("src/client.properties")));
+		InetAddress target;
+		int port;
 		
-		InetAddress target = InetAddress.getByName(p.getProperty("fp.target.url"));
-		int port = Integer.parseInt(p.getProperty("fp.target.port"));
+		try {
+			Properties p = new Properties();
+			p.load(new FileReader(new File("src/client.properties")));
+			
+			target = InetAddress.getByName(p.getProperty("fp.target.url"));
+			port = Integer.parseInt(p.getProperty("fp.target.port"));
+		} catch (IOException exp) {
+			System.out.println("Couldn't read properties");
+			exp.printStackTrace();
+			return;
+		}
 		
-		ServerConnection.login(target, port, username, password);
+		
+		try {
+			ServerConnection.login(target, port, username, password);
+		} catch (ConnectException e) {
+			System.out.println("Connect Exception");
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			System.out.println("Bad login");
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 //	public static void main(String[] args) {

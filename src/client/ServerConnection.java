@@ -61,6 +61,7 @@ public class ServerConnection extends AbstractConnection {
 	 */
 	public static boolean login(InetAddress address, int port, 
 			String username, String password) throws IOException {
+		
 		instance = new ServerConnection(address, port, username, password);
 		fireServerConnectionChange(IServerConnectionListener.LOGIN);
 		return true;
@@ -132,6 +133,7 @@ public class ServerConnection extends AbstractConnection {
 			writeLine(String.format("LOGIN %s %s", username, password));			
 			String line = reader.readLine();
 			if(!line.startsWith("OK")) {
+//				throw new BadLoginException();
 				throw new IllegalArgumentException("Bad login");
 			}
 			
