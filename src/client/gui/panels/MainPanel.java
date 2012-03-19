@@ -2,6 +2,8 @@ package client.gui.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -14,14 +16,15 @@ public class MainPanel extends JPanel {
 
 	private static final long serialVersionUID = -6453034572305492442L;
 
+	private final JTabbedPane optionTabbedPane;
+	private NewAppointmentPanel newAppointmentPane = null;
 
 	public MainPanel() {
 		super(new BorderLayout());
 		
-		JTabbedPane optionTabbedPane = new JTabbedPane();
+		optionTabbedPane = new JTabbedPane();
 		JTabbedPane calendarTabbedPane = new JTabbedPane();
 		
-		//AvtalePanel ap = new AvtalePanel();
 		HovedPanel hp = new HovedPanel();
 		VarselPanel vp = new VarselPanel();
 		AndrePanel akp = new AndrePanel();
@@ -35,23 +38,35 @@ public class MainPanel extends JPanel {
 		calendarTabbedPane.addTab("Måned", new JPanel()); //TODO
 		
 		//TODO This should probably be done in a better manner
-		optionTabbedPane.setPreferredSize(new Dimension(300,calendarTabbedPane.getPreferredSize().height));
+		optionTabbedPane.setPreferredSize(new Dimension(330,calendarTabbedPane.getPreferredSize().height));
 		
 		this.add(optionTabbedPane,BorderLayout.CENTER);
 		this.add(calendarTabbedPane, BorderLayout.EAST);
+		
+		//Listeners
+		ActionListener listener = new NewAppointmentListener(this);
+		hp.getNewAppointmentButton().addActionListener(listener);
+		akp.getNewAppointmentButton().addActionListener(listener);
+		vp.getNewAppointmentButton().addActionListener(listener);
 	}
 	
-	
-	public static void main(String[] args) {
-		
-		JFrame frame = new JFrame("Kalender");
-		
-		JPanel content = new MainPanel();
-		frame.setContentPane(content);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		frame.pack();
-		frame.setVisible(true);
+	private void OpenNewAppointment() {
+		if (newAppointmentPane == null) {
+			newAppointmentPane = new NewAppointmentPanel();
+			optionTabbedPane.addTab("Ny Avtale", newAppointmentPane);
+		}
+		optionTabbedPane.setSelectedComponent(newAppointmentPane);
 	}
-
+	
+	class NewAppointmentListener implements ActionListener {
+		private final MainPanel host;
+		NewAppointmentListener(MainPanel host) {
+			this.host = host;
+		}
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			host.OpenNewAppointment();
+		}
+	}
+	
 }

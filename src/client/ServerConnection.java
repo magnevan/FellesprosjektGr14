@@ -75,6 +75,7 @@ public class ServerConnection extends AbstractConnection {
 	 */
 	public static boolean logout() {
 		fireServerConnectionChange(IServerConnectionListener.LOGOUT);
+		ClientMain.setActiveUser(null);
 		if(instance != null) {
 			try {
 				instance.writeLine(instance.formatCommand(0, "LOGOUT"));

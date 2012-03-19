@@ -22,8 +22,6 @@ import client.gui.VerticalLayout;
  */
 public class HovedPanel extends JPanel{
 	
-	//private final JLabel nameLabel;
-	//private final JButton logoutButton;
 	private final JList appointmentList;
 	private final JButton newAppointmentButton;
 	
@@ -56,6 +54,10 @@ public class HovedPanel extends JPanel{
 		this.add(centerPanel);
 		this.add(bottomPanel);
 		
+	}
+	
+	public JButton getNewAppointmentButton() {
+		return newAppointmentButton;
 	}
 	
 }
