@@ -42,7 +42,7 @@ public class AppointmentPanel extends JPanel implements PropertyChangeListener {
     	
     	c.gridx = 0;
     	c.gridy = 0;
-    	c.fill = c.HORIZONTAL;
+    	//c.fill = c.HORIZONTAL;
 	    nameLabel = new JLabel();
 		add(nameLabel,c);
 		
@@ -73,13 +73,14 @@ public class AppointmentPanel extends JPanel implements PropertyChangeListener {
 		
 		//Sletting av avtale
 		if(!model.isActive()){
-			//metode som fjerner AppointmentPanel
+			//trenger en metode som fjerner AppointmentPanel
+			
 			return;
 		}
 		
 		nameLabel.setText(model.getName());
 
-		if(model.getLocation() != null){locationLabel.setText(model.getLocation());}
+		if(!model.getLocation().equals("Annet")){locationLabel.setText(model.getLocation());}
 		else{locationLabel.setText(model.getRoom().getRoomNumber());}
 			
 		timeLabel.setText((timeToString(model.getTimeFrom(), model.getTimeTo())));
