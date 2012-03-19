@@ -1,12 +1,16 @@
 package client.gui.panels;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.util.Calendar;
 
+import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -29,6 +33,7 @@ public class NewAppointmentPanel extends JPanel {
 	private final JTextField moteromText;
 	private final JTextArea beskrivelseTextArea;
 	private final FilteredUserList filteredUserList;
+	private final JButton addEmployeeButton, removeEmployeeButton;
 	
 	public NewAppointmentPanel() {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
@@ -82,17 +87,25 @@ public class NewAppointmentPanel extends JPanel {
 				));
 		this.add(filteredUserList);
 		
+		//Legg til fjern knapper
+		addEmployeeButton = new JButton("Legg til");
+		removeEmployeeButton = new JButton("Fjern");
+		
+		JPanel addRemovePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		
+		addRemovePanel.add(addEmployeeButton);
+		addRemovePanel.add(Box.createHorizontalStrut(40));
+		addRemovePanel.add(removeEmployeeButton);
+		
+		addRemovePanel.setPreferredSize(new Dimension(
+					this.getPreferredSize().width,
+					addRemovePanel.getPreferredSize().height
+				));
+		
+		this.add(addRemovePanel);
+		
+		//Deltakere
+		
 	}
-	
-//	public static void main(String[] args) {
-//		JFrame frame = new JFrame("test");
-//		
-//		JPanel content = new AvtalePanel();
-//		frame.setContentPane(content);
-//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		
-//		frame.pack();
-//		frame.setVisible(true);
-//	}
 
 }
