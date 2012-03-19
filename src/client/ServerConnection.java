@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import client.gui.exceptions.BadLoginException;
+import client.model.ActiveUserModel;
 import client.model.InvitationModel;
 import client.model.MeetingModel;
 import client.model.MeetingRoomModel;
@@ -39,7 +40,6 @@ public class ServerConnection extends AbstractConnection {
 	
 	private ReaderThread readerThread;	
 	private int nextRequestId = 1;
-	private UserModel user;
 	
 	// Stores listeners while we wait for the server to respond
 	private Map<Integer, IServerResponseListener> listeners;
@@ -139,7 +139,8 @@ public class ServerConnection extends AbstractConnection {
 			
 			line = reader.readLine();// User header
 			// Read user model off stream
-			user = (UserModel) (readModels()).get(0);
+			UserModel modelOffStream = (UserModel) readModels().get(0);
+			ClientMain.setActiveUser(new ActiveUserModel(modelOffStream));
 			
 			// Start a reader thread and return
 			readerThread = new ReaderThread();
@@ -234,22 +235,13 @@ public class ServerConnection extends AbstractConnection {
 	}
 	
 	/**
-	 * Return the currently logged in user object
-	 * 
-	 * @return
-	 */
-	public UserModel getUser() {
-		return user;
-	}
-	
-	/**
 	 * Request all meetings within a given time period from this users calendar
 	 * 
 	 * @return request id
 	 */
 	public int requestMeetings(
 			IServerResponseListener listener, Calendar startDate, Calendar endDate) {
-		return requestMeetings(listener, new UserModel[]{getUser()}, startDate, endDate);
+		return requestMeetings(listener, new UserModel[]{ClientMain.getActiveUser()}, startDate, endDate);
 	}
 	
 	/**

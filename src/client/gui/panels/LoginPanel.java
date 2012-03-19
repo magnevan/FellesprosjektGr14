@@ -31,7 +31,7 @@ public class LoginPanel extends JPanel implements ActionListener{
 	public LoginPanel() {
 		
 		//GUI setup
-		lblStatus = new JLabel("test");
+		lblStatus = new JLabel("   ");
 		lblStatus.setForeground(Color.RED);
 		lblStatus.setFont(new Font(
 					lblStatus.getFont().getName(),
