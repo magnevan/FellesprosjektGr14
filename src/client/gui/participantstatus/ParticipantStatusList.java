@@ -9,6 +9,14 @@ import javax.swing.table.AbstractTableModel;
 import client.model.InvitationModel;
 import client.model.MeetingModel;
 
+/**
+ * ParticipantStatusList widget
+ * 
+ * A read-only table that maintains information about users invited to meetings
+ * 
+ * @author Magne
+ *
+ */
 public class ParticipantStatusList extends JTable implements PropertyChangeListener {
 	
 	private static final String[] HEADERS = new String[]{"Navn", "Status"};
