@@ -34,17 +34,14 @@ public abstract class TransferableModel {
 	 * 
 	 * @return a string ID or null if the object is unidentifiable
 	 */
-	protected String getUMI() {
+	public String getUMID() {
 		if(getMID() != null)
 			return getClass().getName()+"_"+getMID().toString();
 		return null;
 	}
 	
 	/**
-	 * Return a id that will identify this exact instance of a TransferableModel
-	 * subclass among all the other possible objects of the same subclass.
-	 * 
-	 * Ie. the ID number, username, etc
+	 * Return the value of the primary key identifier for this model
 	 *
 	 * @return ID or null if this cannot be identified (not yet stored)
 	 */

@@ -7,7 +7,11 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import client.model.InvitationModel;
+import client.model.MeetingModel;
+import client.model.MeetingRoomModel;
 import client.model.TransferableModel;
+import client.model.UserModel;
 
 /**
  * Abstract connection implements helper methods for reading and 
@@ -122,10 +126,7 @@ public abstract class AbstractConnection {
 		String line;
 		while(!(line = reader.readLine()).equals("")) {
 			try {
-				TransferableModel model = createModel(line);				
-				model.fromStream(reader);
-				models.add(model);
-				reader.readLine(); // Read the empty separator line
+				models.add(readModel(line));
 			} catch(Exception e) {
 				// TODO This is way to generic, makes debugging hard
 				LOGGER.severe("Unkown model class sent by server, "+line);
@@ -136,9 +137,43 @@ public abstract class AbstractConnection {
 	}
 	
 	/**
+	 * Read a single model off stream
+	 * 
+	 * @param name
+	 * @return
+	 * @throws IOException
+	 */
+	protected TransferableModel readModel(String name) throws IOException {
+		TransferableModel model = createModel(name);				
+		model.fromStream(reader);
+		reader.readLine(); // Read the empty separator line		
+		return model;
+	}
+	
+	/**
 	 * Create a model object based on the given name
 	 * @param name
 	 */
 	protected abstract TransferableModel createModel(String name);
+	
+	/**
+	 * Return the name of the passed model
+	 * 
+	 * @param model
+	 * @return
+	 */
+	protected String getModelName(TransferableModel model) {
+		if(model instanceof MeetingModel) {
+			return "MeetingModel";
+		} else if(model instanceof UserModel) {
+			return "UserModel";
+		} else if(model instanceof MeetingRoomModel) {
+			return "MeetingRoomModel";
+		} else if(model instanceof InvitationModel) {
+			return "InvitationModel";
+		}
+		throw new IllegalArgumentException("Unknown model type passed to getModelName" +
+				" "+model.getClass().getName());
+	}
 	
 }
