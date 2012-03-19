@@ -7,7 +7,11 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import client.model.InvitationModel;
+import client.model.MeetingModel;
+import client.model.MeetingRoomModel;
 import client.model.TransferableModel;
+import client.model.UserModel;
 
 /**
  * Abstract connection implements helper methods for reading and 
@@ -151,5 +155,25 @@ public abstract class AbstractConnection {
 	 * @param name
 	 */
 	protected abstract TransferableModel createModel(String name);
+	
+	/**
+	 * Return the name of the passed model
+	 * 
+	 * @param model
+	 * @return
+	 */
+	protected String getModelName(TransferableModel model) {
+		if(model instanceof MeetingModel) {
+			return "MeetingModel";
+		} else if(model instanceof UserModel) {
+			return "UserModel";
+		} else if(model instanceof MeetingRoomModel) {
+			return "MeetingRoomModel";
+		} else if(model instanceof InvitationModel) {
+			return "InvitationModel";
+		}
+		throw new IllegalArgumentException("Unknown model type passed to getModelName" +
+				" "+model.getClass().getName());
+	}
 	
 }
