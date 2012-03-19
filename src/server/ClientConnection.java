@@ -11,7 +11,9 @@ import java.util.Calendar;
 import java.util.logging.Logger;
 
 import server.model.IServerModel;
+import server.model.ServerInvitationModel;
 import server.model.ServerMeetingModel;
+import server.model.ServerMeetingRoomModel;
 import server.model.ServerUserModel;
 import client.AbstractConnection;
 import client.model.TransferableModel;
@@ -115,10 +117,24 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 						
 						ServerMeetingModel match = ServerMeetingModel.findById(mid, ServerMain.dbConnection);
 						writeModels(new TransferableModel[]{match},	id, method, smethod);	
+					} else if(smethod.equals("AVAILABLE_ROOMS")) {
+						DateFormat df = DateFormat.getDateTimeInstance();
+						Calendar from = Calendar.getInstance();
+						from.setTime(df.parse(reader.readLine().trim()));
+						Calendar to = Calendar.getInstance();
+						to.setTime(df.parse(reader.readLine().trim()));
+						reader.readLine(); // filler line
+						
+						ArrayList<ServerMeetingRoomModel> matches = ServerMeetingRoomModel.findAvailableRooms(
+								from, to, ServerMain.dbConnection);
+						writeModels((TransferableModel[]) matches.toArray(new TransferableModel[matches.size()]), 
+								id, method, smethod);		
 					}
 				
 				} else if(method.equals("STORE")) {
 					// Store model
+					
+					// TODO Handle exceptions, send them back to client
 					
 					TransferableModel model = readModels().get(0);		
 					((IServerModel)model).store();					
@@ -179,6 +195,10 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 			return new ServerUserModel();
 		} else if(name.equals("MeetingModel")) {
 			return new ServerMeetingModel();
+		} else if(name.equals("MeetingRoomModel")) {
+			return new ServerMeetingRoomModel();
+		} else if(name.equals("InvitationModel")) {
+			return new ServerInvitationModel();
 		}
 		return null;
 	}

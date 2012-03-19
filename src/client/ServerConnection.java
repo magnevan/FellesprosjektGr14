@@ -1,7 +1,5 @@
 package client;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -19,8 +17,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import client.model.TransferableModel;
+import client.model.InvitationModel;
 import client.model.MeetingModel;
+import client.model.MeetingRoomModel;
+import client.model.TransferableModel;
 import client.model.UserModel;
 
 /**
@@ -155,8 +155,22 @@ public class ServerConnection extends AbstractConnection {
 			return new UserModel();
 		} else if(name.equals("MeetingModel")) {
 			return new MeetingModel();
+		} else if(name.equals("MeetingRoomModel")) {
+			return new MeetingRoomModel();
+		} else if(name.equals("InvitationModel")) {
+			return new InvitationModel();
 		}
 		return null;
+	}
+	
+	/**
+	 * Read a single model off stream, and run in through the model cache
+	 * before returning it to the caller
+	 */
+	@Override
+	protected TransferableModel readModel(String name) throws IOException {
+		TransferableModel model = super.readModel(name);
+		return ModelCacher.cache(model);
 	}
 	
 	/**
@@ -354,6 +368,37 @@ public class ServerConnection extends AbstractConnection {
 		return id;
 	}
 	
+	
+	/**
+	 * Request a list of available meeting rooms within the given time period
+	 * 
+	 * @param listener
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	public int requestAvailableRooms(IServerResponseListener listener, Calendar from, Calendar to) {
+		int id = ++nextRequestId;
+		
+		try {
+			DateFormat df = DateFormat.getDateTimeInstance();
+			
+			listeners.put(id, listener);
+			writeLine(formatCommand(id, "REQUEST",  "AVAILABLE_ROOMS"));
+			writeLine(df.format(from.getTime()));
+			writeLine(df.format(to.getTime()));
+			writeLine("");
+			
+		} catch(IOException e) {
+			listeners.remove(id);
+			LOGGER.severe("IOException requestFilteredUserList");
+			LOGGER.severe(e.toString());
+			return -1;
+		}
+		
+		return id;
+	}
+	
 	public static void addServerConnectionListener(IServerConnectionListener listener) {
 		serverConnectionListeners.add(listener);
 	}
@@ -364,5 +409,28 @@ public class ServerConnection extends AbstractConnection {
 	private static void fireServerConnectionChange(String change) {
 		for (IServerConnectionListener listener : serverConnectionListeners)
 			listener.serverConnectionChange(change);
+	}	
+	
+	public static void main(String args[]) throws IOException {
+		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
+		Calendar from = Calendar.getInstance();
+		from.set(2012, 3, 19, 13, 15);
+		Calendar to = Calendar.getInstance();
+		to.set(2012, 3, 19, 16, 00);
+		ServerConnection.instance().requestAvailableRooms(new Listener(), from, to);
 	}
+	
+}
+
+class Listener implements IServerResponseListener {
+
+	@Override
+	public void onServerResponse(int requestId, Object data) {
+		ArrayList<MeetingRoomModel> rooms = (ArrayList<MeetingRoomModel>) data;
+		for(MeetingRoomModel m : rooms) {
+			System.out.println(m.getName());
+		}
+		
+	}
+	
 }
