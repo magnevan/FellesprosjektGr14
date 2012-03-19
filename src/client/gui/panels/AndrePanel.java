@@ -42,16 +42,12 @@ public class AndrePanel extends JPanel{
 		
 		//search panel
 		search = new FilteredUserList(new FilteredUserListModel());
+		search.setPreferredSize(new Dimension(270,100));
 		person = new UserModel();
 		
 		//old employeelist panel
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		final DefaultListModel model = new DefaultListModel();
-		
-		//adding some test persons
-		model.addElement(createUser("Susanngu","susanngu@stud.ntnu.no", "Susanne"));
-		model.addElement(createUser("Test", "test@test.no", "Test 1"));
-		model.addElement(createUser("Test2","Test2@test.no", "Test 2"));
 		
 		employeeList = new JList(model);
 		centerPanel.setPreferredSize(new Dimension(270,100));
@@ -104,7 +100,8 @@ public class AndrePanel extends JPanel{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				lol.addElement(search.getSelectedUsers()); 
+				for (UserModel model : search.getSelectedUsers())
+					lol.addElement(model);
 				
 				//lol.addElement(employeeList.getSelectedValue());
 				
@@ -117,7 +114,7 @@ public class AndrePanel extends JPanel{
 				// TODO Auto-generated method stub
 				//int index = activeCalenders.getSelectedIndex();
 
-				//lol.removeElement(activeCalenders.getSelectedValue());
+				lol.removeElement(activeCalenders.getSelectedValue());
 
 				//model2.removeElement(activeCalenders.getSelectedValue());
 

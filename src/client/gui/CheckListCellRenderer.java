@@ -8,6 +8,8 @@ import java.util.Random;
 
 import javax.swing.*;
 
+import client.model.UserModel;
+
 public class CheckListCellRenderer extends JPanel implements ListCellRenderer{ 
     private ListCellRenderer delegate; 
     private ListSelectionModel selectionModel; 
@@ -35,8 +37,11 @@ public class CheckListCellRenderer extends JPanel implements ListCellRenderer{
         
     } 
  
-    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus){ 
-        Component renderer = delegate.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus); 
+    public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus){
+    	
+    	UserModel model = (UserModel)value;
+    	//value = model;
+        Component renderer = delegate.getListCellRendererComponent(list, model, index, isSelected, cellHasFocus); 
         checkBox.setSelected(selectionModel.isSelectedIndex(index));
         
         	
@@ -68,6 +73,9 @@ public class CheckListCellRenderer extends JPanel implements ListCellRenderer{
     	checkBox.setBackground(Color.white);
     	checkBox.setEnabled(true);
     }
+
+	
+
     
 } 
 	
