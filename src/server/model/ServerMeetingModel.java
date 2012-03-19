@@ -84,22 +84,37 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 	 * Store model to database
 	 */
 	@Override
-	public void store() {
+	public void store(DBConnection db) {
 		try {
 			if(id == -1) {
 				// Insert
 				Statement st = ServerMain.dbConnection.createStatement();
 
 				st.executeUpdate(String.format(
-						"INSERT INTO appointment(title, start_date, end_date, description, owner)"
-						+" VALUES('%s', '%s', '%s', '%s', '%s')",						
+						"INSERT INTO appointment(title, start_date, end_date, description, owner, location)"
+						+" VALUES('%s', '%s', '%s', '%s', '%s', '%s')",						
 						getName(), getFormattedDate(getTimeFrom()), getFormattedDate(getTimeTo()),
-						getDescription(), getOwner().getUsername()), Statement.RETURN_GENERATED_KEYS);
+						getDescription(), getOwner().getUsername(), getLocation()),
+						Statement.RETURN_GENERATED_KEYS);
 				
 				ResultSet rs = st.getGeneratedKeys();
 				rs.next();
 				id = rs.getInt(1);
+				rs.close();
+				
+				// Register a room reservations
+				if(getRoom() != null) {
+					st.executeUpdate(String.format(
+						"INSERT INTO meeting_room_booking (meeting_room_number, appointment_id)" +
+						"VALUES(%s, %d);", getRoom().getRoomNumber(), getId()
+					));
+				}				
 				st.close();
+				
+				// Save all invitations
+				for(InvitationModel i : invitations) {
+					(new ServerInvitationModel(i)).store(db);
+				}
 			} else {
 				// TODO Update, her må vi finne ut hva som er endret, sende notifications og eventuelt reset invitasjoner
 				System.err.println("Update is not implemented");

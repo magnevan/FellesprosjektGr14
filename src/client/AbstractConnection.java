@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import client.model.InvitationModel;
 import client.model.MeetingModel;
 import client.model.MeetingRoomModel;
+import client.model.NotificationModel;
 import client.model.TransferableModel;
 import client.model.UserModel;
 
@@ -172,6 +173,8 @@ public abstract class AbstractConnection {
 			return "MeetingRoomModel";
 		} else if(model instanceof InvitationModel) {
 			return "InvitationModel";
+		} else if(model instanceof NotificationModel) {
+			return "NotificationModel";
 		}
 		throw new IllegalArgumentException("Unknown model type passed to getModelName" +
 				" "+model.getClass().getName());

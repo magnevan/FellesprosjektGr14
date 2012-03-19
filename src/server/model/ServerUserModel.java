@@ -166,6 +166,6 @@ public class ServerUserModel extends UserModel implements IServerModel  {
 	 * 
 	 */
 	@Override
-	public void store() {}
+	public void store(DBConnection db) { /* Users cannot be changed */ }
 
 }

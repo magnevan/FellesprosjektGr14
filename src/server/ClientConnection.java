@@ -16,6 +16,7 @@ import server.model.ServerMeetingModel;
 import server.model.ServerMeetingRoomModel;
 import server.model.ServerUserModel;
 import client.AbstractConnection;
+import client.model.NotificationModel;
 import client.model.TransferableModel;
 
 /**
@@ -55,6 +56,15 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 	}
 	
 	/**
+	 * Broadcast a model that has been added or updated
+	 * 
+	 * @param model
+	 */
+	public void broadcastModel(TransferableModel model) throws IOException {
+		writeModels(new TransferableModel[]{model}, 0, "BROADCAST");
+	}
+	
+	/**
 	 * Start thread, listen for incoming request, handle and repeat
 	 */
 	@Override
@@ -69,7 +79,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 			
 			writeModels(new TransferableModel[]{user}, 0, "USER");
 			
-			// Read loop, read untill we've shutting down or we reach EOF
+			// Read loop, read until we're shutting down or we reach EOF
 			String line = null;
 			while(running && (line = reader.readLine()) != null) {
 				
@@ -137,7 +147,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 					// TODO Handle exceptions, send them back to client
 					
 					TransferableModel model = readModels().get(0);		
-					((IServerModel)model).store();					
+					((IServerModel)model).store(db);					
 					writeModels(new TransferableModel[]{model}, id, method);
 					
 				} else if(method.equals("LOGOUT")) {
@@ -199,6 +209,8 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 			return new ServerMeetingRoomModel();
 		} else if(name.equals("InvitationModel")) {
 			return new ServerInvitationModel();
+		} else if(name.equals("NotificationModel")) {
+			return new NotificationModel();
 		}
 		return null;
 	}

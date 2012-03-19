@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 
+import server.model.ServerMeetingModel;
 import client.ModelCacher;
 
 /**
@@ -193,7 +194,7 @@ public class MeetingModel extends TransferableModel {
 		
 		//reader.readLine(); // Class name		
 		owner = new UserModel();
-		owner.fromStream(reader);
+		owner.fromStream(reader);		
 		owner = (UserModel) ModelCacher.cache(owner);
 		
 		location = reader.readLine();
@@ -209,6 +210,7 @@ public class MeetingModel extends TransferableModel {
 			InvitationModel i = new InvitationModel();
 			i.fromStream(reader);
 			i = (InvitationModel) ModelCacher.cache(i);
+			i.setMeeting(this);
 			invitations.add(i);
 		}
 	}
@@ -292,7 +294,7 @@ public class MeetingModel extends TransferableModel {
 	 */
 	public InvitationModel getInvitation(UserModel user) {
 		for(InvitationModel invitation : getInvitations()) {
-			if(invitation.getUser().equals(user)) {
+			if(invitation.getUser().getUsername().equals(user.getUsername())) {
 				return invitation;
 			}
 		}

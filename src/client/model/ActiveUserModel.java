@@ -11,9 +11,6 @@ public class ActiveUserModel extends UserModel {
 	protected ArrayList<NotificationModel> notifications;
 	protected PropertyChangeSupport changeSupport;
 	
-	
-
-	
 	public ActiveUserModel(String username, String email, String fullName) {
 		super(username, email, fullName);
 		changeSupport = new PropertyChangeSupport(this);
@@ -24,7 +21,7 @@ public class ActiveUserModel extends UserModel {
 		ArrayList<NotificationModel> oldValue = notifications;
 		notifications.add(notification);
 		
-		//Ikke sikker på om dette blir riktig
+		//Ikke sikker pA om dette blir riktig
 		changeSupport.firePropertyChange(NOTIFICATIONS_PROPERTY, oldValue, this.notifications);
 		
 	}

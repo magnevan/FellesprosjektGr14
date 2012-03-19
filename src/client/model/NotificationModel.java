@@ -1,9 +1,16 @@
 package client.model;
 
 import java.beans.PropertyChangeSupport;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.Calendar;
 
-public class NotificationModel {
+import client.ModelCacher;
+
+public class NotificationModel extends TransferableModel {
 
 	
 	
@@ -15,7 +22,7 @@ public class NotificationModel {
 	public final static String READ_PROPERTY = "read";
 	
 	
-	private int id;
+	protected int id = -1;
 	private MeetingModel regards_meeting;
 	private NotificationType type;
 	private Calendar time;
@@ -24,12 +31,48 @@ public class NotificationModel {
 	
 	private PropertyChangeSupport changeSupport;
 	
-	
-	
-	public NotificationModel(MeetingModel regards_meeting, NotificationType type, Calendar time, UserModel given_to, UserModel regards_user, boolean read) {
-		
+	public NotificationModel() {
 		changeSupport = new PropertyChangeSupport(this);
+	}
+	
+	/**
+	 * Create a notification with timestamp set to NOW and read to false
+	 * 
+	 * @param type
+	 * @param given_to
+	 * @param regards_meeting
+	 */
+	public NotificationModel(NotificationType type, UserModel given_to, MeetingModel regards_meeting) {
+		this(type, given_to, regards_meeting, null);
+	}
+
+	/**
+	 * Create a notification with timestamp set to NOW and read to false
+	 * 
+	 * @param type
+	 * @param given_to
+	 * @param regards_meeting
+	 * @param regards_user
+	 */
+	public NotificationModel(NotificationType type, UserModel given_to, MeetingModel regards_meeting, 
+			UserModel regards_user) {
+		this(type, given_to, regards_meeting, regards_user, Calendar.getInstance(), false);
+	}
+	
+	/**
+	 * Create a new notification 
+	 * 
+	 * @param type
+	 * @param given_to
+	 * @param regards_meeting
+	 * @param regards_user
+	 * @param time
+	 * @param read
+	 */
+	public NotificationModel(NotificationType type, UserModel given_to, MeetingModel regards_meeting,
+			UserModel regards_user, Calendar time, boolean read) {
 		
+		this();
 		this.regards_meeting = regards_meeting;
 		this.type = type;
 		this.time = time;
@@ -39,10 +82,11 @@ public class NotificationModel {
 	}
 	
 	
-	public MeetingModel getRegards_meeting() {
+	
+	public MeetingModel getRegardsMeeting() {
 		return regards_meeting;
 	}
-	public void setRegards_meeting(MeetingModel regards_meeting) {
+	public void setRegardsMeeting(MeetingModel regards_meeting) {
 		MeetingModel oldValue = this.regards_meeting;
 		this.regards_meeting = regards_meeting;
 		changeSupport.firePropertyChange(REGARDS_MEETING_PROPERTY, oldValue, regards_meeting);
@@ -66,19 +110,19 @@ public class NotificationModel {
 		changeSupport.firePropertyChange(TIME_PROPERTY, oldValue, time);
 	}
 	
-	public UserModel getGiven_to() {
+	public UserModel getGivenTo() {
 		return given_to;
 	}
-	public void setGiven_to(UserModel given_to) {
+	public void setGivenTo(UserModel given_to) {
 		UserModel oldValue = this.given_to;
 		this.given_to = given_to;
 		changeSupport.firePropertyChange(GIVEN_TO_PROPERTY, oldValue, given_to);
 	}
 	
-	public UserModel getRegards_user() {
+	public UserModel getRegardsUser() {
 		return regards_user;
 	}
-	public void setRegards_user(UserModel regards_user) {
+	public void setRegardsUser(UserModel regards_user) {
 		UserModel oldValue = this.regards_user;
 		this.regards_user = regards_user;
 		changeSupport.firePropertyChange(REGARDS_USER_PROPERTY, oldValue, regards_user);
@@ -96,10 +140,69 @@ public class NotificationModel {
 	public int getId() {
 		return id;
 	}
-	
-	
-	
-	
-	
+
+	@Override
+	public void fromStream(BufferedReader reader) throws IOException {
+
+		DateFormat df = DateFormat.getDateTimeInstance();
+		
+		id = Integer.parseInt(reader.readLine());
+		type = NotificationType.valueOf(reader.readLine());
+		time = Calendar.getInstance();		
+		try {
+			time.setTime(df.parse(reader.readLine()));
+		} catch(ParseException e) {
+			e.printStackTrace();
+		}
+		
+		given_to = new UserModel();
+		given_to.fromStream(reader);
+		given_to = (UserModel) ModelCacher.cache(given_to);
+		
+		if(!reader.readLine().equals("")) {
+			regards_meeting = new MeetingModel();
+			regards_meeting.fromStream(reader);
+			regards_meeting = (MeetingModel) ModelCacher.cache(regards_meeting);
+		}
+		if(!reader.readLine().equals("")) {
+			regards_user = new UserModel();
+			regards_user.fromStream(reader);
+			regards_user = (UserModel) ModelCacher.cache(regards_user);
+		}
+		
+	}
+
+	@Override
+	public void toStream(BufferedWriter writer) throws IOException {
+		StringBuilder sb = new StringBuilder();
+		DateFormat df = DateFormat.getDateTimeInstance();
+		
+		sb.append(getId() + "\r\n");
+		sb.append(getType() + "\r\n");
+		sb.append(df.format(getTime().getTime()) + "\r\n");
+		writer.write(sb.toString());		
+		getGivenTo().toStream(writer);
+		
+		if(getRegardsMeeting() != null) {
+			writer.write("1\r\n");
+			getRegardsMeeting().toStream(writer);
+		} else {
+			writer.write("\r\n");
+		}
+			
+		if(getRegardsUser() != null) {
+			writer.write("1\r\n");
+			getRegardsUser().toStream(writer);
+		} else {
+			writer.write("\r\n");
+		}
+	}
+
+	@Override
+	protected Object getMID() {
+		if(id == -1)
+			return null;
+		return id;
+	}
 	
 }

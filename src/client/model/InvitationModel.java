@@ -96,7 +96,7 @@ public class InvitationModel extends TransferableModel {
 	@Override
 	public void fromStream(BufferedReader reader) throws IOException {
 		setStatus(InvitationStatus.valueOf(reader.readLine()));
-		reader.readLine(); // User header
+		//reader.readLine(); // User header
 		user = new UserModel();
 		user.fromStream(reader);
 	}

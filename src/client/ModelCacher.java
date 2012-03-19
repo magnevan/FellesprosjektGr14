@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import server.model.IServerModel;
 import client.model.TransferableModel;
 
 /**
@@ -38,6 +39,11 @@ public abstract class ModelCacher {
 		if(model.getUMID() == null)
 			return model;
 		
+		// TODO The way meetings are sent this may be called on the server, this should not happen and 
+		// has to be fixed later. this hack just keeps it from happening
+		if(model instanceof IServerModel) 
+			return model;
+		
 		if(cache.containsKey(model.getUMID())) {
 			ModelCacher.update(model);
 		} else {
@@ -53,6 +59,9 @@ public abstract class ModelCacher {
 	 * @return
 	 */
 	public static TransferableModel update(TransferableModel model) {
+		if(model instanceof IServerModel) 
+			return model;
+		
 		// @TODO this does nothing yet
 		return model;
 	}

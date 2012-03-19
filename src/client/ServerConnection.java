@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import client.model.InvitationModel;
 import client.model.MeetingModel;
 import client.model.MeetingRoomModel;
+import client.model.NotificationModel;
 import client.model.TransferableModel;
 import client.model.UserModel;
 
@@ -136,7 +137,7 @@ public class ServerConnection extends AbstractConnection {
 			
 			line = reader.readLine();// User header
 			// Read user model off stream
-			user = (UserModel) (readModels()).get(0);
+			user = (UserModel) ModelCacher.cache((readModels()).get(0));
 			
 			// Start a reader thread and return
 			readerThread = new ReaderThread();
@@ -159,6 +160,8 @@ public class ServerConnection extends AbstractConnection {
 			return new MeetingRoomModel();
 		} else if(name.equals("InvitationModel")) {
 			return new InvitationModel();
+		} else if(name.equals("NotificationModel")) {
+			return new NotificationModel();
 		}
 		return null;
 	}
@@ -196,13 +199,18 @@ public class ServerConnection extends AbstractConnection {
 					int id = Integer.parseInt(parts[0]);
 					String method = parts[1];
 					
-					// Notifications come with a zero id
-					if(id == 0) {
-						LOGGER.info("Unhandled notice: "+line);
+					ArrayList<TransferableModel> models = readModels();
+					
+					// Broadcasts come with a zero id
+					if(id == 0 && method.equals("BROADCAST")) {
+						TransferableModel model = models.get(0);
+						
+						if(model instanceof NotificationModel) {
+							System.out.println("Got notification, handle it ! TODO");
+						}
 						continue;
 					}
 					
-					ArrayList<TransferableModel> models = readModels();
 					
 					// Stored models are saved
 					if(method.equals("STORE")) {
@@ -417,7 +425,13 @@ public class ServerConnection extends AbstractConnection {
 		from.set(2012, 3, 19, 11, 15);
 		Calendar to = Calendar.getInstance();
 		to.set(2012, 3, 19, 16, 00);
-		ServerConnection.instance().requestMeeting(new Listener(), 23);
+		
+		MeetingModel model = new MeetingModel(from, to, ServerConnection.instance().getUser());
+		model.addAttendee(ServerConnection.instance().getUser());
+		model = (MeetingModel) ServerConnection.instance().storeModel(model);
+		
+		System.out.println("Stored model, now has id "+model.getId());
+		System.out.println(model.getInvitation(ServerConnection.instance().getUser()).getStatus());
 	}
 	
 }

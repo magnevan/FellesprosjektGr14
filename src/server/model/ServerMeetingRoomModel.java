@@ -104,9 +104,6 @@ public class ServerMeetingRoomModel extends MeetingRoomModel implements IServerM
 	}
 
 	@Override
-	public void store() {
-		// TODO Auto-generated method stub
-		
-	}
+	public void store(DBConnection db) { /* Meeting rooms cannot be changed */ }
 
 }

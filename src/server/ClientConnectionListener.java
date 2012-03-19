@@ -7,14 +7,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import server.model.ServerUserModel;
+import client.model.TransferableModel;
 
 /**
  * ClientConnectionListener
@@ -147,6 +146,21 @@ public class ClientConnectionListener {
 			}
 		}
 		
+	}
+
+	/**
+	 * Broadcast a model that has either been created or updated to the 
+	 * specified user
+	 * 
+	 * @param model
+	 * @param username
+	 */
+	public void broadcastModel(TransferableModel model,	
+			String username) throws IOException {
+		
+		if(clients.containsKey(username)) {
+			clients.get(username).broadcastModel(model);
+		}
 	}
 	
 }
