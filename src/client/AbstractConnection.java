@@ -122,10 +122,7 @@ public abstract class AbstractConnection {
 		String line;
 		while(!(line = reader.readLine()).equals("")) {
 			try {
-				TransferableModel model = createModel(line);				
-				model.fromStream(reader);
-				models.add(model);
-				reader.readLine(); // Read the empty separator line
+				models.add(readModel(line));
 			} catch(Exception e) {
 				// TODO This is way to generic, makes debugging hard
 				LOGGER.severe("Unkown model class sent by server, "+line);
@@ -133,6 +130,20 @@ public abstract class AbstractConnection {
 			}
 		}		
 		return models;
+	}
+	
+	/**
+	 * Read a single model off stream
+	 * 
+	 * @param name
+	 * @return
+	 * @throws IOException
+	 */
+	protected TransferableModel readModel(String name) throws IOException {
+		TransferableModel model = createModel(name);				
+		model.fromStream(reader);
+		reader.readLine(); // Read the empty separator line		
+		return model;
 	}
 	
 	/**

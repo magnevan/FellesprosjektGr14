@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.swing.table.TableModel;
+
 import client.model.TransferableModel;
 import client.model.MeetingModel;
 import client.model.UserModel;
@@ -157,6 +159,16 @@ public class ServerConnection extends AbstractConnection {
 			return new MeetingModel();
 		}
 		return null;
+	}
+	
+	/**
+	 * Read a single model off stream, and run in through the model cache
+	 * before returning it to the caller
+	 */
+	@Override
+	protected TransferableModel readModel(String name) throws IOException {
+		TransferableModel model = super.readModel(name);
+		return ModelCacher.cache(model);
 	}
 	
 	/**
@@ -364,5 +376,6 @@ public class ServerConnection extends AbstractConnection {
 	private static void fireServerConnectionChange(String change) {
 		for (IServerConnectionListener listener : serverConnectionListeners)
 			listener.serverConnectionChange(change);
-	}
+	}	
+	
 }

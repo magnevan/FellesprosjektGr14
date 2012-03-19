@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 
+import client.ModelCacher;
+
 /**
  * A model for the meetings in the calendar
  * 
@@ -189,15 +191,17 @@ public class MeetingModel extends TransferableModel {
 			e.printStackTrace();
 		}		
 		
-		reader.readLine(); // Class name
-		
+		reader.readLine(); // Class name		
 		owner = new UserModel();
 		owner.fromStream(reader);
+		owner = (UserModel) ModelCacher.cache(owner);
+		
 		int no = Integer.parseInt(reader.readLine());
 		for( ; no > 0 ; no-- ) {
 			reader.readLine(); // Class name
 			InvitationModel i = new InvitationModel();
 			i.fromStream(reader);
+			i = (InvitationModel) ModelCacher.cache(i);
 			invitations.add(i);
 		}
 	}
