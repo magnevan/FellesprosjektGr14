@@ -44,7 +44,7 @@ public class MainPanel extends JPanel {
 		this.add(calendarTabbedPane, BorderLayout.EAST);
 		
 		//Listeners
-		ActionListener listener = new NewAppointmentListener(this);
+		ActionListener listener = new NewAppointmentListener();
 		hp.getNewAppointmentButton().addActionListener(listener);
 		akp.getNewAppointmentButton().addActionListener(listener);
 		vp.getNewAppointmentButton().addActionListener(listener);
@@ -59,13 +59,9 @@ public class MainPanel extends JPanel {
 	}
 	
 	class NewAppointmentListener implements ActionListener {
-		private final MainPanel host;
-		NewAppointmentListener(MainPanel host) {
-			this.host = host;
-		}
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			host.OpenNewAppointment();
+			OpenNewAppointment();
 		}
 	}
 	
