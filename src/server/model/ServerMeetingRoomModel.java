@@ -17,7 +17,7 @@ import client.model.TransferableModel;
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public class ServerMeetingRoomModel extends MeetingRoomModel implements IServerModel {
+public class ServerMeetingRoomModel extends MeetingRoomModel {
 
 	
 	/**
@@ -114,11 +114,4 @@ public class ServerMeetingRoomModel extends MeetingRoomModel implements IServerM
 				c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND)				
 		);
 	}
-
-	/**
-	 * Unused, meeting rooms cannot be changed
-	 */
-	@Override
-	public void store(DBConnection db) {}
-
 }

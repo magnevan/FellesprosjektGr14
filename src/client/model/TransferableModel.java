@@ -13,37 +13,7 @@ import server.ModelEnvelope;
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public abstract class TransferableModel {
-	
-	/**
-	 * Write object to a stream
-	 * 
-	 * @param stream
-	 * @throws IOException
-	 */
-	//public abstract void fromStream(BufferedReader stream) throws IOException ;
-	
-	/**
-	 * Read object from stream
-	 * 
-	 * @param stream
-	 * @throws IOException
-	 */
-	//public abstract void toStream(BufferedWriter stream) throws IOException ;
-	
-	/**
-	 * Create a model object based on data read from the given BufferedReader
-	 * and buffered models from the model buffer HashMap
-	 * 
-	 * @param reader
-	 * @param modelBuff
-	 */
-	//public TransferableModel(BufferedReader reader, 
-	//		HashMap<String, TransferableModel> modelBuff) {
-	//}
-	
-	public TransferableModel() {}
-	
+public interface TransferableModel {	
 	/**
 	 * Called by the envelope as its about to dump itself to a stream. In this
 	 * method a model should add all its sub models (i.e. all fields within the

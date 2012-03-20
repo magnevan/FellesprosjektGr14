@@ -42,8 +42,8 @@ public class LoginPanel extends JPanel implements ActionListener{
 		
 		JLabel  lblUsername = new JLabel("Brukernavn:"), 
 				lblPassword = new JLabel("Passord:");
-		txtUsername = new JTextField("runar",20);
-		txtPassword = new JPasswordField("runar",20);
+		txtUsername = new JTextField("",20);
+		txtPassword = new JPasswordField("",20);
 		
 		loginButton = new JButton("Logg inn");
 		loginButton.setMinimumSize(new Dimension(
@@ -116,7 +116,6 @@ public class LoginPanel extends JPanel implements ActionListener{
 			target = InetAddress.getByName(p.getProperty("fp.target.url"));
 			port = Integer.parseInt(p.getProperty("fp.target.port"));
 		} catch (IOException exp) {
-			System.out.println("Couldn't read properties");
 			exp.printStackTrace();
 			return;
 		}
@@ -125,10 +124,8 @@ public class LoginPanel extends JPanel implements ActionListener{
 		try {
 			ServerConnection.login(target, port, username, password);
 		} catch (BadLoginException e) {
-			System.out.println("Bad login");
 			lblStatus.setText("Ugyldig brukernavn/passord");
 		} catch (ConnectException e) {
-			System.out.println("Could not connect");
 			lblStatus.setText("Klarte ikke opprette tilkobling til server");
 		} catch (Exception e) {
 			e.printStackTrace();

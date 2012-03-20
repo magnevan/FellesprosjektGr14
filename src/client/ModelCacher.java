@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import server.model.IServerModel;
+import server.model.IDBStorableModel;
 import client.model.TransferableModel;
 
 /**
@@ -54,7 +54,7 @@ public abstract class ModelCacher {
 	 * @return
 	 */
 	public static TransferableModel update(TransferableModel model) {
-		if(model instanceof IServerModel) 
+		if(model instanceof IDBStorableModel) 
 			return model;
 		
 		// @TODO this does nothing yet

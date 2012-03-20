@@ -21,7 +21,7 @@ import client.model.UserModel;
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public class ServerMeetingModel extends MeetingModel implements IServerModel {
+public class ServerMeetingModel extends MeetingModel implements IDBStorableModel {
 
 	protected String ownerId; 
 		

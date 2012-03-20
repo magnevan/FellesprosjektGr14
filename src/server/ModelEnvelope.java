@@ -6,16 +6,17 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
+import server.model.ServerActiveUserModel;
 import server.model.ServerInvitationModel;
 import server.model.ServerMeetingModel;
 import server.model.ServerMeetingRoomModel;
 import server.model.ServerNotificationModel;
 import server.model.ServerUserModel;
 import client.ModelCacher;
+import client.model.ActiveUserModel;
 import client.model.InvitationModel;
 import client.model.MeetingModel;
 import client.model.MeetingRoomModel;
@@ -202,6 +203,8 @@ public class ModelEnvelope {
 	private String getModelName(TransferableModel model) {
 			if(model instanceof MeetingModel) {
 				return "MeetingModel";
+			} else if(model instanceof ActiveUserModel) {
+				return "ActiveUserModel";
 			} else if(model instanceof UserModel) {
 				return "UserModel";
 			} else if(model instanceof MeetingRoomModel) {
@@ -255,6 +258,11 @@ public class ModelEnvelope {
 					model = new ServerNotificationModel(reader, modelBuff);
 				else
 					model = new NotificationModel(reader, modelBuff);
+			else if(modelName.equals("ActiveUserModel"))
+				if(server)
+					model = new ServerActiveUserModel(reader, modelBuff);
+				else
+					model = new ActiveUserModel(reader, modelBuff);
 					
 			// If we're on client run model through the cacher 
 			if(!server && model != null) 

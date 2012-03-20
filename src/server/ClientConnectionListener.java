@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import server.model.ServerActiveUserModel;
 import server.model.ServerUserModel;
 import client.model.TransferableModel;
 
@@ -68,7 +69,7 @@ public class ClientConnectionListener {
 	 * 
 	 * @param user
 	 */
-	public void removeClient(ServerUserModel user) {
+	public void removeClient(ServerActiveUserModel user) {
 		if(clients.containsKey(user.getUsername())) {
 			clients.remove(user.getUsername());
 			LOGGER.info(String.format("%s is gone", user));
@@ -124,7 +125,11 @@ public class ClientConnectionListener {
 					writer.flush();
 					
 					// Store and start separate handler thread
-					ClientConnection cc = new ClientConnection(s, reader, writer, user, this);
+					ClientConnection cc = new ClientConnection(
+							s, reader, writer, 
+							new ServerActiveUserModel(user), this
+					);
+					
 					clients.put(user.getUsername(), cc);
 					LOGGER.info(String.format("Client from %s authenticated as %s", s.getInetAddress().toString(), username));
 					LOGGER.info(String.format("%d client(s) in total", clients.size()));

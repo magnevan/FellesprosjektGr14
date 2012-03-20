@@ -16,7 +16,7 @@ import client.model.NotificationType;
 import client.model.TransferableModel;
 import client.model.UserModel;
 
-public class ServerNotificationModel extends NotificationModel implements IServerModel {
+public class ServerNotificationModel extends NotificationModel implements IDBStorableModel {
 
 	/**
 	 * Construct a new Notification

@@ -8,7 +8,6 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -22,12 +21,11 @@ import java.util.logging.Logger;
 import server.ModelEnvelope;
 import client.gui.exceptions.BadLoginException;
 import client.model.ActiveUserModel;
-import client.model.InvitationModel;
-import client.model.MeetingModel;
-import client.model.MeetingRoomModel;
 import client.model.NotificationModel;
 import client.model.TransferableModel;
 import client.model.UserModel;
+
+
 
 /**
  * The clients interface to the remote calendar server
@@ -42,6 +40,7 @@ public class ServerConnection extends AbstractConnection {
 	private static Logger LOGGER = Logger.getLogger("ServerConnection");
 	private static ServerConnection instance = null;	
 	
+	private ActiveUserModel user;
 	private ReaderThread readerThread;	
 	private int nextRequestId = 1;
 	
@@ -146,7 +145,8 @@ public class ServerConnection extends AbstractConnection {
 			}
 			
 			reader.readLine();
-			ClientMain.setActiveUser(new ActiveUserModel((UserModel) readModels().get(0)));
+			user = (ActiveUserModel) readModels().get(0);
+			ClientMain.setActiveUser(user);
 			
 			// Start a reader thread and return
 			readerThread = new ReaderThread();

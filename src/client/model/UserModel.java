@@ -16,7 +16,7 @@ import server.ModelEnvelope;
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  * @author Magne vikjord
  */
-public class UserModel extends TransferableModel {
+public class UserModel implements TransferableModel {
 	
 	protected String	username,
 						email,

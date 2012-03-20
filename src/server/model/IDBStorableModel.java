@@ -7,7 +7,7 @@ import server.DBConnection;
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public interface IServerModel {
+public interface IDBStorableModel {
 
 	/**
 	 * Saves the model to db

@@ -21,7 +21,7 @@ import client.ClientMain;
  * @author peterringset
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public class MeetingModel extends TransferableModel {
+public class MeetingModel implements TransferableModel {
 	
 	public final static String TIME_FROM_PROPERTY = "timeFrom";
     public final static String TIME_TO_PROPERTY = "timeTo";
@@ -344,6 +344,16 @@ public class MeetingModel extends TransferableModel {
 	public void addAttendee(UserModel user) {
 		addAttendee(new UserModel[]{user});
 	}
+	
+	/**
+	 * Removes a attendee from the meeting
+	 * 
+	 * @param user
+	 */
+	public void removeAttendee(UserModel user) {
+		invitations.remove(getInvitation(user));
+	}
+	
 		
 	/**
 	 * Add a array of attendees to the meeting
@@ -358,19 +368,6 @@ public class MeetingModel extends TransferableModel {
 				changeSupport.firePropertyChange(INVITATION_CREATED,null, invitation);
 			}
 		}		
-	}
-	
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		changeSupport.addPropertyChangeListener(listener);
-	}
-	
-	public void removePropertyChangeListener(PropertyChangeListener listener) {
-		changeSupport.removePropertyChangeListener(listener);
-	}
-	
-	public void clearPropertyChangeListeners() {
-		for (PropertyChangeListener listener : changeSupport.getPropertyChangeListeners())
-			changeSupport.removePropertyChangeListener(listener);
 	}	
 	
 	public static final Comparator<MeetingModel> timeFromComparator = 
@@ -427,5 +424,18 @@ public class MeetingModel extends TransferableModel {
 			sb.append(i.getUMID()+"\r\n");
 		
 	}	
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		changeSupport.addPropertyChangeListener(listener);
+	}
+	
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		changeSupport.removePropertyChangeListener(listener);
+	}
+	
+	public void clearPropertyChangeListeners() {
+		for (PropertyChangeListener listener : changeSupport.getPropertyChangeListeners())
+			changeSupport.removePropertyChangeListener(listener);
+	}
 			
 }

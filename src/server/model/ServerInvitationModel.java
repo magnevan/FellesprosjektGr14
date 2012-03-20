@@ -23,7 +23,7 @@ import client.model.UserModel;
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public class ServerInvitationModel extends InvitationModel implements IServerModel {
+public class ServerInvitationModel extends InvitationModel implements IDBStorableModel {
 	
 	/**
 	 * Construct model from a ResultSet and the related user and meeting model
