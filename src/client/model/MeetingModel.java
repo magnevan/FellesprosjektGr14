@@ -52,9 +52,7 @@ public class MeetingModel extends TransferableModel {
 	 * @throws IllegalArgumentException if timeFrom is after timeTo
 	 */
 	public MeetingModel(Calendar timeFrom, Calendar timeTo, UserModel owner) {
-		changeSupport = new PropertyChangeSupport(this);
-		id = -1;
-		invitations = new ArrayList<InvitationModel>();	
+		this();
 		
 		this.timeFrom = timeFrom;
 		this.timeTo = timeTo;
@@ -69,6 +67,7 @@ public class MeetingModel extends TransferableModel {
 		changeSupport = new PropertyChangeSupport(this);
 		id = -1;
 		invitations = new ArrayList<InvitationModel>();
+		active = true;
 	}
 	
 	/**
@@ -81,7 +80,7 @@ public class MeetingModel extends TransferableModel {
 		timeFrom.set(Calendar.HOUR_OF_DAY, 8);
 		timeFrom.set(Calendar.MINUTE, 0);
 		timeTo.set(Calendar.HOUR_OF_DAY, 9);
-		timeTo.set(Calendar.MINUTE, 45);
+		timeTo.set(Calendar.MINUTE, 0);
 		
 		UserModel owner = ClientMain.getActiveUser();
 		

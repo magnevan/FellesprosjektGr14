@@ -128,4 +128,9 @@ public class MeetingRoomModel extends TransferableModel {
 		sb.append(getName()+"\r\n");
 		sb.append(getNoPlaces()+"\r\n");		
 	}
+	
+	@Override
+	public String toString() {
+		return this.name;
+	}
 }

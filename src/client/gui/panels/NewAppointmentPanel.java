@@ -1,7 +1,14 @@
 package client.gui.panels;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Calendar;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -13,6 +20,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import client.IServerResponseListener;
+import client.ServerConnection;
 import client.gui.JDefaultTextArea;
 import client.gui.JDefaultTextField;
 import client.gui.JTimePicker;
@@ -21,10 +30,11 @@ import client.gui.participantstatus.ParticipantStatusList;
 import client.gui.usersearch.FilteredUserList;
 import client.model.FilteredUserListModel;
 import client.model.MeetingModel;
+import client.model.MeetingRoomModel;
 
 import com.toedter.calendar.JDateChooser;
 
-public class NewAppointmentPanel extends JPanel {
+public class NewAppointmentPanel extends JPanel implements IServerResponseListener{
 	
 	private final MeetingModel 			model;
 	private final JTextField 			tittelText;
@@ -40,6 +50,8 @@ public class NewAppointmentPanel extends JPanel {
 	private final ParticipantStatusList participantList;
 	private final JButton 				storeButton,
 										deleteButton;
+	
+	private int meetingRoomReqID;
 	
 	public NewAppointmentPanel(MeetingModel meetingModel) {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
@@ -70,7 +82,7 @@ public class NewAppointmentPanel extends JPanel {
 		//Moterom
 		this.add(new JLabel("Møterom"));
 		JPanel moteromPanel = new JPanel();
-		moteromComboBox = new JComboBox(new String[]{"","P15 rom 436","Torget","Hell","Oslo"});
+		moteromComboBox = new JComboBox();
 		moteromText = new JDefaultTextField("Skriv møteplass...", 15);
 		moteromPanel.add(moteromComboBox);
 		moteromPanel.add(moteromText);
@@ -131,6 +143,148 @@ public class NewAppointmentPanel extends JPanel {
 		this.add(storeDelPane);
 		
 		
+		//Listeners
+		timeChangedListener listener = new timeChangedListener();
+		dateChooser.addPropertyChangeListener(listener);
+		fromTime.addActionListener(listener);
+		toTime.addActionListener(listener);
+		
+		storeButton.addActionListener(new storeListener());
+		deleteButton.addActionListener(new deleteListener());
+		
+	}
+	
+	/**
+	 * Checks if the time entered is valid, returns true and colors the font black if it's valid
+	 * colors the font red if it's invalid.
+	 * @return boolean
+	 */
+	private boolean isTimeValid() {
+		if (toTime.compareTo(fromTime) != 1) {
+			fromTime.setForeground(Color.RED);
+			toTime.setForeground(Color.RED);
+			return false;
+		} else {
+			fromTime.setForeground(Color.BLACK);
+			toTime.setForeground(Color.BLACK);
+			return true;
+		}
+	}
+	
+	private Calendar getFromTime() {
+		Calendar from = Calendar.getInstance();
+		from.setTime(dateChooser.getDate());
+		from.set(Calendar.HOUR_OF_DAY, fromTime.getHour());
+		from.set(Calendar.MINUTE, fromTime.getMinute());
+		return from;
+	}
+	
+	private Calendar getToTime() {
+		Calendar to = Calendar.getInstance();
+		to.setTime(dateChooser.getDate());
+		to.set(Calendar.HOUR_OF_DAY, toTime.getHour());
+		to.set(Calendar.MINUTE, toTime.getMinute());
+		return to;
+	}
+	
+	private void requestMeetingRooms() {
+		if (!isTimeValid()) return;
+		
+		Calendar 	from = getFromTime(), 
+					to = getToTime();
+		
+		meetingRoomReqID = ServerConnection.instance().requestAvailableRooms(this, from, to);
+	}
+	
+	private boolean isDataValid() {
+		//Name
+		if (tittelText.getText().length() == 0)
+			return false;
+		//Time
+		if (!isTimeValid())
+			return false;
+		
+		//Moteplass
+		if (moteromComboBox.getSelectedIndex() != 0 && moteromText.getText() != "")
+			return false;
+			
+		return true;
+	}
+	
+	private void storeMeeting() {
+		if (!isDataValid()) return;
+		//Name
+		model.setName(tittelText.getText());
+		//Date+time
+		model.setTimeFrom(this.getFromTime());
+		model.setTimeTo(this.getToTime());
+		//Møteplass
+		model.setRoom((MeetingRoomModel)moteromComboBox.getSelectedItem());
+		model.setLocation(moteromText.getText());
+		//Beskrivelse
+		model.setDescription(beskrivelseTextArea.getText());
+		//TODO: Invitasjoner
+		
+		ServerConnection.instance().storeModel(model);
+		
+	}
+	
+	private void deleteMeeting() {
+		throw new UnsupportedOperationException("Delete møte er ikke laget enda"); //TODO Hva skal denne gjøre dersom møtet enda ikke er lagret?
+	}
+	
+	class timeChangedListener implements ActionListener, PropertyChangeListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			requestMeetingRooms();
+		}
+
+		@Override
+		public void propertyChange(PropertyChangeEvent e) {
+			requestMeetingRooms();
+		}
+	}
+	
+	class storeListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			storeMeeting();
+		}
+	}
+	
+	class deleteListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			deleteMeeting();
+		}
+	}
+
+	@Override
+	public void onServerResponse(int requestId, Object data) {
+		if (requestId == meetingRoomReqID) {
+			
+			List<MeetingRoomModel> rooms = (List<MeetingRoomModel>) data;
+			
+			MeetingRoomModel selectedRoom = (MeetingRoomModel) moteromComboBox.getSelectedItem();
+			
+			moteromComboBox.removeAllItems();
+			
+			moteromComboBox.addItem(null); //Et blankt valg om man ønsker å heller sette lokasjon som tekst
+			for (MeetingRoomModel room : rooms)
+				moteromComboBox.addItem(room);
+			
+			if (selectedRoom == null) return;
+			
+			for (int i = 1; i < moteromComboBox.getItemCount(); i++) {
+				MeetingRoomModel roomi = (MeetingRoomModel)moteromComboBox.getItemAt(i);
+				
+				if (roomi.getRoomNumber() == selectedRoom.getRoomNumber()) {
+					moteromComboBox.setSelectedIndex(i);
+					return;
+				}
+			}
+				
+		}
 	}
 
 }
