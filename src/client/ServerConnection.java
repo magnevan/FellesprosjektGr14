@@ -17,15 +17,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.logging.Logger;
 
 import server.ModelEnvelope;
-
 import client.gui.exceptions.BadLoginException;
-import client.model.InvitationModel;
-import client.model.MeetingModel;
-import client.model.MeetingRoomModel;
 import client.model.NotificationModel;
 import client.model.TransferableModel;
 import client.model.UserModel;
@@ -147,9 +142,7 @@ public class ServerConnection extends AbstractConnection {
 			}
 			
 			reader.readLine();
-			UserModel user = (UserModel) readModels().get(0);
-			
-			System.out.println(user);System.exit(1);
+			user = (UserModel) readModels().get(0);
 			
 			// Start a reader thread and return
 			readerThread = new ReaderThread();
@@ -403,11 +396,6 @@ public class ServerConnection extends AbstractConnection {
 			listener.serverConnectionChange(change);
 	}	
 	
-	public static void main(String args[]) throws IOException {
-		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
-		
-	}
-
 	/**
 	 * Read models off stream
 	 * 
