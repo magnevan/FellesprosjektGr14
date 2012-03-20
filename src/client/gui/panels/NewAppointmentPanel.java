@@ -197,6 +197,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	}
 	
 	private boolean isDataValid() {
+		System.out.println("validcheck");
 		//Name
 		if (tittelText.getText().length() == 0)
 			return false;
@@ -213,6 +214,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	
 	private void storeMeeting() {
 		if (!isDataValid()) return;
+		System.out.println("Store");
 		//Name
 		model.setName(tittelText.getText());
 		//Date+time
