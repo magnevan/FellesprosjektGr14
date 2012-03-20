@@ -31,7 +31,7 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 	 * @param rs
 	 */
 	public ServerMeetingModel(ResultSet rs, DBConnection db) throws SQLException {		
-		super(null, null, null);
+		super();
 		
 		id = rs.getInt("id");
 		setName(rs.getString("title"));

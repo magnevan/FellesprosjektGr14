@@ -83,6 +83,25 @@ public abstract class AbstractConnection {
 	}
 	
 	/**
+	 * Write a error message to stream
+	 * 
+	 * @param errorMessage
+	 * @param id
+	 * @param method
+	 * @param  
+	 */
+	protected void writeError(String errorMessage, int id, String method) 
+			throws IOException {
+		
+		synchronized(writer) {
+			writer.write(formatCommand(id, method, "ERROR")+"\r\n");
+			writer.write(errorMessage+"\r\n");
+			writer.flush();
+		}
+		
+	}
+	
+	/**
 	 * Dumps the given array of models to the stream, the id and method will
 	 * be printed as a header 
 	 * 

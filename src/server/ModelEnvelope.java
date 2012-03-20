@@ -73,7 +73,8 @@ public class ModelEnvelope {
 		// Add models one by one
 		for(TransferableModel m : models) {
 			this.models.push(m);
-			modelUMIDs.add(m.getUMID());
+			if(m.getUMID() != null)
+				modelUMIDs.add(m.getUMID());
 		}
 	}
 	
@@ -97,8 +98,12 @@ public class ModelEnvelope {
 		TransferableModel[] list = new TransferableModel[numModels];
 		
 		// create models
-		for(int i = 0; i < numModels; i++) {			
-			list[i] = createModel(reader.readLine(), reader, modelBuff, server); 
+		for(int i = 0; i < numModels; i++) {	
+			String name = reader.readLine(),
+					umid = reader.readLine();
+			list[i] = createModel(name, reader, modelBuff, server);
+			if(!umid.equals(""))
+				modelBuff.put(umid, list[i]);
 		}
 		
 		// Validate that we're at the end
@@ -141,8 +146,11 @@ public class ModelEnvelope {
 	 * @param model
 	 */
 	public void addModel(TransferableModel model) {
-		models.push(model);
-		modelUMIDs.add(model.getUMID());
+		if(!hasModel(model)) {
+			models.push(model);
+			modelUMIDs.add(model.getUMID());
+			model.addSubModels(this);
+		}
 	}
 	
 	/**
@@ -183,6 +191,11 @@ public class ModelEnvelope {
 			// Write model header string, so we know which model to initialize
 			// the other side
 			sb.append(getModelName(m)+"\r\n");
+			
+			// Write the models UMID if we got it
+			if(m.getUMID() != null)
+				sb.append(m.getUMID());
+			sb.append("\r\n");
 			
 			// Have the model itself dump its data to the buffer
 			m.toStringBuilder(sb);
