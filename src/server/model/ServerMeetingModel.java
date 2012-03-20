@@ -1,15 +1,19 @@
 package server.model;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 import server.DBConnection;
 import server.ServerMain;
 import client.model.InvitationModel;
 import client.model.MeetingModel;
+import client.model.TransferableModel;
 import client.model.UserModel;
 
 /**
@@ -20,17 +24,15 @@ import client.model.UserModel;
 public class ServerMeetingModel extends MeetingModel implements IServerModel {
 
 	protected String ownerId; 
-	
-	public ServerMeetingModel() {
-		super();
-	}
-	
+		
 	/**
 	 * Construct Meeting model from ResultSet
 	 * 
 	 * @param rs
 	 */
 	public ServerMeetingModel(ResultSet rs, DBConnection db) throws SQLException {		
+		super(null, null, null);
+		
 		id = rs.getInt("id");
 		setName(rs.getString("title"));
 		setDescription(rs.getString("description"));
@@ -50,8 +52,19 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 		
 		// Set invitations to null forcing a re-fetch on next getInvitations()
 		invitations = null;
-		
-		
+	}
+	
+
+	/**
+	 * Construct MeetingModel from stream
+	 * 
+	 * @param reader
+	 * @param modelBuff
+	 * @throws IOException
+	 */
+	public ServerMeetingModel(BufferedReader reader, 
+			HashMap<String, TransferableModel> modelBuff) throws IOException {
+		super(reader, modelBuff);
 	}
 
 	/**
@@ -75,7 +88,7 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 	@Override
 	public ArrayList<InvitationModel> getInvitations() {
 		if(invitations == null) {
-			invitations = InvitationModel.findByMeeting(this, ServerMain.dbConnection);
+			invitations = ServerInvitationModel.findByMeeting(this, ServerMain.dbConnection);
 		}
 		return invitations;
 	}
@@ -112,11 +125,11 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 				st.close();
 				
 				// Save all invitations
-				for(InvitationModel i : invitations) {
-					(new ServerInvitationModel(i)).store(db);
-				}
+				for(InvitationModel i : invitations)
+					((ServerInvitationModel) i).store(db);
+				
 			} else {
-				// TODO Update, her må vi finne ut hva som er endret, sende notifications og eventuelt reset invitasjoner
+				// TODO Update, her må vi finne ut hva som er endret, sende notifications og eventuelt resette invitasjoner
 				System.err.println("Update is not implemented");
 				System.err.println(this.getInvitations().size() + " invitations would have been stored");
 			}

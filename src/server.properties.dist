@@ -1,4 +1,4 @@
 fp.server.listen_port = 9034
-fp.database.url = jdbc:mysql://mysql23.stwadmin.net/db1007143_fp
-fp.database.user = u1007143_fp
-fp.database.pass = ltihf|5aob
+fp.database.url = jdbc:mysql://mysql.stud.ntnu.no/magnevan_fp
+fp.database.user = magnevan
+fp.database.pass = 123

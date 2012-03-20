@@ -57,10 +57,10 @@ public class InvitationModel extends TransferableModel {
 	 * Unique ID
 	 */
 	@Override
-	protected Object getMID() {
+	public String getUMID() {
 		if(getUser() != null && getUser().getUsername() != null && 
 				getMeeting() != null && getMeeting().getId() != -1) {
-			return getUser().getUsername() + "_" + getMeeting().getId();
+			return "invitation_"+getUser().getUsername() + "_" + getMeeting().getId();
 		}
 		return null;
 	}
@@ -77,6 +77,15 @@ public class InvitationModel extends TransferableModel {
 	 */
 	public MeetingModel getMeeting() {
 		return meeting;
+	}
+	
+	/**
+	 * Set meeting
+	 * 
+	 * @param meeting
+	 */
+	public void setMeeting(MeetingModel meeting) {
+		this.meeting = meeting;
 	}
 	
 	/**

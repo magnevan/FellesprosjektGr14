@@ -1,10 +1,12 @@
 package server.model;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Calendar;
+import java.util.HashMap;
 
 import server.DBConnection;
 import server.ServerMain;
@@ -16,12 +18,27 @@ import client.model.UserModel;
 
 public class ServerNotificationModel extends NotificationModel implements IServerModel {
 
-	public ServerNotificationModel() {
-		super();
-	}
-	
+	/**
+	 * Construct a new Notification
+	 * 
+	 * @param type
+	 * @param given_to
+	 * @param regards_meeting
+	 */
 	public ServerNotificationModel(NotificationType type, UserModel given_to, MeetingModel regards_meeting) {
 		super(type, given_to, regards_meeting);
+	}
+	
+	/**
+	 * Construct NotificationModel from reader
+	 * 
+	 * @param reader
+	 * @param modelBuff
+	 * @throws IOException
+	 */
+	public ServerNotificationModel(BufferedReader reader, 
+			HashMap<String, TransferableModel> modelBuff) throws IOException {
+		super(reader, modelBuff);
 	}
 	
 	/**

@@ -61,22 +61,11 @@ public abstract class TransferableModel {
 	 * @param sb
 	 */
 	public abstract void toStringBuilder(StringBuilder sb);	
-	
-	/**
-	 * Get a unique model id, used by the cache manager
-	 * 
-	 * @return a string ID or null if the object is unidentifiable
-	 */
-	public String getUMID() {
-		if(getMID() != null)
-			return getClass().getName()+"_"+getMID().toString();
-		return null;
-	}
-	
+		
 	/**
 	 * Return the value of the primary key identifier for this model
 	 *
 	 * @return ID or null if this cannot be identified (not yet stored)
 	 */
-	protected abstract Object getMID();
+	public abstract String getUMID();
 }

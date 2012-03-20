@@ -39,11 +39,6 @@ public abstract class ModelCacher {
 		if(model.getUMID() == null)
 			return model;
 		
-		// TODO The way meetings are sent this may be called on the server, this should not happen and 
-		// has to be fixed later. this hack just keeps it from happening
-		if(model instanceof IServerModel) 
-			return model;
-		
 		if(cache.containsKey(model.getUMID())) {
 			ModelCacher.update(model);
 		} else {

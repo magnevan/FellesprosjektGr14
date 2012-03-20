@@ -5,14 +5,11 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
-import client.model.InvitationModel;
-import client.model.MeetingModel;
-import client.model.MeetingRoomModel;
-import client.model.NotificationModel;
+import server.ModelEnvelope;
 import client.model.TransferableModel;
-import client.model.UserModel;
 
 /**
  * Abstract connection implements helper methods for reading and 
@@ -91,7 +88,7 @@ public abstract class AbstractConnection {
 	 * 
 	 * @param models
 	 */	
-	protected void writeModels(TransferableModel[] models, int id, String method) throws IOException {
+	protected void writeModels(List<TransferableModel> models, int id, String method) throws IOException {
 		writeModels(models, id, method, "");
 	}
 	
@@ -103,19 +100,13 @@ public abstract class AbstractConnection {
 	 * @param method
 	 * @param smethod
 	 */
-	protected void writeModels(TransferableModel[] models, int id, String method, String smethod) 
+	protected void writeModels(List<TransferableModel> models, int id, String method, String smethod) 
 			throws IOException {
 
-		synchronized(writer) {
+		synchronized(writer) {	
 			writer.write(formatCommand(id, method, smethod)+"\r\n");
-			for(TransferableModel m : models) {
-				if(m != null) {
-					writer.write(getModelName(m) + "\r\n");
-					m.toStream(writer);
-					writer.write("\r\n");
-				}
-			}
-			writer.write("\r\n");
+			ModelEnvelope envelope = new ModelEnvelope(models);
+			envelope.writeToStream(writer);
 			writer.flush();
 		}
 	}
@@ -123,61 +114,6 @@ public abstract class AbstractConnection {
 	/**
 	 * Attempts to read a set of models from the input stream
 	 */
-	protected ArrayList<TransferableModel> readModels() throws IOException {
-		ArrayList<TransferableModel> models = new ArrayList<TransferableModel>();
-		String line;
-		while(!(line = reader.readLine()).equals("")) {
-			try {
-				models.add(readModel(line));
-			} catch(Exception e) {
-				// TODO This is way to generic, makes debugging hard
-				LOGGER.severe("Unkown model class sent by server, "+line);
-				LOGGER.severe(e.toString());
-			}
-		}		
-		return models;
-	}
-	
-	/**
-	 * Read a single model off stream
-	 * 
-	 * @param name
-	 * @return
-	 * @throws IOException
-	 */
-	protected TransferableModel readModel(String name) throws IOException {
-		TransferableModel model = createModel(name);				
-		model.fromStream(reader);
-		reader.readLine(); // Read the empty separator line		
-		return model;
-	}
-	
-	/**
-	 * Create a model object based on the given name
-	 * @param name
-	 */
-	protected abstract TransferableModel createModel(String name);
-	
-	/**
-	 * Return the name of the passed model
-	 * 
-	 * @param model
-	 * @return
-	 */
-	protected String getModelName(TransferableModel model) {
-		if(model instanceof MeetingModel) {
-			return "MeetingModel";
-		} else if(model instanceof UserModel) {
-			return "UserModel";
-		} else if(model instanceof MeetingRoomModel) {
-			return "MeetingRoomModel";
-		} else if(model instanceof InvitationModel) {
-			return "InvitationModel";
-		} else if(model instanceof NotificationModel) {
-			return "NotificationModel";
-		}
-		throw new IllegalArgumentException("Unknown model type passed to getModelName" +
-				" "+model.getClass().getName());
-	}
+	protected abstract List<TransferableModel> readModels() throws IOException;
 	
 }

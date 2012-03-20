@@ -9,14 +9,18 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.logging.Logger;
+
+import server.ModelEnvelope;
 
 import client.gui.exceptions.BadLoginException;
 import client.model.InvitationModel;
@@ -90,6 +94,9 @@ public class ServerConnection extends AbstractConnection {
 		return false;
 	}
 	
+	/**
+	 * @return are we online?
+	 */
 	public static boolean isOnline() {
 		return instance != null;
 	}
@@ -139,9 +146,10 @@ public class ServerConnection extends AbstractConnection {
 				throw new BadLoginException();
 			}
 			
-			line = reader.readLine();// User header
-			// Read user model off stream
-			user = (UserModel) ModelCacher.cache((readModels()).get(0));
+			reader.readLine();
+			UserModel user = (UserModel) readModels().get(0);
+			
+			System.out.println(user);System.exit(1);
 			
 			// Start a reader thread and return
 			readerThread = new ReaderThread();
@@ -151,35 +159,7 @@ public class ServerConnection extends AbstractConnection {
 		}
 		
 	}
-	
-	/**
-	 * Construct client side models for readModels()
-	 */
-	protected TransferableModel createModel(String name) {
-		if(name.equals("UserModel")) {
-			return new UserModel();
-		} else if(name.equals("MeetingModel")) {
-			return new MeetingModel();
-		} else if(name.equals("MeetingRoomModel")) {
-			return new MeetingRoomModel();
-		} else if(name.equals("InvitationModel")) {
-			return new InvitationModel();
-		} else if(name.equals("NotificationModel")) {
-			return new NotificationModel();
-		}
-		return null;
-	}
-	
-	/**
-	 * Read a single model off stream, and run in through the model cache
-	 * before returning it to the caller
-	 */
-	@Override
-	protected TransferableModel readModel(String name) throws IOException {
-		TransferableModel model = super.readModel(name);
-		return ModelCacher.cache(model);
-	}
-	
+		
 	/**
 	 * Private reader thread
 	 *
@@ -203,7 +183,7 @@ public class ServerConnection extends AbstractConnection {
 					int id = Integer.parseInt(parts[0]);
 					String method = parts[1];
 					
-					ArrayList<TransferableModel> models = readModels();
+					List<TransferableModel> models = readModels();
 					
 					// Broadcasts come with a zero id
 					if(id == 0 && method.equals("BROADCAST")) {
@@ -342,7 +322,7 @@ public class ServerConnection extends AbstractConnection {
 	public TransferableModel storeModel(TransferableModel model) {
 		int id = ++nextRequestId;
 		try {
-			writeModels(new TransferableModel[]{model}, id, "STORE");
+			writeModels(Arrays.asList(model), id, "STORE");
 			
 			// Updated model will come in reader thread, halt untill it's there
 			while(!storedModels.containsKey(id)) {
@@ -424,8 +404,18 @@ public class ServerConnection extends AbstractConnection {
 	}	
 	
 	public static void main(String args[]) throws IOException {
-		//ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
+		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
 		
+	}
+
+	/**
+	 * Read models off stream
+	 * 
+	 */
+	@Override
+	protected List<TransferableModel> readModels() throws IOException {
+		ModelEnvelope envelope = new ModelEnvelope(reader, false);
+		return envelope.getModels();
 	}
 	
 }

@@ -105,6 +105,9 @@ public class ModelEnvelope {
 			throw new IOException("Expected empty line after envelope, got "+line);
 		}
 		
+		models = new Stack<TransferableModel>();
+		modelUMIDs = new HashSet<String>();
+		
 		// Turn around the models and push to list
 		for(int i = list.length-1; i >= list.length-countModels; i--) {
 			models.push(list[i]);
@@ -142,6 +145,15 @@ public class ModelEnvelope {
 	}
 	
 	/**
+	 * Get the transfered models
+	 * 
+	 * @return
+	 */
+	public List<TransferableModel> getModels() {
+		return models.subList(0, getModelCount());
+	}
+	
+	/**
 	 * Writes all the models in this envolope to the given BufferedWriter 
 	 * 
 	 * This may be read back using the ModelEnvelope constructor with a
@@ -164,7 +176,7 @@ public class ModelEnvelope {
 		
 		// Write models in reverse order to make sure all dependencies are provided
 		// before a model is read on the other side
-		for(int i = models.size()-1; i > 0; i --) {			
+		for(int i = models.size()-1; i >= 0; i --) {			
 			TransferableModel m = models.get(i);
 			
 			// Write model header string, so we know which model to initialize
@@ -250,8 +262,7 @@ public class ModelEnvelope {
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
-		return model;
-		
+		return model;		
 	}
 	
 }
