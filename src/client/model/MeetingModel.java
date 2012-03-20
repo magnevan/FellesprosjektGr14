@@ -14,6 +14,7 @@ import java.util.HashMap;
 
 import server.ModelEnvelope;
 import client.ModelCacher;
+import client.ServerConnection;
 
 /**
  * A model for the meetings in the calendar
@@ -43,6 +44,16 @@ public class MeetingModel implements TransferableModel {
 	protected ArrayList<InvitationModel> invitations;
 	
 	/**
+	 * Protected constructor
+	 */
+	protected MeetingModel() {
+		changeSupport = new PropertyChangeSupport(this);
+		id = -1;
+		name = location = description = "";
+		invitations = new ArrayList<InvitationModel>();	
+	}
+	
+	/**
 	 * Construct a new meeting model
 	 * Note that timeTo should be after timeFrom
 	 * 
@@ -52,10 +63,7 @@ public class MeetingModel implements TransferableModel {
 	 * @throws IllegalArgumentException if timeFrom is after timeTo
 	 */
 	public MeetingModel(Calendar timeFrom, Calendar timeTo, UserModel owner) {
-		changeSupport = new PropertyChangeSupport(this);
-		id = -1;
-		invitations = new ArrayList<InvitationModel>();	
-		
+		this();
 		this.timeFrom = timeFrom;
 		this.timeTo = timeTo;
 		this.owner = owner;
@@ -73,6 +81,7 @@ public class MeetingModel implements TransferableModel {
 	 */
 	public MeetingModel(BufferedReader reader, 
 			HashMap<String, TransferableModel> modelBuff) throws IOException {
+		this();
 		
 		id = Integer.parseInt(reader.readLine());
 		name = reader.readLine();
@@ -367,11 +376,14 @@ public class MeetingModel implements TransferableModel {
 	 */
 	@Override
 	public void addSubModels(ModelEnvelope envelope) {
+		// Add invitations first so as they also depend on users 
+		if(getId() != -1)
+			for(InvitationModel i : getInvitations())
+				envelope.addModel(i);
+		
 		envelope.addModel(getOwner());
 		if(getRoom() != null)
 			envelope.addModel(getRoom());
-		for(InvitationModel i : getInvitations())
-			envelope.addModel(i);
 	}
 
 	/**
@@ -395,23 +407,63 @@ public class MeetingModel implements TransferableModel {
 			sb.append(getRoom().getUMID());
 		sb.append("\r\n");
 		
-		sb.append(getInvitations().size()+"\r\n");
-		for(InvitationModel i : getInvitations())
-			sb.append(i.getUMID()+"\r\n");
-		
+		// Invitations cannot be identified untill a Meeting has been saved
+		if(getId() != -1) {
+			sb.append(getInvitations().size()+"\r\n");
+			for(InvitationModel i : getInvitations())
+				sb.append(i.getUMID()+"\r\n");
+		} else {
+			sb.append("0\r\n");
+		}
 	}	
 	
+	/**
+	 * Add property change listener
+	 * 
+	 * @param listener
+	 */
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		changeSupport.addPropertyChangeListener(listener);
 	}
 	
+	/**
+	 * Remove property change listener
+	 * 
+	 * @param listener
+	 */
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		changeSupport.removePropertyChangeListener(listener);
 	}
 	
+	/**
+	 * clear property change listeners
+	 */
 	public void clearPropertyChangeListeners() {
 		for (PropertyChangeListener listener : changeSupport.getPropertyChangeListeners())
 			changeSupport.removePropertyChangeListener(listener);
 	}
+		
+	/**
+	 * Store the meeting object on server
+	 * 
+	 */
+	public void store() throws IOException {
+		if(!ServerConnection.isOnline())
+			throw new IOException("Cannot store Meeting, not logged in");
+		
+		MeetingModel stored = (MeetingModel) ServerConnection.instance().storeModel(this);
+		
+		// We're a new model
+		if(getId() == -1) {
+			// Set id and call store again, this will save any invitations
+			id = stored.getId();
+			if(invitations.size() > 0)
+				stored = (MeetingModel) ServerConnection.instance().storeModel(this);
 			
+			// Make sure the correct version of the model is cached, and return
+			ModelCacher.free(stored);
+			ModelCacher.cache(this);
+		}
+	}
+	
 }
