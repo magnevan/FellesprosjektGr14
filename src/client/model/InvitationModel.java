@@ -11,7 +11,7 @@ import server.ModelEnvelope;
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public class InvitationModel extends TransferableModel {
+public class InvitationModel implements TransferableModel {
 
 	protected UserModel user;
 	protected MeetingModel meeting;

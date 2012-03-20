@@ -20,7 +20,7 @@ import client.ModelCacher;
  * @author peterringset
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public class MeetingModel extends TransferableModel {
+public class MeetingModel implements TransferableModel {
 	
 	public final static String TIME_FROM_PROPERTY = "timeFrom";
     public final static String TIME_TO_PROPERTY = "timeTo";

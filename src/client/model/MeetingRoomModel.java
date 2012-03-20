@@ -13,7 +13,7 @@ import server.ModelEnvelope;
  * @author peterringset
  *
  */
-public class MeetingRoomModel extends TransferableModel {
+public class MeetingRoomModel implements TransferableModel {
 	
 	private PropertyChangeSupport pcs;
 	
