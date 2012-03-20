@@ -12,7 +12,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Logger;
 
-import server.model.IServerModel;
+import server.model.IDBStorableModel;
+import server.model.ServerActiveUserModel;
 import server.model.ServerMeetingModel;
 import server.model.ServerMeetingRoomModel;
 import server.model.ServerUserModel;
@@ -37,7 +38,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 	private static Logger LOGGER = Logger.getLogger("ClientConnection");	
 	
 	// Internal variables
-	private final ServerUserModel user;	
+	private final ServerActiveUserModel user;	
 	private final ClientConnectionListener handler;	
 	private boolean running = true;
 	
@@ -49,7 +50,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 	 * @param writer
 	 */
 	public ClientConnection(Socket s, BufferedReader reader, BufferedWriter writer, 
-			ServerUserModel user, ClientConnectionListener handler) {
+			ServerActiveUserModel user, ClientConnectionListener handler) {
 		super(s, writer, reader);
 		this.user = user;
 		this.handler = handler;
@@ -175,7 +176,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 					// TODO Handle exceptions, send them back to client
 					
 					TransferableModel model = readModels().get(0);		
-					((IServerModel)model).store(db);					
+					((IDBStorableModel)model).store(db);					
 					writeModels(new TransferableModel[]{model}, id, method);
 					
 				} else if(method.equals("LOGOUT")) {

@@ -18,7 +18,7 @@ import client.model.UserModel;
  * 
  * @author Peter Ringset
  */
-public class ServerUserModel extends UserModel implements IServerModel  {
+public class ServerUserModel extends UserModel  {
 	
 	/**
 	 * Create a new ServerUserModel
@@ -166,12 +166,5 @@ public class ServerUserModel extends UserModel implements IServerModel  {
 		}
 		return ret;
 	}
-
-	/**
-	 * Store user in database
-	 * 
-	 */
-	@Override
-	public void store(DBConnection db) { /* Users cannot be changed */ }
 
 }
