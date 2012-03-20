@@ -17,6 +17,7 @@ import client.model.MeetingModel;
  * @author Magne
  *
  */
+@SuppressWarnings("serial")
 public class ParticipantStatusList extends JTable implements PropertyChangeListener {
 	
 	private static final String[] HEADERS = new String[]{"Navn", "Status"};

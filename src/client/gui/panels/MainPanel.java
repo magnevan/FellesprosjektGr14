@@ -5,11 +5,11 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import client.gui.week.WeekView;
+import client.model.MeetingModel;
 
 
 public class MainPanel extends JPanel {
@@ -52,7 +52,7 @@ public class MainPanel extends JPanel {
 	
 	private void OpenNewAppointment() {
 		if (newAppointmentPane == null) {
-			newAppointmentPane = new NewAppointmentPanel();
+			newAppointmentPane = new NewAppointmentPanel(new MeetingModel());
 			optionTabbedPane.addTab("Ny Avtale", newAppointmentPane);
 		}
 		optionTabbedPane.setSelectedComponent(newAppointmentPane);

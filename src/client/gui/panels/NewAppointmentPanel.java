@@ -10,7 +10,6 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -19,12 +18,16 @@ import client.gui.JDefaultTextArea;
 import client.gui.JDefaultTextField;
 import client.gui.JTimePicker;
 import client.gui.VerticalLayout;
+import client.gui.participantstatus.ParticipantStatusList;
 import client.gui.usersearch.FilteredUserList;
 import client.model.FilteredUserListModel;
+import client.model.MeetingModel;
 
 import com.toedter.calendar.JDateChooser;
 
 public class NewAppointmentPanel extends JPanel {
+	
+	private final MeetingModel meetingModel;
 	
 	private final JTextField tittelText;
 	private final JDateChooser dateChooser;
@@ -34,9 +37,12 @@ public class NewAppointmentPanel extends JPanel {
 	private final JTextArea beskrivelseTextArea;
 	private final FilteredUserList filteredUserList;
 	private final JButton addEmployeeButton, removeEmployeeButton;
+	private final ParticipantStatusList participantList;
 	
-	public NewAppointmentPanel() {
+	public NewAppointmentPanel(MeetingModel meetingModel) {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
+		
+		this.meetingModel = meetingModel;
 		
 		//Tittel
 		this.add(new JLabel("Tittel:"));
@@ -105,6 +111,12 @@ public class NewAppointmentPanel extends JPanel {
 		this.add(addRemovePanel);
 		
 		//Deltakere
+		participantList = new ParticipantStatusList(meetingModel);
+		participantList.setPreferredSize(new Dimension(
+					this.getPreferredSize().width,
+					150
+				));
+		this.add(participantList);
 		
 	}
 
