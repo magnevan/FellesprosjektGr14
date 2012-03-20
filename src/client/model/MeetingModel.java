@@ -264,7 +264,7 @@ public class MeetingModel implements TransferableModel {
 	}
 	
 	public String toString() {
-		return getName() + "(" + timeFrom.getTime() + " - " + timeTo.getTime() + ")";
+		if (name != null) return getName() + " (" + timeFrom.getTime() + " - " + timeTo.getTime() + ")";
 	}
 	
 	/**

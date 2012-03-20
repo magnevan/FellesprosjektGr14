@@ -6,6 +6,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 
@@ -290,6 +291,35 @@ public class NotificationModel implements TransferableModel {
 		if(getRegardsUser() != null)
 			sb.append(getRegardsUser().getUMID());
 		sb.append("\r\n");		
+	}
+	
+	public String toString() {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm");
+		String ret = this.time.get(Calendar.DAY_OF_MONTH) +
+					"/" + (this.time.get(Calendar.MONTH) + 1) +
+					" " +
+					this.time.get(Calendar.HOUR_OF_DAY) +
+					":" +
+					this.time.get(Calendar.MINUTE) +
+					"\t";
+		ret = sdf.format(this.time.getTime());
+		return ret;
+//		if (this.type == NotificationType.A_CANCELED) {
+//			ret += this.regards_user + " har avlyst";
+//			if (this.regards_meeting.isMeeting()) ret += " m¿tet";
+//			else ret += " avtalen";
+//			ret += " " + this.regards_meeting;
+//		} else if (this.type == NotificationType.A_EDITED) {
+//			if (this.regards_meeting.isMeeting()) ret += "M¿tet";
+//			else ret += "Avtalen";
+//			ret += " " + this.regards_meeting + " har blitt endret. Trykk her for Œ se endringer";
+//		} else if (this.type == NotificationType.A_INVITATION) {
+//			ret += this.regards_user + " har invitert deg til m¿tet " + this.regards_meeting + ". Trykk her for Œ se detaljer";
+//		} else if (this.type == NotificationType.A_USER_DENIED) {
+//			ret += this.regards_user + " avslo invitasjon til m¿tet " + this.regards_meeting + ". Trykk her for Œ endre m¿tet";
+//		}
+		
+//		return ret;
 	}
 	
 }
