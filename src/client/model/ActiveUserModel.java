@@ -44,6 +44,7 @@ public class ActiveUserModel extends UserModel {
 	public ActiveUserModel(BufferedReader reader, 
 			HashMap<String, TransferableModel> modelBuff) throws IOException {
 		super(reader, modelBuff);
+		notifications = new ArrayList<NotificationModel>();
 		
 		int n = Integer.parseInt(reader.readLine());
 		for( ; n > 0; n-- )
