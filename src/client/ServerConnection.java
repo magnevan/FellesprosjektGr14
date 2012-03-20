@@ -8,7 +8,6 @@ import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
@@ -21,9 +20,12 @@ import java.util.logging.Logger;
 
 import server.ModelEnvelope;
 import client.gui.exceptions.BadLoginException;
+import client.model.ActiveUserModel;
 import client.model.NotificationModel;
 import client.model.TransferableModel;
 import client.model.UserModel;
+
+
 
 /**
  * The clients interface to the remote calendar server
@@ -38,9 +40,9 @@ public class ServerConnection extends AbstractConnection {
 	private static Logger LOGGER = Logger.getLogger("ServerConnection");
 	private static ServerConnection instance = null;	
 	
+	private ActiveUserModel user;
 	private ReaderThread readerThread;	
 	private int nextRequestId = 1;
-	private UserModel user;
 	
 	// Stores listeners while we wait for the server to respond
 	private Map<Integer, IServerResponseListener> listeners;
@@ -76,6 +78,7 @@ public class ServerConnection extends AbstractConnection {
 	 */
 	public static boolean logout() {
 		fireServerConnectionChange(IServerConnectionListener.LOGOUT);
+		ClientMain.setActiveUser(null);
 		if(instance != null) {
 			try {
 				instance.writeLine(instance.formatCommand(0, "LOGOUT"));
@@ -142,7 +145,8 @@ public class ServerConnection extends AbstractConnection {
 			}
 			
 			reader.readLine();
-			user = (UserModel) readModels().get(0);
+			user = (ActiveUserModel) readModels().get(0);
+			ClientMain.setActiveUser(user);
 			
 			// Start a reader thread and return
 			readerThread = new ReaderThread();
@@ -216,22 +220,13 @@ public class ServerConnection extends AbstractConnection {
 	}
 	
 	/**
-	 * Return the currently logged in user object
-	 * 
-	 * @return
-	 */
-	public UserModel getUser() {
-		return user;
-	}
-	
-	/**
 	 * Request all meetings within a given time period from this users calendar
 	 * 
 	 * @return request id
 	 */
 	public int requestMeetings(
 			IServerResponseListener listener, Calendar startDate, Calendar endDate) {
-		return requestMeetings(listener, new UserModel[]{getUser()}, startDate, endDate);
+		return requestMeetings(listener, new UserModel[]{ClientMain.getActiveUser()}, startDate, endDate);
 	}
 	
 	/**

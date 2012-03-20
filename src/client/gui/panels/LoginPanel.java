@@ -22,6 +22,7 @@ import javax.swing.JTextField;
 import client.ServerConnection;
 import client.gui.exceptions.BadLoginException;
 
+@SuppressWarnings("serial")
 public class LoginPanel extends JPanel implements ActionListener{
 	
 	private final JTextField txtUsername, txtPassword;
@@ -31,7 +32,7 @@ public class LoginPanel extends JPanel implements ActionListener{
 	public LoginPanel() {
 		
 		//GUI setup
-		lblStatus = new JLabel("test");
+		lblStatus = new JLabel("   ");
 		lblStatus.setForeground(Color.RED);
 		lblStatus.setFont(new Font(
 					lblStatus.getFont().getName(),
@@ -41,8 +42,8 @@ public class LoginPanel extends JPanel implements ActionListener{
 		
 		JLabel  lblUsername = new JLabel("Brukernavn:"), 
 				lblPassword = new JLabel("Passord:");
-		txtUsername = new JTextField(20);
-		txtPassword = new JPasswordField(20);
+		txtUsername = new JTextField("",20);
+		txtPassword = new JPasswordField("",20);
 		
 		loginButton = new JButton("Logg inn");
 		loginButton.setMinimumSize(new Dimension(
@@ -104,9 +105,6 @@ public class LoginPanel extends JPanel implements ActionListener{
 	}
 	
 	private void attemptLogin(String username, String password) {
-		//TODO temp
-		//ClientMain.client().serverConnectionChange(IServerConnectionListener.LOGIN);
-		//if (true) return;
 		
 		InetAddress target;
 		int port;
@@ -118,7 +116,6 @@ public class LoginPanel extends JPanel implements ActionListener{
 			target = InetAddress.getByName(p.getProperty("fp.target.url"));
 			port = Integer.parseInt(p.getProperty("fp.target.port"));
 		} catch (IOException exp) {
-			System.out.println("Couldn't read properties");
 			exp.printStackTrace();
 			return;
 		}
@@ -127,10 +124,8 @@ public class LoginPanel extends JPanel implements ActionListener{
 		try {
 			ServerConnection.login(target, port, username, password);
 		} catch (BadLoginException e) {
-			System.out.println("Bad login");
 			lblStatus.setText("Ugyldig brukernavn/passord");
 		} catch (ConnectException e) {
-			System.out.println("Could not connect");
 			lblStatus.setText("Klarte ikke opprette tilkobling til server");
 		} catch (Exception e) {
 			e.printStackTrace();

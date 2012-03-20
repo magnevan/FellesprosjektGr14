@@ -131,5 +131,9 @@ public class AndrePanel extends JPanel {
 		return person;
 		
 	}
+	
+	public JButton getNewAppointmentButton() {
+		return newAppointmentButton;
+	}
 
 }

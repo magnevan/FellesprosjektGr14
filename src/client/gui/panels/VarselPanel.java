@@ -12,6 +12,7 @@ public class VarselPanel extends JPanel{
 	
 	//private final JLabel nameLabel;
 	private final JList noteList;
+	private JButton newAppointmentButton; //TODO legg denne til grafisk
 	
 	public VarselPanel(){
 		super(new VerticalLayout(5,SwingConstants.LEFT));
@@ -37,17 +38,27 @@ public class VarselPanel extends JPanel{
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		centerPanel.add(scroll);
 		
+		//Bottom
+		JPanel bottomPanel = new JPanel(new BorderLayout());
+		bottomPanel.setPreferredSize(new Dimension(270,100));
+		newAppointmentButton = new JButton("Opprett en avtale/møte");
+		newAppointmentButton.setOpaque(true);
+		bottomPanel.add(newAppointmentButton);
+		
 		
 		//add elements
 		this.add(topPanel);
 		this.add(label);
 		this.add(notifications);
 		this.add(centerPanel, BorderLayout.CENTER);
+		this.add(bottomPanel);
 		
 		
 	}
 	
-	
+	public JButton getNewAppointmentButton() {
+		return newAppointmentButton;
+	}
 	
 	
 
