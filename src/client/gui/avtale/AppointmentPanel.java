@@ -216,11 +216,12 @@ public class AppointmentPanel extends JPanel implements PropertyChangeListener {
 		locationLabel.setFont(new Font("Dialog", 1, size));
 	}
 	
-//	public static void main (String args[]) { 
-//        JFrame frame = new JFrame(""); 
-//        AppointmentPanel ap = new AppointmentPanel();
-//        frame.getContentPane().add(ap); 
-//        frame.pack();  
-//        frame.setVisible(true);   
-//    }
+	public static void main (String args[]) { 
+        JFrame frame = new JFrame("");
+        MeetingModel  MM = new MeetingModel();
+        AppointmentPanel ap = new AppointmentPanel(MM);
+        frame.getContentPane().add(ap); 
+        frame.pack();  
+        frame.setVisible(true);   
+    }
 }
