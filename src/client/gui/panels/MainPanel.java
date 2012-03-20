@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import client.gui.week.WeekView;
+import client.model.MeetingModel;
 
 
 public class MainPanel extends JPanel {
@@ -52,7 +53,7 @@ public class MainPanel extends JPanel {
 	
 	private void OpenNewAppointment() {
 		if (newAppointmentPane == null) {
-			newAppointmentPane = new NewAppointmentPanel();
+			newAppointmentPane = new NewAppointmentPanel(MeetingModel.newDefaultInstance());
 			optionTabbedPane.addTab("Ny Avtale", newAppointmentPane);
 		}
 		optionTabbedPane.setSelectedComponent(newAppointmentPane);

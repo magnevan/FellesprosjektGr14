@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 
+import client.ClientMain;
 import client.ModelCacher;
 
 /**
@@ -62,10 +63,27 @@ public class MeetingModel extends TransferableModel {
 		}
 	}
 	
+	/**
+	 * Creates a default meeting model
+	 */
 	public MeetingModel() {
 		changeSupport = new PropertyChangeSupport(this);
 		id = -1;
 		invitations = new ArrayList<InvitationModel>();
+	}
+	
+	public static MeetingModel newDefaultInstance() {
+		Calendar timeFrom = Calendar.getInstance(), 
+				 timeTo   = Calendar.getInstance();
+		
+		timeFrom.set(Calendar.HOUR_OF_DAY, 8);
+		timeFrom.set(Calendar.MINUTE, 0);
+		timeTo.set(Calendar.HOUR_OF_DAY, 9);
+		timeTo.set(Calendar.MINUTE, 45);
+		
+		UserModel owner = ClientMain.getActiveUser();
+		
+		return new MeetingModel(timeFrom, timeTo, owner);
 	}
 	
 	public int getId() {

@@ -1,8 +1,11 @@
 package client.gui.participantstatus;
 
+import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
@@ -17,20 +20,26 @@ import client.model.MeetingModel;
  * @author Magne
  *
  */
-public class ParticipantStatusList extends JTable implements PropertyChangeListener {
+@SuppressWarnings("serial")
+public class ParticipantStatusList extends JPanel implements PropertyChangeListener {
 	
 	private static final String[] HEADERS = new String[]{"Navn", "Status"};
 	
 	private final MeetingModel mmodel;
 	private final ParticipantModel pmodel;
 	
+	private final JTable table;
+	
 	public ParticipantStatusList(MeetingModel mmodel) {
 		this.mmodel = mmodel;
 		this.pmodel = new ParticipantModel();
+		this.table = new JTable(pmodel);
 		
 		mmodel.addPropertyChangeListener(this);
 		
-		this.setModel(pmodel);
+		this.setLayout(new BorderLayout());
+		this.add(new JScrollPane(table), BorderLayout.CENTER);
+		
 	}
 	
 	@Override
