@@ -9,19 +9,23 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import server.ModelEnvelope;
 import client.gui.exceptions.BadLoginException;
 import client.model.ActiveUserModel;
 import client.model.InvitationModel;
 import client.model.MeetingModel;
 import client.model.MeetingRoomModel;
+import client.model.NotificationModel;
 import client.model.TransferableModel;
 import client.model.UserModel;
 
@@ -89,6 +93,9 @@ public class ServerConnection extends AbstractConnection {
 		return false;
 	}
 	
+	/**
+	 * @return are we online?
+	 */
 	public static boolean isOnline() {
 		return instance != null;
 	}
@@ -138,10 +145,8 @@ public class ServerConnection extends AbstractConnection {
 				throw new BadLoginException();
 			}
 			
-			line = reader.readLine();// User header
-			// Read user model off stream
-			UserModel modelOffStream = (UserModel) readModels().get(0);
-			ClientMain.setActiveUser(new ActiveUserModel(modelOffStream));
+			reader.readLine();
+			ClientMain.setActiveUser(new ActiveUserModel((UserModel) readModels().get(0)));
 			
 			// Start a reader thread and return
 			readerThread = new ReaderThread();
@@ -151,33 +156,7 @@ public class ServerConnection extends AbstractConnection {
 		}
 		
 	}
-	
-	/**
-	 * Construct client side models for readModels()
-	 */
-	protected TransferableModel createModel(String name) {
-		if(name.equals("UserModel")) {
-			return new UserModel();
-		} else if(name.equals("MeetingModel")) {
-			return new MeetingModel();
-		} else if(name.equals("MeetingRoomModel")) {
-			return new MeetingRoomModel();
-		} else if(name.equals("InvitationModel")) {
-			return new InvitationModel();
-		}
-		return null;
-	}
-	
-	/**
-	 * Read a single model off stream, and run in through the model cache
-	 * before returning it to the caller
-	 */
-	@Override
-	protected TransferableModel readModel(String name) throws IOException {
-		TransferableModel model = super.readModel(name);
-		return ModelCacher.cache(model);
-	}
-	
+		
 	/**
 	 * Private reader thread
 	 *
@@ -201,13 +180,18 @@ public class ServerConnection extends AbstractConnection {
 					int id = Integer.parseInt(parts[0]);
 					String method = parts[1];
 					
-					// Notifications come with a zero id
-					if(id == 0) {
-						LOGGER.info("Unhandled notice: "+line);
+					List<TransferableModel> models = readModels();
+					
+					// Broadcasts come with a zero id
+					if(id == 0 && method.equals("BROADCAST")) {
+						TransferableModel model = models.get(0);
+						
+						if(model instanceof NotificationModel) {
+							System.out.println("Got notification, handle it ! TODO");
+						}
 						continue;
 					}
 					
-					ArrayList<TransferableModel> models = readModels();
 					
 					// Stored models are saved
 					if(method.equals("STORE")) {
@@ -326,7 +310,7 @@ public class ServerConnection extends AbstractConnection {
 	public TransferableModel storeModel(TransferableModel model) {
 		int id = ++nextRequestId;
 		try {
-			writeModels(new TransferableModel[]{model}, id, "STORE");
+			writeModels(Arrays.asList(model), id, "STORE");
 			
 			// Updated model will come in reader thread, halt untill it's there
 			while(!storedModels.containsKey(id)) {
@@ -407,26 +391,14 @@ public class ServerConnection extends AbstractConnection {
 			listener.serverConnectionChange(change);
 	}	
 	
-	public static void main(String args[]) throws IOException {
-		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
-		Calendar from = Calendar.getInstance();
-		from.set(2012, 3, 19, 13, 15);
-		Calendar to = Calendar.getInstance();
-		to.set(2012, 3, 19, 16, 00);
-		ServerConnection.instance().requestAvailableRooms(new Listener(), from, to);
-	}
-	
-}
-
-class Listener implements IServerResponseListener {
-
+	/**
+	 * Read models off stream
+	 * 
+	 */
 	@Override
-	public void onServerResponse(int requestId, Object data) {
-		ArrayList<MeetingRoomModel> rooms = (ArrayList<MeetingRoomModel>) data;
-		for(MeetingRoomModel m : rooms) {
-			System.out.println(m.getName());
-		}
-		
+	protected List<TransferableModel> readModels() throws IOException {
+		ModelEnvelope envelope = new ModelEnvelope(reader, false);
+		return envelope.getModels();
 	}
 	
 }

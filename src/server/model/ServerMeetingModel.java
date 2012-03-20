@@ -1,15 +1,19 @@
 package server.model;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 import server.DBConnection;
 import server.ServerMain;
 import client.model.InvitationModel;
 import client.model.MeetingModel;
+import client.model.TransferableModel;
 import client.model.UserModel;
 
 /**
@@ -20,22 +24,24 @@ import client.model.UserModel;
 public class ServerMeetingModel extends MeetingModel implements IServerModel {
 
 	protected String ownerId; 
-	
-	public ServerMeetingModel() {
-		super();
-	}
-	
+		
 	/**
 	 * Construct Meeting model from ResultSet
 	 * 
 	 * @param rs
 	 */
 	public ServerMeetingModel(ResultSet rs, DBConnection db) throws SQLException {		
+		super(null, null, null);
+		
 		id = rs.getInt("id");
 		setName(rs.getString("title"));
 		setDescription(rs.getString("description"));
 		ownerId = rs.getString("owner");
 		setActive(rs.getBoolean("active"));
+		setLocation(rs.getString("location"));
+		
+		// Pull in reserved room
+		setRoom(ServerMeetingRoomModel.findReservedRoom(id, db));
 		
 		Calendar fromTime = Calendar.getInstance();
 		fromTime.setTime(rs.getDate("start_date"));
@@ -46,6 +52,19 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 		
 		// Set invitations to null forcing a re-fetch on next getInvitations()
 		invitations = null;
+	}
+	
+
+	/**
+	 * Construct MeetingModel from stream
+	 * 
+	 * @param reader
+	 * @param modelBuff
+	 * @throws IOException
+	 */
+	public ServerMeetingModel(BufferedReader reader, 
+			HashMap<String, TransferableModel> modelBuff) throws IOException {
+		super(reader, modelBuff);
 	}
 
 	/**
@@ -69,7 +88,7 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 	@Override
 	public ArrayList<InvitationModel> getInvitations() {
 		if(invitations == null) {
-			invitations = InvitationModel.findByMeeting(this, ServerMain.dbConnection);
+			invitations = ServerInvitationModel.findByMeeting(this, ServerMain.dbConnection);
 		}
 		return invitations;
 	}
@@ -78,24 +97,39 @@ public class ServerMeetingModel extends MeetingModel implements IServerModel {
 	 * Store model to database
 	 */
 	@Override
-	public void store() {
+	public void store(DBConnection db) {
 		try {
 			if(id == -1) {
 				// Insert
 				Statement st = ServerMain.dbConnection.createStatement();
 
 				st.executeUpdate(String.format(
-						"INSERT INTO appointment(title, start_date, end_date, description, owner)"
-						+" VALUES('%s', '%s', '%s', '%s', '%s')",						
+						"INSERT INTO appointment(title, start_date, end_date, description, owner, location)"
+						+" VALUES('%s', '%s', '%s', '%s', '%s', '%s')",						
 						getName(), getFormattedDate(getTimeFrom()), getFormattedDate(getTimeTo()),
-						getDescription(), getOwner().getUsername()), Statement.RETURN_GENERATED_KEYS);
+						getDescription(), getOwner().getUsername(), getLocation()),
+						Statement.RETURN_GENERATED_KEYS);
 				
 				ResultSet rs = st.getGeneratedKeys();
 				rs.next();
 				id = rs.getInt(1);
+				rs.close();
+				
+				// Register a room reservations
+				if(getRoom() != null) {
+					st.executeUpdate(String.format(
+						"INSERT INTO meeting_room_booking (meeting_room_number, appointment_id)" +
+						"VALUES(%s, %d);", getRoom().getRoomNumber(), getId()
+					));
+				}				
 				st.close();
+				
+				// Save all invitations
+				for(InvitationModel i : invitations)
+					((ServerInvitationModel) i).store(db);
+				
 			} else {
-				// TODO Update, her må vi finne ut hva som er endret, sende notifications og eventuelt reset invitasjoner
+				// TODO Update, her må vi finne ut hva som er endret, sende notifications og eventuelt resette invitasjoner
 				System.err.println("Update is not implemented");
 				System.err.println(this.getInvitations().size() + " invitations would have been stored");
 			}

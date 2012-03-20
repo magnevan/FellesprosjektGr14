@@ -1,14 +1,10 @@
 package client.model;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.HashMap;
 
-import server.DBConnection;
-import server.model.ServerUserModel;
+import server.ModelEnvelope;
 
 /**
  * Model representing a single invitation
@@ -43,104 +39,99 @@ public class InvitationModel extends TransferableModel {
 		this(user, meetingModel, InvitationStatus.INVITED);
 	}
 	
-	public InvitationModel() {}
-	
 	/**
-	 * Construct model from ResultSet
+	 * Construct a Invitation model based on a BufferedReader and a model buffer
 	 * 
-	 * @param rs
+	 * @param reader
+	 * @param modelBuff
 	 */
-	public InvitationModel(ResultSet rs) throws SQLException {
-		this.status = InvitationStatus.valueOf(rs.getString("status"));
+	public InvitationModel(BufferedReader reader, 
+			HashMap<String, TransferableModel> modelBuff) throws IOException {
+		
+		status = InvitationStatus.valueOf(reader.readLine());
+		meeting = (MeetingModel) modelBuff.get(reader.readLine());
+		user = (UserModel) modelBuff.get(reader.readLine());
 	}
 	
-
 	/**
 	 * Unique ID
 	 */
 	@Override
-	protected Object getMID() {
+	public String getUMID() {
 		if(getUser() != null && getUser().getUsername() != null && 
 				getMeeting() != null && getMeeting().getId() != -1) {
-			return getUser().getUsername() + "_" + getMeeting().getId();
+			return "invitation_"+getUser().getUsername() + "_" + getMeeting().getId();
 		}
 		return null;
 	}
 	
+	/**
+	 * @return User that was invited
+	 */
 	public UserModel getUser() {
 		return user;
 	}
-	public void setUser(UserModel user) {
-		this.user = user;
-	}
+	
+	/**
+	 * @return Meeting that user has been invited to
+	 */
 	public MeetingModel getMeeting() {
 		return meeting;
 	}
+	
+	/**
+	 * Set meeting
+	 * 
+	 * @param meeting
+	 */
 	public void setMeeting(MeetingModel meeting) {
 		this.meeting = meeting;
 	}
+	
+	/**
+	 * @return Current invitation status
+	 */
 	public InvitationStatus getStatus() {
 		return status;
 	}
+	
+	/**
+	 * Change current invitation status
+	 * @param status
+	 */
 	public void setStatus(InvitationStatus status) {
 		this.status = status;
 	}
 	
+	/**
+	 * String representation of invitation
+	 */
 	public String toString() {
 		return getUser().getFullName() + " | " + status;
 	}
 	
 	/**
-	 * Read a invitation and its user object off stream
+	 * Part of the model envelope support, request that the model registers
+	 * all of its sub or dependant models
 	 */
 	@Override
-	public void fromStream(BufferedReader reader) throws IOException {
-		setStatus(InvitationStatus.valueOf(reader.readLine()));
-		reader.readLine(); // User header
-		user = new UserModel();
-		user.fromStream(reader);
+	public void addSubModels(ModelEnvelope envelope) {
+		envelope.addModel(getMeeting());
+		envelope.addModel(getUser());		
 	}
-	
+
 	/**
-	 * Dump the invitation to stream
+	 * Dump the model to a string buffer
 	 * 
-	 * A invitation will dump it's internal status, and the related user object,
-	 * but not the related meeting object. 
+	 * This dumps three lines, the status value aswell as the UMID for the
+	 * related meeting and user models for later reassembly
+	 *  
 	 */
 	@Override
-	public void toStream(BufferedWriter writer) throws IOException {
-		writer.write("InvitationModel\r\n");
-		writer.write(status.toString()+"\r\n");
-		user.toStream(writer);
-	}
-	
-	/**
-	 * Find all invitations registered for the given meeting
-	 * 
-	 * @param id
-	 * @param dbConnection
-	 * @return
-	 */
-	public static ArrayList<InvitationModel> findByMeeting(MeetingModel meeting,
-			DBConnection db) {
-		
-		ArrayList<InvitationModel> ret = new ArrayList<InvitationModel>();
-		try {
-			ResultSet rs = db.preformQuery(
-					"SELECT * FROM user_appointment as ua " +
-					"INNER JOIN user as u ON ua.username = u.username " +
-					"WHERE ua.appointment_id = "+meeting.getId()+";");
-			while (rs.next()) {
-				UserModel user = new ServerUserModel(rs);
-				InvitationModel invitation = new InvitationModel(rs);
-				invitation.setUser(user);
-				invitation.setMeeting(meeting);
-				ret.add(invitation);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return ret;
+	public void toStringBuilder(StringBuilder sb) {
+		sb.append(getStatus()+"\r\n");
+		sb.append(getMeeting().getUMID()+"\r\n");
+		sb.append(getUser().getUMID()+"\r\n");
 	}
 	
 }

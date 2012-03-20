@@ -56,6 +56,18 @@ public class DBConnection {
 	}
 	
 	/**
+	 * Execute a update statement, returns the number of affected rows
+	 * 
+	 * @param query
+	 * @return
+	 * @throws SQLException
+	 */
+	public int preformUpdate(String query) throws SQLException {
+		Statement st = connection.createStatement();
+		return st.executeUpdate(query);
+	}
+	
+	/**
 	 * Create a statement
 	 * 
 	 * @param query

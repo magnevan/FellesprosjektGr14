@@ -22,7 +22,7 @@ public class AndrePanel extends JPanel {
 	private final JButton upButton, downButton, newAppointmentButton;
 	private ListSelectionModel selectionModel = new DefaultListSelectionModel();
 	final PersonLabel personLabel;
-	final UserModel person;
+	UserModel person;
 	ListModel lm;
 	
 	public AndrePanel(){
@@ -46,7 +46,7 @@ public class AndrePanel extends JPanel {
 		model.addElement(createUser("Test", "test@test.no", "Test 1"));
 		model.addElement(createUser("Test2","Test2@test.no", "Test 2"));
 		
-		person = new UserModel();
+		//person = new UserModel();
 		employeeList = new JList(model);
 		centerPanel.setPreferredSize(new Dimension(270,100));
 		centerPanel.add(employeeList);
@@ -80,7 +80,7 @@ public class AndrePanel extends JPanel {
 		
 		JPanel addMeetingPanel = new JPanel(new BorderLayout());
 		addMeetingPanel.setPreferredSize(new Dimension(270,100));
-		newAppointmentButton = new JButton("Opprett en avtale/m¿te");
+		newAppointmentButton = new JButton("Opprett en avtale/mï¿½te");
 		newAppointmentButton.setOpaque(true);
 		addMeetingPanel.add(newAppointmentButton);
 		

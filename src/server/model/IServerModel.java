@@ -1,5 +1,7 @@
 package server.model;
 
+import server.DBConnection;
+
 /**
  * Interface for server models
  * 
@@ -10,8 +12,9 @@ public interface IServerModel {
 	/**
 	 * Saves the model to db
 	 * 
+	 * @param db
 	 * @return
 	 */
-	public void store();
+	public void store(DBConnection db);
 	
 }

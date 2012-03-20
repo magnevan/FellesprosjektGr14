@@ -1,6 +1,6 @@
 package client.model;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import client.IServerResponseListener;
 import client.ServerConnection;
@@ -75,7 +75,7 @@ public class FilteredUserListModel
 		if (lastRequestId == requestId) {
 			UserModel[] old = filtered;
 			
-			ArrayList<UserModel> response = (ArrayList<UserModel>)data;			
+			List<UserModel> response = (List<UserModel>)data;			
 			filtered = response.toArray(new UserModel[response.size()]);
 			
 			fireUserListChangeEvent(old, filtered);

@@ -4,8 +4,10 @@ import java.awt.Color;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.HashMap;
+
+import server.ModelEnvelope;
 
 /**
  * A model for the users in the calendar system
@@ -17,7 +19,6 @@ import java.io.IOException;
 public class UserModel extends TransferableModel {
 	
 	protected String	username,
-						//password,
 						email,
 						fullName;
 	
@@ -67,12 +68,15 @@ public class UserModel extends TransferableModel {
 	}
 	
 	/**
-	 * Empty constructor 
+	 * Create a user model from stream
 	 * 
-	 * Should only be used in combination with fromStream() otherwise the object
-	 * will be unusable
+	 * @param reader
+	 * @param modelBuff
 	 */
-	public UserModel() {}
+	public UserModel(BufferedReader reader, 
+			HashMap<String, TransferableModel> modelBuff) throws IOException {
+		this(reader.readLine(), reader.readLine(), reader.readLine());
+	}
 	
 	
 	/**
@@ -89,8 +93,10 @@ public class UserModel extends TransferableModel {
 	 * Get unique ID
 	 */
 	@Override
-	protected Object getMID() {
-		return username;
+	public String getUMID() {
+		if(username == null)
+			return null;
+		return "user_"+username;
 	}
 
 	/**
@@ -124,29 +130,21 @@ public class UserModel extends TransferableModel {
 	}
 
 	/**
-	 * Dump the fields of the user model to a stream
+	 * Unused, UserModel contains no other models
+	 * @param envelope
 	 */
 	@Override
-	public void toStream(BufferedWriter os) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("UserModel\r\n");
+	public void addSubModels(ModelEnvelope envelope) {}
+
+	/**
+	 * Write the model to a StringBuffer
+	 */
+	@Override
+	public void toStringBuilder(StringBuilder sb) {
 		sb.append(getUsername() + "\r\n");
-		//sb.append(getPassword() + "\r\n");
 		sb.append(getEmail() + "\r\n");
 		sb.append(getFullName() + "\r\n");
 		
-		os.write(sb.toString());
-	}
-	
-	/**
-	 * Read the fields of the user model from a stream
-	 */
-	@Override
-	public void fromStream(BufferedReader in) throws IOException {
-		username = in.readLine();
-		email = in.readLine();
-		fullName = in.readLine();
 	}
 	
 	public Color getColor() {
