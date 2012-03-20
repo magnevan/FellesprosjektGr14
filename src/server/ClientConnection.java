@@ -11,10 +11,12 @@ import java.util.Calendar;
 import java.util.logging.Logger;
 
 import server.model.IServerModel;
+import server.model.ServerInvitationModel;
 import server.model.ServerMeetingModel;
+import server.model.ServerMeetingRoomModel;
 import server.model.ServerUserModel;
 import client.AbstractConnection;
-import client.model.AbstractModel;
+import client.model.TransferableModel;
 
 /**
  * ClientConnection
@@ -65,7 +67,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 		DBConnection db = ServerMain.dbConnection;
 		try {
 			
-			writeModels(new AbstractModel[]{user}, 0, "USER");
+			writeModels(new TransferableModel[]{user}, 0, "USER");
 			
 			// Read loop, read untill we've shutting down or we reach EOF
 			String line = null;
@@ -93,7 +95,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 						
 						ArrayList<ServerUserModel> matches = ServerUserModel.searchByUsernameAndEmail(
 								filter, filter, ServerMain.dbConnection);
-						writeModels((AbstractModel[]) matches.toArray(new AbstractModel[matches.size()]), 
+						writeModels((TransferableModel[]) matches.toArray(new TransferableModel[matches.size()]), 
 								id, method, smethod);
 						
 					} else if(smethod.equals("MEETING_LIST")) {
@@ -107,22 +109,36 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 						
 						ArrayList<ServerMeetingModel> matches = ServerMeetingModel.searchByUsernamesAndPeriod(
 								users, startDate, endDate, ServerMain.dbConnection);
-						writeModels((AbstractModel[]) matches.toArray(new AbstractModel[matches.size()]), 
+						writeModels((TransferableModel[]) matches.toArray(new TransferableModel[matches.size()]), 
 								id, method, smethod);		
 						
 					} else if(smethod.equals("MEETING") && parts.length == 4) {
 						int mid = Integer.parseInt(parts[3]);
 						
 						ServerMeetingModel match = ServerMeetingModel.findById(mid, ServerMain.dbConnection);
-						writeModels(new AbstractModel[]{match},	id, method, smethod);	
+						writeModels(new TransferableModel[]{match},	id, method, smethod);	
+					} else if(smethod.equals("AVAILABLE_ROOMS")) {
+						DateFormat df = DateFormat.getDateTimeInstance();
+						Calendar from = Calendar.getInstance();
+						from.setTime(df.parse(reader.readLine().trim()));
+						Calendar to = Calendar.getInstance();
+						to.setTime(df.parse(reader.readLine().trim()));
+						reader.readLine(); // filler line
+						
+						ArrayList<ServerMeetingRoomModel> matches = ServerMeetingRoomModel.findAvailableRooms(
+								from, to, ServerMain.dbConnection);
+						writeModels((TransferableModel[]) matches.toArray(new TransferableModel[matches.size()]), 
+								id, method, smethod);		
 					}
 				
 				} else if(method.equals("STORE")) {
 					// Store model
 					
-					AbstractModel model = readModels().get(0);		
+					// TODO Handle exceptions, send them back to client
+					
+					TransferableModel model = readModels().get(0);		
 					((IServerModel)model).store();					
-					writeModels(new AbstractModel[]{model}, id, method);
+					writeModels(new TransferableModel[]{model}, id, method);
 					
 				} else if(method.equals("LOGOUT")) {
 					writeLine(formatCommand(id, "LOGOUT"));
@@ -174,11 +190,15 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 	/**
 	 * Construct client side models for readModels()
 	 */
-	protected AbstractModel createModel(String name) {
+	protected TransferableModel createModel(String name) {
 		if(name.equals("UserModel")) {
 			return new ServerUserModel();
 		} else if(name.equals("MeetingModel")) {
 			return new ServerMeetingModel();
+		} else if(name.equals("MeetingRoomModel")) {
+			return new ServerMeetingRoomModel();
+		} else if(name.equals("InvitationModel")) {
+			return new ServerInvitationModel();
 		}
 		return null;
 	}

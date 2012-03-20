@@ -1,0 +1,87 @@
+package server.model;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
+
+import server.DBConnection;
+import client.model.MeetingRoomModel;
+
+public class ServerMeetingRoomModel extends MeetingRoomModel implements IServerModel {
+
+	public ServerMeetingRoomModel() {
+		super();
+	}
+	
+	/**
+	 * Construct a MeetingRoom model from a ResultSet
+	 * 
+	 * @param rs
+	 */
+	public ServerMeetingRoomModel(ResultSet rs) throws SQLException {
+		super(rs.getString("room_number"));
+		this.setName(rs.getString("name"));
+		this.setNoPlaces(rs.getInt("no_places"));
+	}
+	
+	/**
+	 * Find all available rooms within a given time period
+	 * 
+	 * @param from
+	 * @param to
+	 * @param db
+	 * @return
+	 */
+	public static ArrayList<ServerMeetingRoomModel> findAvailableRooms(
+			Calendar from, Calendar to, DBConnection db) {
+
+		if(from.after(to)) {
+			throw new IllegalArgumentException("From must be after to");
+		}		
+		ArrayList<ServerMeetingRoomModel> ret = new ArrayList<ServerMeetingRoomModel>();
+		try {			
+			ResultSet rs = db.preformQuery(
+					"SELECT * FROM meeting_room WHERE room_number NOT IN " +
+					"(SELECT DISTINCT meeting_room_number FROM appointment AS a " +
+					"INNER JOIN meeting_room_booking AS mrb ON mrb.appointment_id = a.id " +
+					"WHERE (a.start_date <= '"+getFormattedDate(to)+"' AND a.end_date >= '"+getFormattedDate(to)+"') " +
+					"OR (a.start_date >= '"+getFormattedDate(from)+"' AND a.start_date < '"+getFormattedDate(to)+"'));");
+			while (rs.next()) {
+				ret.add(new ServerMeetingRoomModel(rs));
+			}
+			rs.close();
+			return ret;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+		
+		/**
+		 * SELECT * FROM meeting_room WHERE room_number NOT IN (SELECT DISTINCT meeting_room_number FROM appointment AS a INNER JOIN meeting_room_booking AS mrb ON mrb.appointment_id = a.id WHERE (a.start_date <= '2012-03-19 15:00:00' AND a.end_date >= '2012-03-19 15:00:00') OR (a.start_date >= '2012-03-19 12:00:00' AND a.start_date < '2012-03-19 15:00:00'));
+		 */
+		
+	}
+	
+
+	/**
+	 * Format a Calendar for MySQL's DATETIME field
+	 * 
+	 * @param c
+	 * @return
+	 */
+	private static String getFormattedDate(Calendar c) {
+		return String.format(
+				"%d-%d-%d %d:%d:%d", 
+				c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH),
+				c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND)				
+		);
+	}
+	
+	@Override
+	public void store() {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

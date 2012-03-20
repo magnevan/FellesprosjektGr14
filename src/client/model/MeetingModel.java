@@ -1,5 +1,6 @@
 package client.model;
 
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,13 +11,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 
+import client.ModelCacher;
+
 /**
  * A model for the meetings in the calendar
  * 
  * @author peterringset
  *
  */
-public class MeetingModel extends AbstractModel {
+public class MeetingModel extends TransferableModel {
 	
 
 	public final static String TIME_FROM_PROPERTY = "timeFrom";
@@ -26,6 +29,8 @@ public class MeetingModel extends AbstractModel {
     public final static String LOCATION_PROPERTY = "location";
     public final static String DESCRIPTION_PROPERTY = "description";
     public final static String ACTIVE_PROPERTY = "active";
+    public final static String INVITATION_CREATED = "invitation created";
+    public final static String INVITATION_REMOVED = "invitation removed";
 
 	protected int id;
 	protected Calendar timeFrom, timeTo;
@@ -48,7 +53,6 @@ public class MeetingModel extends AbstractModel {
 
 	public MeetingModel(Calendar timeFrom, Calendar timeTo, UserModel owner) {
 		this();
-		changeSupport = new PropertyChangeSupport(this);
 
 		this.timeFrom = timeFrom;
 		this.timeTo = timeTo;
@@ -59,12 +63,23 @@ public class MeetingModel extends AbstractModel {
 	}
 	
 	public MeetingModel() {
+		changeSupport = new PropertyChangeSupport(this);
 		id = -1;
 		invitations = new ArrayList<InvitationModel>();
 	}
 	
 	public int getId() {
 		return id;
+	}
+	
+	/**
+	 * Get a ID that will identify a MeetingModel
+	 */
+	@Override
+	protected Object getMID() {
+		if(getId() != -1)
+			return getId();
+		return null;
 	}
 	
 	public Calendar getTimeFrom() {
@@ -95,7 +110,7 @@ public class MeetingModel extends AbstractModel {
 	public void setName(String name) {
 		String oldValue = this.name;
 		this.name = name;
-		changeSupport.firePropertyChange(TIME_FROM_PROPERTY, oldValue, name);
+		changeSupport.firePropertyChange(NAME_PROPERTY, oldValue, name);
 	}
 
 	public String getDescription() {
@@ -179,15 +194,17 @@ public class MeetingModel extends AbstractModel {
 			e.printStackTrace();
 		}		
 		
-		reader.readLine(); // Class name
-		
+		reader.readLine(); // Class name		
 		owner = new UserModel();
 		owner.fromStream(reader);
+		owner = (UserModel) ModelCacher.cache(owner);
+		
 		int no = Integer.parseInt(reader.readLine());
 		for( ; no > 0 ; no-- ) {
 			reader.readLine(); // Class name
 			InvitationModel i = new InvitationModel();
 			i.fromStream(reader);
+			i = (InvitationModel) ModelCacher.cache(i);
 			invitations.add(i);
 		}
 	}
@@ -280,6 +297,16 @@ public class MeetingModel extends AbstractModel {
 	public void addAttendee(UserModel user) {
 		addAttendee(new UserModel[]{user});
 	}
+	
+	/**
+	 * Removes a attendee from the meeting
+	 * 
+	 * @param user
+	 */
+	public void removeAttendee(UserModel user) {
+		invitations.remove(getInvitation(user));
+	}
+	
 		
 	/**
 	 * Add a array of attendees to the meeting
@@ -289,10 +316,24 @@ public class MeetingModel extends AbstractModel {
 	public void addAttendee(UserModel[] users) {
 		for(UserModel user : users) {
 			if(!isInvited(user)) {
-				invitations.add(new InvitationModel(user, this));
+				InvitationModel invitation = new InvitationModel(user, this);
+				invitations.add(invitation);
+				changeSupport.firePropertyChange(INVITATION_CREATED,null, invitation);
 			}
 		}		
 	}
-			
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		changeSupport.addPropertyChangeListener(listener);
+	}
+	
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		changeSupport.removePropertyChangeListener(listener);
+	}
+	
+	public void clearPropertyChangeListeners() {
+		for (PropertyChangeListener listener : changeSupport.getPropertyChangeListeners())
+			changeSupport.removePropertyChangeListener(listener);
+	}
 			
 }

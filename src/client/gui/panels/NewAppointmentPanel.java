@@ -1,8 +1,11 @@
 package client.gui.panels;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.util.Calendar;
 
+import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -15,10 +18,16 @@ import client.gui.JDefaultTextArea;
 import client.gui.JDefaultTextField;
 import client.gui.JTimePicker;
 import client.gui.VerticalLayout;
+import client.gui.participantstatus.ParticipantStatusList;
+import client.gui.usersearch.FilteredUserList;
+import client.model.FilteredUserListModel;
+import client.model.MeetingModel;
 
 import com.toedter.calendar.JDateChooser;
 
-public class AvtalePanel extends JPanel {
+public class NewAppointmentPanel extends JPanel {
+	
+	private final MeetingModel meetingModel;
 	
 	private final JTextField tittelText;
 	private final JDateChooser dateChooser;
@@ -26,10 +35,14 @@ public class AvtalePanel extends JPanel {
 	private final JComboBox moteromComboBox;
 	private final JTextField moteromText;
 	private final JTextArea beskrivelseTextArea;
-//	private final FilteredUserList filteredUserList;
+	private final FilteredUserList filteredUserList;
+	private final JButton addEmployeeButton, removeEmployeeButton;
+	private final ParticipantStatusList participantList;
 	
-	public AvtalePanel() {
+	public NewAppointmentPanel(MeetingModel meetingModel) {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
+		
+		this.meetingModel = meetingModel;
 		
 		//Tittel
 		this.add(new JLabel("Tittel:"));
@@ -53,10 +66,10 @@ public class AvtalePanel extends JPanel {
 		this.add(tidPanel);
 		
 		//Moterom
-		this.add(new JLabel("Mï¿½terom"));
+		this.add(new JLabel("Møterom"));
 		JPanel moteromPanel = new JPanel();
 		moteromComboBox = new JComboBox(new String[]{"","P15 rom 436","Torget","Hell","Oslo"});
-		moteromText = new JDefaultTextField("Skriv mï¿½teplass...", 15);
+		moteromText = new JDefaultTextField("Skriv møteplass...", 15);
 		moteromPanel.add(moteromComboBox);
 		moteromPanel.add(moteromText);
 		
@@ -73,20 +86,38 @@ public class AvtalePanel extends JPanel {
 		
 		//Ansatte
 		this.add(new JLabel("Ansatte:"));
-//		filteredUserList = new FilteredUserList(new TestModel());
-//		this.add(filteredUserList);
+		filteredUserList = new FilteredUserList(new FilteredUserListModel());
+		filteredUserList.setPreferredSize(new Dimension(
+					this.getPreferredSize().width,
+					150
+				));
+		this.add(filteredUserList);
+		
+		//Legg til fjern knapper
+		addEmployeeButton = new JButton("Legg til");
+		removeEmployeeButton = new JButton("Fjern");
+		
+		JPanel addRemovePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		
+		addRemovePanel.add(addEmployeeButton);
+		addRemovePanel.add(Box.createHorizontalStrut(40));
+		addRemovePanel.add(removeEmployeeButton);
+		
+		addRemovePanel.setPreferredSize(new Dimension(
+					this.getPreferredSize().width,
+					addRemovePanel.getPreferredSize().height
+				));
+		
+		this.add(addRemovePanel);
+		
+		//Deltakere
+		participantList = new ParticipantStatusList(meetingModel);
+		participantList.setPreferredSize(new Dimension(
+					this.getPreferredSize().width,
+					150
+				));
+		this.add(participantList);
 		
 	}
-	
-//	public static void main(String[] args) {
-//		JFrame frame = new JFrame("test");
-//		
-//		JPanel content = new AvtalePanel();
-//		frame.setContentPane(content);
-//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		
-//		frame.pack();
-//		frame.setVisible(true);
-//	}
 
 }

@@ -12,11 +12,17 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
-import client.model.AbstractModel;
+import client.gui.exceptions.BadLoginException;
+import client.model.ActiveUserModel;
+import client.model.InvitationModel;
 import client.model.MeetingModel;
+import client.model.MeetingRoomModel;
+import client.model.TransferableModel;
 import client.model.UserModel;
 
 /**
@@ -25,25 +31,27 @@ import client.model.UserModel;
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
 public class ServerConnection extends AbstractConnection {
-
+	
+	// Stores listeners interested in server connection changes
+	private static final Set<IServerConnectionListener> serverConnectionListeners = new HashSet<IServerConnectionListener>();
+	
 	private static Logger LOGGER = Logger.getLogger("ServerConnection");
 	private static ServerConnection instance = null;	
 	
 	private ReaderThread readerThread;	
-	private int nextRequestId = 1;	
-	private UserModel user;
+	private int nextRequestId = 1;
 	
 	// Stores listeners while we wait for the server to respond
 	private Map<Integer, IServerResponseListener> listeners;
 	
-	// Stores models that come back from the server after beeing stored
-	private Map<Integer, AbstractModel> storedModels;
+	// Stores models that come back from the server after being stored
+	private Map<Integer, TransferableModel> storedModels;
 		
 	
 	/**
 	 * Attempt to login
 	 * 
-	 * If successfull a ServerConnection instance will be accessable from
+	 * If successfull a ServerConnection instance will be accessible from
 	 * instance();
 	 * 
 	 * @param address
@@ -54,7 +62,9 @@ public class ServerConnection extends AbstractConnection {
 	 */
 	public static boolean login(InetAddress address, int port, 
 			String username, String password) throws IOException {
+		
 		instance = new ServerConnection(address, port, username, password);
+		fireServerConnectionChange(IServerConnectionListener.LOGIN);
 		return true;
 	}
 	
@@ -64,6 +74,8 @@ public class ServerConnection extends AbstractConnection {
 	 * @return
 	 */
 	public static boolean logout() {
+		fireServerConnectionChange(IServerConnectionListener.LOGOUT);
+		ClientMain.setActiveUser(null);
 		if(instance != null) {
 			try {
 				instance.writeLine(instance.formatCommand(0, "LOGOUT"));
@@ -109,7 +121,7 @@ public class ServerConnection extends AbstractConnection {
 				new HashMap<Integer, IServerResponseListener>()
 			);
 		storedModels = Collections.synchronizedMap(
-				new HashMap<Integer, AbstractModel>()
+				new HashMap<Integer, TransferableModel>()
 			);
 			
 		
@@ -123,12 +135,13 @@ public class ServerConnection extends AbstractConnection {
 			writeLine(String.format("LOGIN %s %s", username, password));			
 			String line = reader.readLine();
 			if(!line.startsWith("OK")) {
-				throw new IllegalArgumentException("Bad login");
+				throw new BadLoginException();
 			}
 			
 			line = reader.readLine();// User header
 			// Read user model off stream
-			user = (UserModel) (readModels()).get(0);
+			UserModel modelOffStream = (UserModel) readModels().get(0);
+			ClientMain.setActiveUser(new ActiveUserModel(modelOffStream));
 			
 			// Start a reader thread and return
 			readerThread = new ReaderThread();
@@ -142,13 +155,27 @@ public class ServerConnection extends AbstractConnection {
 	/**
 	 * Construct client side models for readModels()
 	 */
-	protected AbstractModel createModel(String name) {
+	protected TransferableModel createModel(String name) {
 		if(name.equals("UserModel")) {
 			return new UserModel();
 		} else if(name.equals("MeetingModel")) {
 			return new MeetingModel();
+		} else if(name.equals("MeetingRoomModel")) {
+			return new MeetingRoomModel();
+		} else if(name.equals("InvitationModel")) {
+			return new InvitationModel();
 		}
 		return null;
+	}
+	
+	/**
+	 * Read a single model off stream, and run in through the model cache
+	 * before returning it to the caller
+	 */
+	@Override
+	protected TransferableModel readModel(String name) throws IOException {
+		TransferableModel model = super.readModel(name);
+		return ModelCacher.cache(model);
 	}
 	
 	/**
@@ -180,7 +207,7 @@ public class ServerConnection extends AbstractConnection {
 						continue;
 					}
 					
-					ArrayList<AbstractModel> models = readModels();
+					ArrayList<TransferableModel> models = readModels();
 					
 					// Stored models are saved
 					if(method.equals("STORE")) {
@@ -209,22 +236,13 @@ public class ServerConnection extends AbstractConnection {
 	}
 	
 	/**
-	 * Return the currently logged in user object
-	 * 
-	 * @return
-	 */
-	public UserModel getUser() {
-		return user;
-	}
-	
-	/**
 	 * Request all meetings within a given time period from this users calendar
 	 * 
 	 * @return request id
 	 */
 	public int requestMeetings(
 			IServerResponseListener listener, Calendar startDate, Calendar endDate) {
-		return requestMeetings(listener, new UserModel[]{getUser()}, startDate, endDate);
+		return requestMeetings(listener, new UserModel[]{ClientMain.getActiveUser()}, startDate, endDate);
 	}
 	
 	/**
@@ -305,10 +323,10 @@ public class ServerConnection extends AbstractConnection {
 	 * @param model
 	 * @return
 	 */
-	public AbstractModel storeModel(AbstractModel model) {
+	public TransferableModel storeModel(TransferableModel model) {
 		int id = ++nextRequestId;
 		try {
-			writeModels(new AbstractModel[]{model}, id, "STORE");
+			writeModels(new TransferableModel[]{model}, id, "STORE");
 			
 			// Updated model will come in reader thread, halt untill it's there
 			while(!storedModels.containsKey(id)) {
@@ -316,9 +334,7 @@ public class ServerConnection extends AbstractConnection {
 					Thread.sleep(100);
 				} catch(InterruptedException e) {}
 			}
-			model = storedModels.get(id);
-			storedModels.remove(id);
-			return model;
+			return storedModels.remove(id);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -347,4 +363,70 @@ public class ServerConnection extends AbstractConnection {
 			
 		return id;
 	}
+	
+	
+	/**
+	 * Request a list of available meeting rooms within the given time period
+	 * 
+	 * @param listener
+	 * @param from
+	 * @param to
+	 * @return
+	 */
+	public int requestAvailableRooms(IServerResponseListener listener, Calendar from, Calendar to) {
+		int id = ++nextRequestId;
+		
+		try {
+			DateFormat df = DateFormat.getDateTimeInstance();
+			
+			listeners.put(id, listener);
+			writeLine(formatCommand(id, "REQUEST",  "AVAILABLE_ROOMS"));
+			writeLine(df.format(from.getTime()));
+			writeLine(df.format(to.getTime()));
+			writeLine("");
+			
+		} catch(IOException e) {
+			listeners.remove(id);
+			LOGGER.severe("IOException requestFilteredUserList");
+			LOGGER.severe(e.toString());
+			return -1;
+		}
+		
+		return id;
+	}
+	
+	public static void addServerConnectionListener(IServerConnectionListener listener) {
+		serverConnectionListeners.add(listener);
+	}
+	public static void removeServerConnectionListener(IServerConnectionListener listener) {
+		serverConnectionListeners.remove(listener);
+	}
+	
+	private static void fireServerConnectionChange(String change) {
+		for (IServerConnectionListener listener : serverConnectionListeners)
+			listener.serverConnectionChange(change);
+	}	
+	
+	public static void main(String args[]) throws IOException {
+		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
+		Calendar from = Calendar.getInstance();
+		from.set(2012, 3, 19, 13, 15);
+		Calendar to = Calendar.getInstance();
+		to.set(2012, 3, 19, 16, 00);
+		ServerConnection.instance().requestAvailableRooms(new Listener(), from, to);
+	}
+	
+}
+
+class Listener implements IServerResponseListener {
+
+	@Override
+	public void onServerResponse(int requestId, Object data) {
+		ArrayList<MeetingRoomModel> rooms = (ArrayList<MeetingRoomModel>) data;
+		for(MeetingRoomModel m : rooms) {
+			System.out.println(m.getName());
+		}
+		
+	}
+	
 }

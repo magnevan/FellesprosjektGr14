@@ -1,22 +1,55 @@
 package client.model;
 
+import java.awt.Color;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * A model for the users in the calendar system
  * 
  * @author Peter Ringset
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
+ * @author Magne vikjord
  */
-public class UserModel extends AbstractModel {
+public class UserModel extends TransferableModel {
 	
 	protected String	username,
 						//password,
 						email,
 						fullName;
+	
+	private Color color;
+	
+	private CalendarModel calendar;
+	
+	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	public static final String NAME_CHANGE = "name change";
+	
+	//These variables control which colors are given to new user calendars.
+	private static final Color[] availiableColors = new Color[]{
+		new Color(0xE78649),
+		new Color(0x5E72AC),
+		new Color(0x646BD0),
+		new Color(0x223AF8),
+		new Color(0x3C57FA),
+		new Color(0x3775FF),
+		new Color(0x46ADFF),
+		new Color(0x92D642),
+		new Color(0x65A716),
+		new Color(0x48D17B),
+		new Color(0x6CDCB3),
+		new Color(0x83E9FB),
+		new Color(0x65D1FA),
+		new Color(0xC0E192),
+		new Color(0xE7E19F),
+		new Color(0xE7C69F),
+		new Color(0xFF9C9A),
+		new Color(0xFF9AB9)
+	};
+	private static int nextColor = 0;
 	
 	/**
 	 * Create a user object
@@ -29,6 +62,8 @@ public class UserModel extends AbstractModel {
 		this.username = username;
 		this.email = email;
 		this.fullName = fullName;
+		this.color = UserModel.getNextColor();
+		this.calendar = new CalendarModel(this);
 	}
 	
 	/**
@@ -46,6 +81,15 @@ public class UserModel extends AbstractModel {
 	 * @return
 	 */
 	public String getUsername() {
+		return username;
+	}
+	
+
+	/**
+	 * Get unique ID
+	 */
+	@Override
+	protected Object getMID() {
 		return username;
 	}
 
@@ -66,13 +110,17 @@ public class UserModel extends AbstractModel {
 	public String getEmail() {
 		return email;
 	}
+	
+	public CalendarModel getCalendarModel() {
+		return this.calendar;
+	}
 
 	/**
 	 * 
 	 */
 	@Override
 	public String toString() {
-		return this.fullName + " | " + this.email;
+		return this.username + " | " + this.email;
 	}
 
 	/**
@@ -99,5 +147,28 @@ public class UserModel extends AbstractModel {
 		username = in.readLine();
 		email = in.readLine();
 		fullName = in.readLine();
+	}
+	
+	public Color getColor() {
+		return this.color;
+	}
+	
+	private static Color getNextColor() {
+		Color c = availiableColors[nextColor];
+		nextColor = (nextColor + 1) % availiableColors.length;
+		return c;
+	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
+	
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		pcs.removePropertyChangeListener(listener);
+	}
+	
+	public void clearListeners() {
+		for (PropertyChangeListener listener : pcs.getPropertyChangeListeners())
+			pcs.removePropertyChangeListener(listener);
 	}
 }

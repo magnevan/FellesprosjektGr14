@@ -1,40 +1,53 @@
 package client.gui.panels;
 
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeListener;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
 
 import javax.swing.*;
 
 import client.gui.JDefaultTextField;
 import client.gui.VerticalLayout;
+import client.model.UserModel;
+import client.gui.usersearch.FilteredUserList;
+import client.gui.usersearch.IFilteredUserListModel;
 
 public class AndrePanel extends JPanel {
 	
-	private final JLabel nameLabel;
+	//private final JLabel nameLabel;
 	private final JList employeeList;
 	private final JList activeCalenders;
-	private final JButton upButton, downButton;
+	private final JButton upButton, downButton, newAppointmentButton;
 	private ListSelectionModel selectionModel = new DefaultListSelectionModel();
+	final PersonLabel personLabel;
+	final UserModel person;
+	ListModel lm;
 	
 	public AndrePanel(){
 		super(new VerticalLayout(5,SwingConstants.LEFT));
 		
 		//top
-		ImageIcon icon = new ImageIcon("src/resources/man_silhouette_clip_art_alt.png");
-		nameLabel = new JLabel("Ola Nordmann", icon, SwingConstants.LEFT);
-		nameLabel.setFont(new Font("Times New Roman", Font.PLAIN, 18));
+		JPanel topPanel = new JPanel();
+		personLabel = new PersonLabel();
+		topPanel.add(personLabel);
 		
 		//employee center
 		JLabel ansatte = new JLabel();
 		ansatte.setText("Ansatte");
 		JDefaultTextField inputEmployee = new JDefaultTextField("Skriv navn eller epost til ansatt...", 21);
-		//inputEmployee.setText("Skriv navn eller epost til ansatt...");
 		
 		JPanel centerPanel = new JPanel(new BorderLayout());
-		employeeList = new JList(new String[] {"Ola Nordmann","Kari Hansen","Kari Larsen"});
+		final DefaultListModel model = new DefaultListModel();
+		
+		//adding some test persons
+		model.addElement(createUser("Susanngu","susanngu@stud.ntnu.no", "Susanne"));
+		model.addElement(createUser("Test", "test@test.no", "Test 1"));
+		model.addElement(createUser("Test2","Test2@test.no", "Test 2"));
+		
+		person = new UserModel();
+		employeeList = new JList(model);
 		centerPanel.setPreferredSize(new Dimension(270,100));
 		centerPanel.add(employeeList);
 		JScrollPane scroll = new JScrollPane(employeeList);
@@ -50,23 +63,50 @@ public class AndrePanel extends JPanel {
 		buttonPanel.add(Box.createHorizontalStrut(40));
 		buttonPanel.add(downButton);
 		
-		
 		//active calenders center
 		JLabel aktiveKalendere = new JLabel();
 		aktiveKalendere.setText("Aktive kalendere");
 		
-		JPanel bottomPanel = new JPanel(new BorderLayout());
-		activeCalenders = new JList(new String[] {"Ola Nordmann", "Kari Larsen", "Kari Hansen"});
+		//bottomPanel
+		final JPanel bottomPanel = new JPanel(new BorderLayout());
+		final DefaultListModel model2 = new DefaultListModel();
+		activeCalenders = new JList(model2);
 		activeCalenders.setCellRenderer(new CheckListCellRenderer(activeCalenders.getCellRenderer(), selectionModel));
 		bottomPanel.setPreferredSize(new Dimension(270,100));
 		bottomPanel.add(activeCalenders);
 		JScrollPane scroll2 = new JScrollPane(activeCalenders);
 		scroll2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		bottomPanel.add(scroll2);
-
+		
+		JPanel addMeetingPanel = new JPanel(new BorderLayout());
+		addMeetingPanel.setPreferredSize(new Dimension(270,100));
+		newAppointmentButton = new JButton("Opprett en avtale/m¿te");
+		newAppointmentButton.setOpaque(true);
+		addMeetingPanel.add(newAppointmentButton);
+		
+		
+		upButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				//model.addElement(new UserModel());
+				//model.addElement(createUser(person.getUsername(), person.getEmail()));
+				model2.addElement(employeeList.getSelectedValue()); 
+			}
+		});
+		
+		downButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				//int index = activeCalenders.getSelectedIndex();
+				model2.removeElement(activeCalenders.getSelectedValue());
+ 			}
+		});
+		
 		
 		//add elements
-		this.add(nameLabel);
+		this.add(topPanel);
 		this.add(Box.createVerticalStrut(30));
 		this.add(ansatte);
 		this.add(inputEmployee);
@@ -76,11 +116,24 @@ public class AndrePanel extends JPanel {
 		this.add(Box.createVerticalStrut(2));
 		this.add(aktiveKalendere);
 		this.add(bottomPanel);
+		this.add(addMeetingPanel);
 		
 	}
 	
 	public ListSelectionModel getSelectionModel(){ 
         return selectionModel; 
   }
+	
+	public static UserModel createUser(String userName, String email, String fullName){
+		
+		UserModel person = new UserModel(userName, email, fullName);
+		
+		return person;
+		
+	}
+	
+	public JButton getNewAppointmentButton() {
+		return newAppointmentButton;
+	}
 
 }

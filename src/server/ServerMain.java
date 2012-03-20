@@ -54,7 +54,7 @@ public class ServerMain {
 		try {
 			// Load configuration from server.properties
 			Properties p = new Properties();
-			File f = new File("src/server.properties");
+			File f = new File("src/server.properties.dist");
 			p.load(new FileReader(f));
 			
 			new ServerMain(p);
