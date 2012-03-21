@@ -2,8 +2,6 @@ package client.gui.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Font;
-import java.util.ArrayList;
 import java.util.Calendar;
 
 import javax.swing.*;
@@ -26,19 +24,19 @@ public class VarselPanel extends JPanel{
 	 * TODO: Legg til click-listener i lista
 	 */
 	
-	//private final JLabel nameLabel;
-	private JList noteList;
-	private DefaultListModel noteListModel;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4184187489458007088L;
+
 	private JButton newAppointmentButton; //TODO legg denne til grafisk
-	
-	private ArrayList<NotificationModel> newNotifications, oldNotifications;
+	private NotificationList notificationList;
+	private JPanel centerPanel;
 	
 	public VarselPanel(){
 		super(new VerticalLayout(5,SwingConstants.LEFT));
 		
-		// Instantiate lists for holding new and old notifications
-		newNotifications = new ArrayList<NotificationModel>();
-		oldNotifications = new ArrayList<NotificationModel>();
+		notificationList = new NotificationList();
 		
 		//top
 		JPanel topPanel = new JPanel();
@@ -50,18 +48,12 @@ public class VarselPanel extends JPanel{
 		
 		//center over center
 		JLabel label = new JLabel();
-//		label.setPreferredSize(new Dimension(100,100));
+		label.setPreferredSize(new Dimension(100,100));
 		
 		//Center
-		JPanel centerPanel = new JPanel(new BorderLayout());
-		noteList = new JList();
-		noteListModel = new DefaultListModel();
-		noteList.setModel(noteListModel);
-//		centerPanel.setPreferredSize(new Dimension(270,200));
-		centerPanel.add(noteList);
-		JScrollPane scroll = new JScrollPane(noteList);
-		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		centerPanel.add(scroll);
+		centerPanel = new JPanel();
+		centerPanel.setPreferredSize(new Dimension(270,200));
+		centerPanel.add(notificationList);
 		
 		//Bottom
 		JPanel bottomPanel = new JPanel(new BorderLayout());
@@ -82,22 +74,11 @@ public class VarselPanel extends JPanel{
 	}
 	
 	/**
-	 * Receive notifications and handle size of notifications list
+	 * Receive notifications, put them in the notifications list
 	 * @param model
 	 */
 	public void receiveNotification(NotificationModel model) {
-		if(model.isRead()) oldNotifications.add(model);
-		else newNotifications.add(model);
-		
-		StringBuilder sb = new StringBuilder();
-		sb.append(model.getRegardsUser().getFullName());
-		noteListModel.addElement(model);
-		
-		int totalSize = oldNotifications.size() + newNotifications.size();
-		while (totalSize > 10 && oldNotifications.size() > 0) {
-			totalSize--;
-			oldNotifications.remove(0);
-		}
+		notificationList.addElement(model);
 	}
 	
 	public JButton getNewAppointmentButton() {
@@ -110,27 +91,48 @@ public class VarselPanel extends JPanel{
 		VarselPanel panel = new VarselPanel();
 		
 		UserModel peter = new UserModel("peter", "peter@example.com", "Peter Ringset");
-		UserModel endre = new UserModel("endre", "endre@example.com", "Endre Endresen");
 		UserModel magne = new UserModel("magne", "magne@example.com", "Magne Magnesen");
 		
 		Calendar kl11 = Calendar.getInstance();
-		kl11.set(Calendar.HOUR, 11);
+		kl11.set(Calendar.HOUR_OF_DAY, 11);
+		kl11.set(Calendar.MINUTE, 0);
 		Calendar kl10 = Calendar.getInstance();
-		kl10.set(Calendar.HOUR, 10);
+		kl10.set(Calendar.HOUR_OF_DAY, 10);
+		kl10.set(Calendar.MINUTE, 30);
 		
 		MeetingModel lunch = new MeetingModel(	kl10,
 												kl11,
 												magne);
-		
-		NotificationModel m1 = new NotificationModel(NotificationType.A_EDITED, // type
-													peter, // given to
-													lunch, // regards meeting
-													magne, // regards user
-													Calendar.getInstance(), // time
-													false); // read
+		lunch.setName("Tidlig lunsj");
+		NotificationModel m1 = new NotificationModel(NotificationType.A_CANCELED, // type
+				peter, // given to
+				lunch, // regards meeting
+				magne, // regards user
+				Calendar.getInstance(), // time
+				false); // read
+		NotificationModel m2 = new NotificationModel(NotificationType.A_EDITED, // type
+				peter, // given to
+				lunch, // regards meeting
+				magne, // regards user
+				Calendar.getInstance(), // time
+				true); // read
+		NotificationModel m3 = new NotificationModel(NotificationType.A_INVITATION, // type
+				peter, // given to
+				lunch, // regards meeting
+				magne, // regards user
+				Calendar.getInstance(), // time
+				true); // read
+		NotificationModel m4 = new NotificationModel(NotificationType.A_USER_DENIED, // type
+				peter, // given to
+				lunch, // regards meeting
+				magne, // regards user
+				Calendar.getInstance(), // time
+				true); // read
 		
 		panel.receiveNotification(m1);
-		
+		panel.receiveNotification(m2);
+		panel.receiveNotification(m3);
+		panel.receiveNotification(m4);
 		
 		frame.add(panel);
 		frame.pack();
