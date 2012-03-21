@@ -12,7 +12,7 @@ public interface IServerResponseListener {
 	 * 
 	 * @param requestId the same id number as the request* method that caused
 	 * 	this request returned
-	 * @param data raw data
+	 * @param data raw data, allways a List<RequestedModelType>
 	 */
 	public void onServerResponse(int requestId, Object data);
 	

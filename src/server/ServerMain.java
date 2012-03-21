@@ -14,13 +14,14 @@ public class ServerMain {
 	public static String VERSION = "calendar-server-0.0.1";	
 	public static Properties properties;	
 	public static DBConnection dbConnection;
+	public static ClientConnectionListener ccl;
 	
 	/**
 	 * 
 	 * @param p server configuration
 	 * @throws NumberFormatException on badly formatted number in properties
 	 */
-	public ServerMain(Properties p) throws NumberFormatException {		
+	public ServerMain(Properties p) throws NumberFormatException {	
 		properties = p;
 		
 		try {
@@ -31,7 +32,7 @@ public class ServerMain {
 			return;
 		}
 		
-		ClientConnectionListener ccl = new ClientConnectionListener(
+		ccl = new ClientConnectionListener(
 			Integer.parseInt(p.getProperty("fp.server.listen_port"))
 		);
 		

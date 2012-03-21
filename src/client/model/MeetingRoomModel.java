@@ -2,8 +2,10 @@ package client.model;
 
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.HashMap;
+
+import server.ModelEnvelope;
 
 /**
  * A class for modelling a meeting room
@@ -11,9 +13,9 @@ import java.io.IOException;
  * @author peterringset
  *
  */
-public class MeetingRoomModel extends TransferableModel {
+public class MeetingRoomModel implements TransferableModel {
 	
-	PropertyChangeSupport pcs;
+	private PropertyChangeSupport pcs;
 	
 	private String roomNumber;
 	private String name;
@@ -27,52 +29,81 @@ public class MeetingRoomModel extends TransferableModel {
 	 * Construct the meeting room model
 	 * @param roomNumber
 	 */
-	public MeetingRoomModel(String roomNumber) {
-		this();
-		this.roomNumber = roomNumber;		
+	public MeetingRoomModel(String roomNumber, String name, int places) {
+		pcs = new PropertyChangeSupport(this);
+		this.roomNumber = roomNumber;
+		this.name = name;
+		this.places = places;
 	}
 	
 	/**
-	 * Empty constructor for stream transfer support
+	 * Create model from stream
+	 * 
+	 * @param reader
+	 * @param modelBuff
+	 * @throws IOException
 	 */
-	public MeetingRoomModel() {
-		pcs = new PropertyChangeSupport(this);
-		name = "";
-		places = 0;
+	public MeetingRoomModel(BufferedReader reader, 
+			HashMap<String, TransferableModel> modelBuff) throws IOException {
+		
+		this(reader.readLine(), reader.readLine(), 
+				Integer.parseInt(reader.readLine()));
 	}
 
 	/**
-	 * Get unique ID
+	 * Get unique model ID
 	 */
 	@Override
-	protected Object getMID() {
-		return roomNumber;
+	public String getUMID() {
+		return "meeting_room_"+roomNumber;
 	}
 	
+	/**
+	 * @return room number
+	 */
 	public String getRoomNumber() {
 		return roomNumber;
 	}
 	
+	/**
+	 * @return room name
+	 */
 	public String getName() {
 		return name;
 	}
 	
+	/**
+	 * @param name set room name
+	 */
 	public void setName(String name) {
 		String oldValue = this.name;
 		this.name = name;
 		pcs.firePropertyChange(NAME_CHANGED, oldValue, name);
 	}
 	
+	/**
+	 * @return number of places in the meeting room
+	 */
 	public int getNoPlaces() {
 		return places;
 	}
 	
+	/**
+	 * Set number of places
+	 * 
+	 * @param places
+	 */
 	public void setNoPlaces(int places) {
 		int oldValue  = this.places;
 		this.places = places;
 		pcs.firePropertyChange(PLACES_CHANGED, oldValue, places);
 	}
 
+	/**
+	 * Set meeting room number
+	 * 
+	 * @param roomNumber
+	 */
 	public void setRoomNumber(String roomNumber) {
 		String oldValue = this.roomNumber;
 		
@@ -80,34 +111,26 @@ public class MeetingRoomModel extends TransferableModel {
 		
 		pcs.firePropertyChange(ROOMNUMBER_CHANGED, oldValue, roomNumber);
 	}
-	
-	/**
-	 * Read model from stream
-	 * 
-	 */
-	@Override
-	public void fromStream(BufferedReader reader) throws IOException {
-		setRoomNumber(reader.readLine());
-		setName(reader.readLine());
-		setNoPlaces(Integer.parseInt(reader.readLine()));
-		reader.readLine(); // filler line		
-	}
 
 	/**
-	 * Dump model to stream
+	 * Unused, no sub models
+	 */
+	@Override
+	public void addSubModels(ModelEnvelope envelope) {}
+
+	/**
+	 * Dump model to the string buffer
 	 * 
 	 */
 	@Override
-	public void toStream(BufferedWriter writer) throws IOException {
-		StringBuffer sb = new StringBuffer();
-		
-		sb.append("MeetingRoomModel\r\n");
+	public void toStringBuilder(StringBuilder sb) {
 		sb.append(getRoomNumber()+"\r\n");
 		sb.append(getName()+"\r\n");
-		sb.append(getNoPlaces()+"\r\n");
-		sb.append("\r\n");
-		
-		writer.write(sb.toString());
-		
+		sb.append(getNoPlaces()+"\r\n");		
+	}
+	
+	@Override
+	public String toString() {
+		return this.name;
 	}
 }
