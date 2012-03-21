@@ -2,6 +2,7 @@ package client.gui.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import javax.swing.*;
@@ -77,6 +78,10 @@ public class VarselPanel extends JPanel{
 	 * Receive notifications, put them in the notifications list
 	 * @param model
 	 */
+	public void initializeList(ArrayList<NotificationModel> models) {
+		notificationList.initializeList(models);
+	}
+	
 	public void receiveNotification(NotificationModel model) {
 		notificationList.addElement(model);
 	}
@@ -98,44 +103,54 @@ public class VarselPanel extends JPanel{
 		kl11.set(Calendar.MINUTE, 0);
 		Calendar kl10 = Calendar.getInstance();
 		kl10.set(Calendar.HOUR_OF_DAY, 10);
-		kl10.set(Calendar.MINUTE, 30);
+		kl10.set(Calendar.MINUTE, 0);
+		Calendar kl9 = Calendar.getInstance();
+		kl9.set(Calendar.HOUR_OF_DAY, 9);
+		kl9.set(Calendar.MINUTE, 0);
+		Calendar kl8 = Calendar.getInstance();
+		kl8.set(Calendar.HOUR_OF_DAY, 8);
+		kl8.set(Calendar.MINUTE, 0);
 		
-		MeetingModel lunch = new MeetingModel(	kl10,
-												kl11,
-												magne);
-		lunch.setName("Tidlig lunsj");
-		NotificationModel m1 = new NotificationModel(NotificationType.A_CANCELED, // type
+		MeetingModel m1 = new MeetingModel(kl8, kl11, magne);
+		m1.setName("Tidlig lunsj");
+		NotificationModel n1 = new NotificationModel(NotificationType.A_CANCELED, // type
 				peter, // given to
-				lunch, // regards meeting
+				m1, // regards meeting
 				magne, // regards user
-				Calendar.getInstance(), // time
+				kl9, // time
+				true); // read
+		NotificationModel n2 = new NotificationModel(NotificationType.A_EDITED, // type
+				peter, // given to
+				m1, // regards meeting
+				magne, // regards user
+				kl8, // time
 				false); // read
-		NotificationModel m2 = new NotificationModel(NotificationType.A_EDITED, // type
+		NotificationModel n3 = new NotificationModel(NotificationType.A_INVITATION, // type
 				peter, // given to
-				lunch, // regards meeting
+				m1, // regards meeting
 				magne, // regards user
-				Calendar.getInstance(), // time
-				true); // read
-		NotificationModel m3 = new NotificationModel(NotificationType.A_INVITATION, // type
+				kl10, // time
+				false); // read
+		NotificationModel n4 = new NotificationModel(NotificationType.A_USER_DENIED, // type
 				peter, // given to
-				lunch, // regards meeting
+				m1, // regards meeting
 				magne, // regards user
-				Calendar.getInstance(), // time
-				true); // read
-		NotificationModel m4 = new NotificationModel(NotificationType.A_USER_DENIED, // type
-				peter, // given to
-				lunch, // regards meeting
-				magne, // regards user
-				Calendar.getInstance(), // time
-				true); // read
+				kl11, // time
+				false); // read
+		System.out.println(n1.compareTo(n2));
 		
-		panel.receiveNotification(m1);
-		panel.receiveNotification(m2);
-		panel.receiveNotification(m3);
-		panel.receiveNotification(m4);
+		ArrayList<NotificationModel> existing = new ArrayList<NotificationModel>();
+		existing.add(n1);
+		existing.add(n2);
+
+		panel.initializeList(existing);
 		
 		frame.add(panel);
 		frame.pack();
 		frame.setVisible(true);
+		
+		panel.receiveNotification(n3);
+		panel.receiveNotification(n4);
+		
 	}
 }

@@ -1,6 +1,7 @@
 package client.gui.panels;
 
 import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.Collections;
 
 import javax.swing.DefaultListModel;
@@ -22,15 +23,15 @@ public class NotificationList extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = -2045270300264712032L;
-	private static final int MAX_SIZE = 10;
+	private static final int MAX_SIZE = 3;
 	private JScrollPane scrollPane;
 	private JList list;
 	private DefaultListModel listModel;
-	private int unread, read;
-	
+	private ArrayList<NotificationModel> unread, read;
+
 	public NotificationList() {
-		unread = 0;
-		read = 0;
+		unread = new ArrayList<NotificationModel>();
+		read = new ArrayList<NotificationModel>();
 		list = new JList();
 		listModel = new DefaultListModel();
 		list.setModel(listModel);
@@ -40,17 +41,44 @@ public class NotificationList extends JPanel {
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		this.add(scrollPane);
 	}
+
+	/**
+	 * Initialize the list
+	 * @param models
+	 * 				An ArrayList containing all the NotificationModels
+	 * 				that the user owns at login time
+	 */
+	public void initializeList(ArrayList<NotificationModel> models) {
+		Collections.sort(models);
+		for (NotificationModel notificationModel : models) {
+			listModel.addElement(notificationModel);
+			if (notificationModel.isRead()) read.add(notificationModel);
+			else unread.add(notificationModel);
+		}
+	}
 	
+	/**
+	 * Add a new notification to the list
+	 * This routine will see to that the number of elements in the list
+	 * is always less than MAX_SIZE as long as the number of unread notifications
+	 * is less than MAX_SIZE.
+	 * @param newNotification
+	 * 			the notification to be added. It is presumed that this
+	 * 			is an unread notification and that the notification's time stamp
+	 * 			is newer than that of all existing notifications 
+	 */
 	public void addElement(NotificationModel newNotification) {
-		if (listModel.size() == 0) listModel.addElement(newNotification);
-		else {
-			NotificationModel lastEntry = (NotificationModel) listModel.get(listModel.size()-1); 
-			if (lastEntry.isRead()) {
-				listModel.removeElement(lastEntry);
-			}
-			for (int i = 0; i < listModel.size(); i++) {
-				if (newNotification.)
+		if (unread.size() + read.size() >= MAX_SIZE && read.size() > 0) {
+			for (int i = listModel.size() - 1; i >= 0; i--) {
+				NotificationModel extract;
+				extract = (NotificationModel) listModel.getElementAt(i);
+				if (extract.isRead()) {
+					listModel.removeElementAt(i);
+					read.remove(extract);
+				}
 			}
 		}
+		listModel.add(0, newNotification);
+		unread.add(newNotification);
 	}
 }

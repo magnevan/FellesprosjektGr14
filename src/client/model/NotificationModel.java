@@ -19,7 +19,7 @@ import client.ModelCacher;
  * @author endre
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public class NotificationModel implements TransferableModel, Comparable<Calendar> {
+public class NotificationModel implements TransferableModel, Comparable<NotificationModel> {
 	
 	public final static String REGARDS_MEETING_PROPERTY = "regards_meeting";
 	public final static String TYPE_PROPERTY = "type";
@@ -291,5 +291,18 @@ public class NotificationModel implements TransferableModel, Comparable<Calendar
 		if(getRegardsUser() != null)
 			sb.append(getRegardsUser().getUMID());
 		sb.append("\r\n");		
+	}
+	
+	@Override
+	public String toString() {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm");
+		if (regards_meeting != null)
+			return sdf.format(time.getTime()) + " " + regards_meeting.getName() + read;
+		else return sdf.format(time.getTime()) + read;
+	}
+
+	@Override
+	public int compareTo(NotificationModel e) {
+		return -this.getTime().compareTo(e.getTime());
 	}
 }
