@@ -46,7 +46,7 @@ public class MeetingModel implements TransferableModel {
 	/**
 	 * Protected constructor
 	 */
-	protected MeetingModel() {
+	public MeetingModel() {
 		changeSupport = new PropertyChangeSupport(this);
 		id = -1;
 		name = location = description = "";
@@ -115,6 +115,8 @@ public class MeetingModel implements TransferableModel {
 			// the invitation will have a null meeting
 			if(i.getMeeting() == null)
 				i.setMeeting(this);
+			
+			this.invitations.add(i);
 		}
 	}
 	

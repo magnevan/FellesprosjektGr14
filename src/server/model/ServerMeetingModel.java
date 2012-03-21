@@ -124,14 +124,42 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 				}				
 				st.close();
 				
+				// Invitations are only saved on updates 
 				// Save all invitations
-				for(InvitationModel i : invitations)
-					((ServerInvitationModel) i).store(db);
+				//for(InvitationModel i : invitations)
+					//((ServerInvitationModel) i).store(db);
 				
 			} else {
 				// TODO Update, her må vi finne ut hva som er endret, sende notifications og eventuelt resette invitasjoner
 				System.err.println("Update is not implemented");
 				System.err.println(this.getInvitations().size() + " invitations would have been stored");
+				
+				// Use old meeting as a reference
+				ServerMeetingModel old = ServerMeetingModel.findById(getId(), db);
+				
+				// Resend invitations if time or room has changed
+				boolean resetInv = !old.getTimeFrom().equals(getTimeFrom()) 
+						|| !old.getTimeTo().equals(getTimeTo()) 
+						|| !old.getLocation().equals(getLocation())
+						|| !old.getRoom().equals(getRoom());
+				
+				// Handle invitations, first remove any users that we're removed from a meeting
+				for(InvitationModel i : old.getInvitations()) {
+					if(getInvitation(i.getUser()) == null) {
+						((ServerInvitationModel)i).delete(db);						
+					}
+				}
+				
+				// Then store all invitations 
+				for(InvitationModel i : invitations) {
+					((ServerInvitationModel)i).store(db);
+				}
+				
+				// Update the actual meeting model
+				// TODO sql here
+				
+				// Push changed to all connected users
+				
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

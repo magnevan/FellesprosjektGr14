@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Calendar;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -35,7 +36,7 @@ public class MainPanel extends JPanel {
 		
 		
 		calendarTabbedPane.addTab("Uke", new WeekView());
-		calendarTabbedPane.addTab("Måned", new JPanel()); //TODO
+		calendarTabbedPane.addTab("Mï¿½ned", new JPanel()); //TODO
 		
 		//TODO This should probably be done in a better manner
 		optionTabbedPane.setPreferredSize(new Dimension(330,calendarTabbedPane.getPreferredSize().height));
