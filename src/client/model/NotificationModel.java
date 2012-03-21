@@ -294,7 +294,7 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 
 	@Override
 	public int compareTo(NotificationModel e) {
-		return this.getTime().compareTo(e.getTime());
+		return -this.getTime().compareTo(e.getTime());
 	}
 	
 }
