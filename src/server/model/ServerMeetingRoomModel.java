@@ -54,7 +54,7 @@ public class ServerMeetingRoomModel extends MeetingRoomModel {
 			Calendar from, Calendar to, DBConnection db) {
 
 		if(from.after(to)) {
-			throw new IllegalArgumentException("From must be after to");
+			throw new IllegalArgumentException("From must not be after to");
 		}		
 		ArrayList<ServerMeetingRoomModel> ret = new ArrayList<ServerMeetingRoomModel>();
 		try {			
@@ -62,7 +62,7 @@ public class ServerMeetingRoomModel extends MeetingRoomModel {
 					"SELECT * FROM meeting_room WHERE room_number NOT IN " +
 					"(SELECT DISTINCT meeting_room_number FROM appointment AS a " +
 					"INNER JOIN meeting_room_booking AS mrb ON mrb.appointment_id = a.id " +
-					"WHERE (a.start_date <= '"+getFormattedDate(to)+"' AND a.end_date >= '"+getFormattedDate(to)+"') " +
+					"WHERE (a.start_date <= '"+getFormattedDate(from)+"' AND a.end_date > '"+getFormattedDate(from)+"') " +
 					"OR (a.start_date >= '"+getFormattedDate(from)+"' AND a.start_date < '"+getFormattedDate(to)+"'));");
 			while (rs.next()) {
 				ret.add(new ServerMeetingRoomModel(rs));

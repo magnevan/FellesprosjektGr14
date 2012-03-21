@@ -3,7 +3,6 @@ package client.model;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -13,8 +12,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 import server.ModelEnvelope;
+import client.ClientMain;
 import client.ModelCacher;
 import client.ServerConnection;
+
+
 
 /**
  * A model for the meetings in the calendar
@@ -51,6 +53,7 @@ public class MeetingModel implements TransferableModel {
 		id = -1;
 		name = location = description = "";
 		invitations = new ArrayList<InvitationModel>();	
+		active = true;
 	}
 	
 	/**
@@ -64,6 +67,7 @@ public class MeetingModel implements TransferableModel {
 	 */
 	public MeetingModel(Calendar timeFrom, Calendar timeTo, UserModel owner) {
 		this();
+		
 		this.timeFrom = timeFrom;
 		this.timeTo = timeTo;
 		this.owner = owner;
@@ -73,6 +77,23 @@ public class MeetingModel implements TransferableModel {
 	}
 	
 	/**
+	 * Creates a default meeting model
+	 */
+	public static MeetingModel newDefaultInstance() {
+		Calendar timeFrom = Calendar.getInstance(), 
+				 timeTo   = Calendar.getInstance();
+		
+		timeFrom.set(Calendar.HOUR_OF_DAY, 8);
+		timeFrom.set(Calendar.MINUTE, 0);
+		timeTo.set(Calendar.HOUR_OF_DAY, 9);
+		timeTo.set(Calendar.MINUTE, 0);
+		
+		UserModel owner = ClientMain.getActiveUser();
+		
+		return new MeetingModel(timeFrom, timeTo, owner);
+	}
+	
+	/*
 	 * Construct MeetingModel from stream
 	 * 
 	 * @param reader
@@ -125,6 +146,7 @@ public class MeetingModel implements TransferableModel {
 	 * 
 	 * @return
 	 */
+
 	public int getId() {
 		return id;
 	}

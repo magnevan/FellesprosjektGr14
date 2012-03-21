@@ -18,7 +18,7 @@ import client.ModelCacher;
  * @author endre
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public class NotificationModel implements TransferableModel {
+public class NotificationModel implements TransferableModel, Comparable<NotificationModel>{
 	
 	public final static String REGARDS_MEETING_PROPERTY = "regards_meeting";
 	public final static String TYPE_PROPERTY = "type";
@@ -290,6 +290,11 @@ public class NotificationModel implements TransferableModel {
 		if(getRegardsUser() != null)
 			sb.append(getRegardsUser().getUMID());
 		sb.append("\r\n");		
+	}
+
+	@Override
+	public int compareTo(NotificationModel e) {
+		return this.getTime().compareTo(e.getTime());
 	}
 	
 }

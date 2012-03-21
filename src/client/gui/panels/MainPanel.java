@@ -53,7 +53,7 @@ public class MainPanel extends JPanel {
 	
 	private void OpenNewAppointment() {
 		if (newAppointmentPane == null) {
-			newAppointmentPane = new NewAppointmentPanel(new MeetingModel());
+			newAppointmentPane = new NewAppointmentPanel(MeetingModel.newDefaultInstance());
 			optionTabbedPane.addTab("Ny Avtale", newAppointmentPane);
 		}
 		optionTabbedPane.setSelectedComponent(newAppointmentPane);
