@@ -158,6 +158,10 @@ public class MeetingModel extends TransferableModel {
 		return owner;
 	}
 	
+	public void setOwner(UserModel owner) {
+		this.owner = owner;
+	}
+	
 	public String toString() {
 		return getName() + "(" + timeFrom + " - " + timeTo + ")";
 	}

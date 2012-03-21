@@ -19,8 +19,10 @@ import javax.swing.JPanel;
 
 import client.gui.week.WeekView;
 import client.model.InvitationModel;
+import client.model.InvitationStatus;
 import client.model.MeetingModel;
 import client.model.MeetingRoomModel;
+import client.model.UserModel;
 
 public class AppointmentPanel extends JPanel implements PropertyChangeListener {
 
@@ -29,6 +31,7 @@ public class AppointmentPanel extends JPanel implements PropertyChangeListener {
 	private JLabel nameLabel, ownerLabel, timeLabel, iconLabel, locationLabel;
 	private Color color;
 	private MeetingModel model;
+	int AppointmentLength;
 	
 	
 	public AppointmentPanel(MeetingModel MM){
@@ -129,10 +132,10 @@ public class AppointmentPanel extends JPanel implements PropertyChangeListener {
 		if(invitations.isEmpty()){
 			typeIcon = new ImageIcon("src/resources/avtaleMini.png");
 		}
-		else if(invitations.contains("Venter")){
+		else if(invitations.contains(InvitationStatus.INVITED)){
 			typeIcon = new ImageIcon("src/resources/venterMini.png");
 		}
-		else if(invitations.contains("Avslått")){
+		else if(invitations.contains(InvitationStatus.DECLINED)){
 			typeIcon = new ImageIcon("src/resources/avslattMini.png");
 		}
 		else{
@@ -165,11 +168,11 @@ public class AppointmentPanel extends JPanel implements PropertyChangeListener {
 		
 		int minutes = (int)((EMilli-SMilli)/60000);
 		
-		int AppointmentLength = (minutes*WeekView.HOURHEIGHT)/60;
+		AppointmentLength = (minutes*WeekView.HOURHEIGHT)/60;
 
-		this.setPreferredSize(new Dimension(WeekView.HOURWIDTH - 5, AppointmentLength));
-		this.setMinimumSize(new Dimension(WeekView.HOURWIDTH - 5, AppointmentLength));
-		this.setMaximumSize(new Dimension(WeekView.HOURWIDTH - 5, AppointmentLength));
+//		this.setPreferredSize(new Dimension(WeekView.HOURWIDTH - 5, AppointmentLength));
+//		this.setMinimumSize(new Dimension(WeekView.HOURWIDTH - 5, AppointmentLength));
+//		this.setMaximumSize(new Dimension(WeekView.HOURWIDTH - 5, AppointmentLength));
 
 		
 		//Kjapp test av hvordan justering av avtale kan gjøres
@@ -210,18 +213,42 @@ public class AppointmentPanel extends JPanel implements PropertyChangeListener {
 	private void setFont(String font, int size){
 		//NameLabel vill alltid være 3 hakk større enn de andre labelene (Overskrift)
 		nameLabel.setFont(new Font(font, 1, size + 3));
-		ownerLabel.setFont(new Font("Dialog", 1, size));
-		timeLabel.setFont(new Font("Dialog", 1, size));
-		iconLabel.setFont(new Font("Dialog", 1, size));
-		locationLabel.setFont(new Font("Dialog", 1, size));
+		ownerLabel.setFont(new Font(font, 1, size));
+		timeLabel.setFont(new Font(font, 1, size));
+		iconLabel.setFont(new Font(font, 1, size));
+		locationLabel.setFont(new Font(font, 1, size));
 	}
+	
+	public int getWidth(){
+//		if(overlapp) return (WeekView.HOURWIDTH - 1)/2;
+		
+		return (WeekView.HOURWIDTH - 1);
+	}
+	
+	public int getLength(){
+		return AppointmentLength;
+	}
+	
 	
 	public static void main (String args[]) { 
         JFrame frame = new JFrame("");
+        Calendar from =  Calendar.getInstance();
+        from.set(2012, 10, 3, 12, 0);
+        Calendar to = Calendar.getInstance();
+        to.set(2012, 10, 3, 15, 0);
+        UserModel testPerson = new UserModel("testbruker", "test@hotmail.com", "Test Etternavn");
         MeetingModel  MM = new MeetingModel();
+        MM.setName("testMøte");
+        MM.setLocation("testLocation");
+        MM.setTimeFrom(from);
+        MM.setTimeTo(to);
+        MM.setOwner(testPerson);
+        MM.setActive(true);
         AppointmentPanel ap = new AppointmentPanel(MM);
+        
         frame.getContentPane().add(ap); 
         frame.pack();  
         frame.setVisible(true);   
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 }

@@ -14,11 +14,17 @@ import java.util.Calendar;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
+
+import client.gui.avtale.AppointmentPanel;
+import client.model.MeetingModel;
+import client.model.UserModel;
 
 
 /**
@@ -37,9 +43,10 @@ public class WeekView extends JPanel {
 	
 	
 	private final Calendar date;
-	private final JScrollPane weekScroll;
+	private final JScrollPane weekScroll, scrollTest;
 	private final JLabel weekLabel;
 	private final JButton prevWeekButton, todayButton, nextWeekButton;
+	private JLayeredPane AppointmentLayer;
 	private PropertyChangeSupport pcs;
 	
 	
@@ -81,10 +88,27 @@ public class WeekView extends JPanel {
 		weekScroll = new JScrollPane(wvi);
 		weekScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		weekScroll.setPreferredSize(new Dimension(HOURWIDTH*7 + 55,HOURHEIGHT*SHOWHOURS));
-		centerPanel.add(weekScroll);
+		//centerPanel.add(weekScroll);
+		
+		
+		centerPanel.add(wvi);
+	
 		
 		this.add(northPanel, BorderLayout.NORTH);
-		this.add(centerPanel, BorderLayout.CENTER);
+
+		
+		//Legger CenterPanel i et JLayeredPane så jeg kan plasser avtaler over CenterPanel
+		AppointmentLayer = new JLayeredPane();
+		AppointmentLayer.setPreferredSize(new Dimension(HOURWIDTH*7+55,HOURHEIGHT*25));
+		//Legger til centerpanel på 1.layer
+		AppointmentLayer.add(centerPanel, 1, 0);
+		centerPanel.setBounds(0,0,HOURWIDTH*7+55,HOURHEIGHT*25);
+		
+		scrollTest = new JScrollPane(AppointmentLayer);
+		scrollTest.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollTest.setPreferredSize(new Dimension(HOURWIDTH*7 + 55,HOURHEIGHT*SHOWHOURS));
+		this.add(scrollTest, BorderLayout.CENTER);
+		
 		
 		pcs = new PropertyChangeSupport(this);
 	}
@@ -224,4 +248,38 @@ public class WeekView extends JPanel {
 		@Override
 		public void mouseReleased(MouseEvent arg0) {}
 	}
+	
+	private void addAppointment(AppointmentPanel avtale) {
+		//Legger til en avtale på 2.layer
+		AppointmentLayer.add(avtale,2, 0);
+		avtale.setOpaque(true);
+		avtale.setBounds(33, 400, avtale.getWidth(),avtale.getLength());
+		
+		
+	}
+	
+	public static void main (String args[]) { 
+        JFrame frame = new JFrame("");
+        Calendar from =  Calendar.getInstance();
+        from.set(2012, 3, 21, 12, 0);
+        Calendar to = Calendar.getInstance();
+        to.set(2012, 3, 21, 14, 30);
+        UserModel testPerson = new UserModel("testbruker", "test@hotmail.com", "Test Etternavn");
+        MeetingModel  MM = new MeetingModel();
+        MM.setName("testMøte");
+        MM.setLocation("testLocation");
+        MM.setTimeFrom(from);
+        MM.setTimeTo(to);
+        MM.setOwner(testPerson);
+        MM.setActive(true);
+        AppointmentPanel AP = new AppointmentPanel(MM);
+        
+        WeekView WV = new WeekView();
+        WV.setOpaque(true);
+        WV.addAppointment(AP);
+        frame.getContentPane().add(WV); 
+        frame.pack();  
+        frame.setVisible(true);   
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
 }
