@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 
@@ -176,6 +178,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		from.setTime(dateChooser.getDate());
 		from.set(Calendar.HOUR_OF_DAY, fromTime.getHour());
 		from.set(Calendar.MINUTE, fromTime.getMinute());
+		from.set(Calendar.SECOND, 0);
 		return from;
 	}
 	
@@ -184,6 +187,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		to.setTime(dateChooser.getDate());
 		to.set(Calendar.HOUR_OF_DAY, toTime.getHour());
 		to.set(Calendar.MINUTE, toTime.getMinute());
+		to.set(Calendar.SECOND, 0);
 		return to;
 	}
 	
@@ -227,7 +231,11 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		model.setDescription(beskrivelseTextArea.getText());
 		//TODO: Invitasjoner
 		
-		ServerConnection.instance().storeModel(model);
+		try {
+			model.store();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
@@ -264,7 +272,6 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	@Override
 	public void onServerResponse(int requestId, Object data) {
 		if (requestId == meetingRoomReqID) {
-			
 			List<MeetingRoomModel> rooms = (List<MeetingRoomModel>) data;
 			
 			MeetingRoomModel selectedRoom = (MeetingRoomModel) moteromComboBox.getSelectedItem();
