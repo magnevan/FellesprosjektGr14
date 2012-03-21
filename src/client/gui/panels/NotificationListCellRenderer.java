@@ -18,6 +18,8 @@ import client.model.NotificationModel;
 import client.model.NotificationType;
 
 public class NotificationListCellRenderer implements ListCellRenderer {
+	
+	public final static char aa = 229, oe = 248;
 
 	@Override
 	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean hasFocus) {
@@ -64,7 +66,7 @@ public class NotificationListCellRenderer implements ListCellRenderer {
 		SimpleDateFormat date = new SimpleDateFormat("dd/MM");
 		if (model.getType() == NotificationType.A_CANCELED) {
 			text = model.getRegardsUser().getFullName() +
-					" har avlyst møtet";
+					" har avlyst m" + oe + "tet";
 			if (model.getRegardsMeeting().getName() != null)
 				text += " med navn \'" + model.getRegardsMeeting().getName() + "\'";
 			text += " kl " + time.format(model.getRegardsMeeting().getTimeFrom().getTime());
@@ -73,31 +75,31 @@ public class NotificationListCellRenderer implements ListCellRenderer {
 			text = model.getRegardsUser().getFullName() +
 					" har redigert detaljer i";
 			if (model.getRegardsMeeting().getName() != null)
-				text += " møtet med navn \'" + model.getRegardsMeeting().getName() + "\'";
+				text += " m" + oe + "tet med navn \'" + model.getRegardsMeeting().getName() + "\'";
 			else
-				text += " et møte dere har ";
+				text += " et m" + oe + "te dere har ";
 			text += " kl " + time.format(model.getRegardsMeeting().getTimeFrom().getTime());
 			text += " den " + date.format(model.getRegardsMeeting().getTimeFrom().getTime());
-			text += ". Dobbeltklikk for å se detaljer.";
+			text += ". Dobbeltklikk for " + aa + " se detaljer.";
 		} else if (model.getType() == NotificationType.A_INVITATION) {
 			text = model.getRegardsUser().getFullName() + 
-					" har invitert deg til et møte";
+					" har invitert deg til et m" + oe + "te";
 			if (model.getRegardsMeeting().getName() != null)
 				text += " med navn \'" + model.getRegardsMeeting().getName() + "\'";
 			text +=	" fra kl " + time.format(model.getRegardsMeeting().getTimeFrom().getTime()) +
 					" til kl " + time.format(model.getRegardsMeeting().getTimeTo().getTime()) +
 					" den " + date.format(model.getRegardsMeeting().getTimeFrom().getTime()) +
-					". Dobbeltklikk for å se detaljer.";
+					". Dobbeltklikk for " + aa + " se detaljer.";
 		} else if (model.getType() == NotificationType.A_USER_DENIED) {
 			text += model.getRegardsUser().getFullName() +
-					" har avslått invitasjon til";
+					" har avsl" + aa + "tt invitasjon til";
 			if (model.getRegardsMeeting().getName() != null)
-				text += " møtet med navn \'" + model.getRegardsMeeting().getName() + "\'";
+				text += " m" + oe + "tet med navn \'" + model.getRegardsMeeting().getName() + "\'";
 			else
-				text += " et møte dere har ";
+				text += " et m" + oe +  "te dere har ";
 			text += " kl " + time.format(model.getRegardsMeeting().getTimeFrom().getTime());
 			text += " den " + date.format(model.getRegardsMeeting().getTimeFrom().getTime());
-			text += ". Dobbeltklikk for å redigere møtedetaljer.";
+			text += ". Dobbeltklikk for " + aa + " redigere m" + oe + "tedetaljer.";
 		}
 		
 		return text;
