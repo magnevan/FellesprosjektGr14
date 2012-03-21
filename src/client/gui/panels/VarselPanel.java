@@ -137,7 +137,6 @@ public class VarselPanel extends JPanel{
 				magne, // regards user
 				kl11, // time
 				false); // read
-		System.out.println(n1.compareTo(n2));
 		
 		ArrayList<NotificationModel> existing = new ArrayList<NotificationModel>();
 		existing.add(n1);

@@ -1,6 +1,10 @@
 package client.gui.panels;
 
 import java.awt.Dimension;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -8,6 +12,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 
 import client.model.NotificationModel;
 
@@ -23,16 +28,21 @@ public class NotificationList extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = -2045270300264712032L;
-	private static final int MAX_SIZE = 3;
+	private static final int MAX_SIZE = 10;
+	private static final String NOTIFICATION_CLICKED = "notification clicked";
 	private JScrollPane scrollPane;
 	private JList list;
 	private DefaultListModel listModel;
 	private ArrayList<NotificationModel> unread, read;
+	private PropertyChangeSupport pcs;
 
 	public NotificationList() {
+		pcs = new PropertyChangeSupport(this);
 		unread = new ArrayList<NotificationModel>();
 		read = new ArrayList<NotificationModel>();
 		list = new JList();
+		list.addMouseListener(new ListClickedListener());
+		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		listModel = new DefaultListModel();
 		list.setModel(listModel);
 		list.setCellRenderer(new NotificationListCellRenderer());
@@ -80,5 +90,45 @@ public class NotificationList extends JPanel {
 		}
 		listModel.add(0, newNotification);
 		unread.add(newNotification);
+	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
+	
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		pcs.removePropertyChangeListener(listener);
+	}
+	
+	class ListClickedListener implements MouseListener {
+		long timestamp;
+		boolean secondClick;
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			// Clock the click and calculate delta time since last click
+			long now = System.currentTimeMillis();
+			long delta = now - timestamp;
+			timestamp = now;
+			// Only care about double clicks with delta < 500 ms
+			if (delta < 500 && !secondClick) {
+				// Propagate event to all listeners
+				pcs.firePropertyChange(NOTIFICATION_CLICKED, null, list.getSelectedValue());
+				secondClick = true;
+			} else {
+				secondClick = false;
+			}
+		}
+
+		/*
+		 * Unused methods
+		 */
+		@Override
+		public void mouseEntered(MouseEvent arg0) {}
+		@Override
+		public void mouseExited(MouseEvent arg0) {}
+		@Override
+		public void mousePressed(MouseEvent arg0) {}
+		@Override
+		public void mouseReleased(MouseEvent arg0) {}
 	}
 }
