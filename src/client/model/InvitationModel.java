@@ -1,5 +1,7 @@
 package client.model;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -17,6 +19,9 @@ public class InvitationModel implements TransferableModel {
 	protected MeetingModel meeting;
 	protected InvitationStatus status;
 	
+	private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+	public static final String STATUS_CHANGED = "status changed";
+	
 	/**
 	 * Create a new invitation
 	 * 
@@ -31,12 +36,12 @@ public class InvitationModel implements TransferableModel {
 	}
 	
 	/**
-	 * Create a new invitation with INVITED status
+	 * Create a new invitation with NOT_YET_SAVED status
 	 * @param user
 	 * @param meetingModel
 	 */
 	public InvitationModel(UserModel user, MeetingModel meetingModel) {
-		this(user, meetingModel, InvitationStatus.INVITED);
+		this(user, meetingModel, InvitationStatus.NOT_YET_SAVED);
 	}
 	
 	/**
@@ -51,6 +56,12 @@ public class InvitationModel implements TransferableModel {
 		status = InvitationStatus.valueOf(reader.readLine());
 		meeting = (MeetingModel) modelBuff.get(reader.readLine());
 		user = (UserModel) modelBuff.get(reader.readLine());
+	}
+
+	@Override
+	public void copyFrom(TransferableModel source) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	/**
@@ -100,7 +111,35 @@ public class InvitationModel implements TransferableModel {
 	 * @param status
 	 */
 	public void setStatus(InvitationStatus status) {
+		InvitationStatus oldval = this.status;
 		this.status = status;
+		changeSupport.firePropertyChange(STATUS_CHANGED, oldval, status);
+	}
+	
+	/**
+	 * Add property change listener
+	 * 
+	 * @param listener
+	 */
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		changeSupport.addPropertyChangeListener(listener);
+	}
+	
+	/**
+	 * Remove property change listener
+	 * 
+	 * @param listener
+	 */
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		changeSupport.removePropertyChangeListener(listener);
+	}
+	
+	/**
+	 * clear property change listeners
+	 */
+	public void clearPropertyChangeListeners() {
+		for (PropertyChangeListener listener : changeSupport.getPropertyChangeListeners())
+			changeSupport.removePropertyChangeListener(listener);
 	}
 	
 	/**

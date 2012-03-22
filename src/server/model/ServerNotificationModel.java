@@ -16,7 +16,8 @@ import client.model.NotificationType;
 import client.model.TransferableModel;
 import client.model.UserModel;
 
-public class ServerNotificationModel extends NotificationModel implements IDBStorableModel {
+public class ServerNotificationModel extends NotificationModel 
+	implements IDBStorableModel {
 
 	/**
 	 * Construct a new Notification
@@ -25,8 +26,22 @@ public class ServerNotificationModel extends NotificationModel implements IDBSto
 	 * @param given_to
 	 * @param regards_meeting
 	 */
-	public ServerNotificationModel(NotificationType type, UserModel given_to, MeetingModel regards_meeting) {
+	public ServerNotificationModel(NotificationType type, UserModel given_to, 
+			MeetingModel regards_meeting) {
 		super(type, given_to, regards_meeting);
+	}
+	
+	/**
+	 * Construct a new Notification
+	 * 
+	 * @param type
+	 * @param given_to
+	 * @param regards_meeting
+	 * @param regards_user
+	 */
+	public ServerNotificationModel(NotificationType type, UserModel given_to,
+			MeetingModel regards_meeting, UserModel regards_user) {
+		super(type, given_to, regards_meeting, regards_user);
 	}
 	
 	/**
@@ -42,8 +57,30 @@ public class ServerNotificationModel extends NotificationModel implements IDBSto
 	}
 	
 	/**
-	 * Store notifications
+	 * Construct notification from sql result set
 	 * 
+	 * @param rs
+	 * @throws SQLException
+	 */
+	public ServerNotificationModel(ResultSet rs, DBConnection db) throws SQLException {
+		id = rs.getInt("id");
+		time = Calendar.getInstance();
+		time.setTime(rs.getDate("time"));
+		type = NotificationType.valueOf(rs.getString("type"));
+		read = rs.getBoolean("read");
+		given_to = ServerUserModel.findByUsername(rs.getString("given_to"), db);
+		if(rs.getInt("regards_appointment") != 0) {
+			regards_meeting = ServerMeetingModel.findById(rs.getInt("regards_appointment"), db);
+		}
+		if(rs.getString("regards_user") != null) {
+			regards_user = ServerUserModel.findByUsername(rs.getString("regards_user"), db);
+		}
+	}
+	
+	/**
+	 * Store notification
+	 * 
+	 * This will also broadcast the notification to the recipient if he's online
 	 */
 	@Override
 	public void store(DBConnection db) {
@@ -55,8 +92,8 @@ public class ServerNotificationModel extends NotificationModel implements IDBSto
 				st.executeUpdate(String.format("INSERT INTO notification(`type`, `time`, " +
 						"`given_to`, `read`, `regards_appointment`, `regards_user`) " +
 						"VALUES ('%s', '%s', '%s', %s, %s, %s)",
-						getType(), getFormattedDate(getTime()), getGivenTo().getUsername(),
-						(isRead() ? "TRUE" : "FALSE"), 
+						getType(), DBConnection.getFormattedDate(getTime()), 
+						getGivenTo().getUsername(),	(isRead() ? "TRUE" : "FALSE"), 
 						(getRegardsMeeting() != null ? getRegardsMeeting().getId() : "NULL"),
 						(getRegardsUser() != null ? "'"+getRegardsUser().getUsername()+"'" : "NULL")
 					), Statement.RETURN_GENERATED_KEYS);
@@ -68,6 +105,12 @@ public class ServerNotificationModel extends NotificationModel implements IDBSto
 				
 				// Send the notification to the user right away
 				ServerMain.ccl.broadcastModel(this, getGivenTo().getUsername());
+			} else {
+				// Update notification, only read may be changed
+				db.preformUpdate(String.format(
+					"UPDATE notification SET read = %d WHERE id = %d",
+					isRead(), getId()
+				));
 			}
 
 		} catch (SQLException e) {
@@ -77,20 +120,5 @@ public class ServerNotificationModel extends NotificationModel implements IDBSto
 		}
 		
 	}
-
-	/**
-	 * Format a Calendar for MySQL's DATETIME field
-	 * 
-	 * @param c
-	 * @return
-	 */
-	private static String getFormattedDate(Calendar c) {
-		return String.format(
-				"%d-%d-%d %d:%d:%d", 
-				c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH),
-				c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND)				
-		);
-	}
-
 
 }

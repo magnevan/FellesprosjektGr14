@@ -10,14 +10,12 @@ import client.model.TransferableModel;
 
 /**
  * The model cacher is a middle man between the ServerConnection and all
- * other code. Upon reciving a model from the server the model cacher
+ * other code. Upon receiving a model from the server the model cacher
  * will cache the model, making sure that only a single instance of each
  * model representing the same data exists. And thereby keeping all existing
  * instances of a model up to date
  * 
- * @TODO This is just a proof of consept needs a lot more work
- * 
- * @author Runar B. Olsen
+ * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
 public abstract class ModelCacher {
 

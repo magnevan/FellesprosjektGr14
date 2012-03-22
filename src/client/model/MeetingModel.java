@@ -13,6 +13,9 @@ import java.util.HashMap;
 
 import server.ModelEnvelope;
 import client.ClientMain;
+import client.ModelCacher;
+import client.ServerConnection;
+
 
 
 /**
@@ -43,6 +46,17 @@ public class MeetingModel implements TransferableModel {
 	protected ArrayList<InvitationModel> invitations;
 	
 	/**
+	 * Protected constructor
+	 */
+	public MeetingModel() {
+		changeSupport = new PropertyChangeSupport(this);
+		id = -1;
+		name = location = description = "";
+		invitations = new ArrayList<InvitationModel>();	
+		active = true;
+	}
+	
+	/**
 	 * Construct a new meeting model
 	 * Note that timeTo should be after timeFrom
 	 * 
@@ -60,14 +74,6 @@ public class MeetingModel implements TransferableModel {
 		if(!timeFrom.before(timeTo)) {
 			throw new IllegalArgumentException("MeetingModel: From-time is after to-time");
 		}
-	}
-	
-	
-	public MeetingModel() {
-		changeSupport = new PropertyChangeSupport(this);
-		id = -1;
-		invitations = new ArrayList<InvitationModel>();
-		active = true;
 	}
 	
 	/**
@@ -96,6 +102,7 @@ public class MeetingModel implements TransferableModel {
 	 */
 	public MeetingModel(BufferedReader reader, 
 			HashMap<String, TransferableModel> modelBuff) throws IOException {
+		this();
 		
 		id = Integer.parseInt(reader.readLine());
 		name = reader.readLine();
@@ -129,7 +136,16 @@ public class MeetingModel implements TransferableModel {
 			// the invitation will have a null meeting
 			if(i.getMeeting() == null)
 				i.setMeeting(this);
+			
+			this.invitations.add(i);
 		}
+	}
+	
+
+	@Override
+	public void copyFrom(TransferableModel source) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	/**
@@ -287,6 +303,10 @@ public class MeetingModel implements TransferableModel {
 		return owner;
 	}
 	
+	public void setOwner(UserModel owner) {
+		this.owner = owner;
+	}
+	
 	public String toString() {
 		return getName() + " (" + timeFrom.getTime() + " - " + timeTo.getTime() + ")";
 	}
@@ -351,7 +371,11 @@ public class MeetingModel implements TransferableModel {
 	 * @param user
 	 */
 	public void removeAttendee(UserModel user) {
-		invitations.remove(getInvitation(user));
+		if (isInvited(user)) {
+			InvitationModel inv = getInvitation(user);
+			invitations.remove(inv);
+			changeSupport.firePropertyChange(INVITATION_REMOVED, null, inv);
+		}
 	}
 	
 		
@@ -368,7 +392,25 @@ public class MeetingModel implements TransferableModel {
 				changeSupport.firePropertyChange(INVITATION_CREATED,null, invitation);
 			}
 		}		
-	}	
+	}
+	
+	/**
+	 * Changes the status of all invitations from NOT_YET_SAVED to INVITED
+	 */
+	public void commitInvitations() {
+		for (InvitationModel inv : getInvitations())
+			if (inv.getStatus() == InvitationStatus.NOT_YET_SAVED)
+				inv.setStatus(InvitationStatus.INVITED);
+	}
+	
+	/**
+	 * Discards all invitations with a NOT_YET_SAVED status
+	 */
+	public void discardInvitations() {
+		for (InvitationModel inv : getInvitations())
+			if (inv.getStatus() == InvitationStatus.NOT_YET_SAVED)
+				removeAttendee(inv.getUser());
+	}
 	
 	public static final Comparator<MeetingModel> timeFromComparator = 
 			new Comparator<MeetingModel>() {
@@ -391,11 +433,14 @@ public class MeetingModel implements TransferableModel {
 	 */
 	@Override
 	public void addSubModels(ModelEnvelope envelope) {
+		// Add invitations first so as they also depend on users 
+		if(getId() != -1)
+			for(InvitationModel i : getInvitations())
+				envelope.addModel(i);
+		
 		envelope.addModel(getOwner());
 		if(getRoom() != null)
 			envelope.addModel(getRoom());
-		for(InvitationModel i : getInvitations())
-			envelope.addModel(i);
 	}
 
 	/**
@@ -419,23 +464,63 @@ public class MeetingModel implements TransferableModel {
 			sb.append(getRoom().getUMID());
 		sb.append("\r\n");
 		
-		sb.append(getInvitations().size()+"\r\n");
-		for(InvitationModel i : getInvitations())
-			sb.append(i.getUMID()+"\r\n");
-		
+		// Invitations cannot be identified untill a Meeting has been saved
+		if(getId() != -1) {
+			sb.append(getInvitations().size()+"\r\n");
+			for(InvitationModel i : getInvitations())
+				sb.append(i.getUMID()+"\r\n");
+		} else {
+			sb.append("0\r\n");
+		}
 	}	
 	
+	/**
+	 * Add property change listener
+	 * 
+	 * @param listener
+	 */
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		changeSupport.addPropertyChangeListener(listener);
 	}
 	
+	/**
+	 * Remove property change listener
+	 * 
+	 * @param listener
+	 */
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		changeSupport.removePropertyChangeListener(listener);
 	}
 	
+	/**
+	 * clear property change listeners
+	 */
 	public void clearPropertyChangeListeners() {
 		for (PropertyChangeListener listener : changeSupport.getPropertyChangeListeners())
 			changeSupport.removePropertyChangeListener(listener);
 	}
+		
+	/**
+	 * Store the meeting object on server
+	 * 
+	 */
+	public void store() throws IOException {
+		if(!ServerConnection.isOnline())
+			throw new IOException("Cannot store Meeting, not logged in");
+		
+		MeetingModel stored = (MeetingModel) ServerConnection.instance().storeModel(this);
+		
+		// We're a new model
+		if(getId() == -1) {
+			// Set id and call store again, this will save any invitations
+			id = stored.getId();
+			if(invitations.size() > 0)
+				stored = (MeetingModel) ServerConnection.instance().storeModel(this);
 			
+			// Make sure the correct version of the model is cached, and return
+			ModelCacher.free(stored);
+			ModelCacher.cache(this);
+		}
+	}
+	
 }

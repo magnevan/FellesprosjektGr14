@@ -4,9 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 import server.ModelEnvelope;
 import client.model.TransferableModel;
@@ -21,8 +19,6 @@ import client.model.TransferableModel;
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
 public abstract class AbstractConnection {
-
-	private static Logger LOGGER = Logger.getLogger("AbstractConnection");
 
 	protected Socket socket;
 	protected BufferedWriter writer;
@@ -80,6 +76,25 @@ public abstract class AbstractConnection {
 	 */
 	protected String formatCommand(int id, String method, String smethod) {
 		return String.format("%d %s %s", id, method, smethod).trim();
+	}
+	
+	/**
+	 * Write a error message to stream
+	 * 
+	 * @param errorMessage
+	 * @param id
+	 * @param method
+	 * @param  
+	 */
+	protected void writeError(String errorMessage, int id, String method) 
+			throws IOException {
+		
+		synchronized(writer) {
+			writer.write(formatCommand(id, method, "ERROR")+"\r\n");
+			writer.write(errorMessage+"\r\n");
+			writer.flush();
+		}
+		
 	}
 	
 	/**

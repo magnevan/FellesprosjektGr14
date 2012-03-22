@@ -1,5 +1,7 @@
 package server.model;
 
+import java.io.IOException;
+
 import server.DBConnection;
 
 /**
@@ -15,6 +17,6 @@ public interface IDBStorableModel {
 	 * @param db
 	 * @return
 	 */
-	public void store(DBConnection db);
+	public void store(DBConnection db) throws IOException;
 	
 }

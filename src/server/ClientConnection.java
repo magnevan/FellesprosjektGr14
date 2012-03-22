@@ -172,12 +172,16 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 				
 				} else if(method.equals("STORE")) {
 					// Store model
-					
-					// TODO Handle exceptions, send them back to client
-					
-					TransferableModel model = readModels().get(0);		
-					((IDBStorableModel)model).store(db);					
-					writeModels(new TransferableModel[]{model}, id, method);
+					TransferableModel model = readModels().get(0);
+					if(!(model instanceof IDBStorableModel)) {
+						writeError("Model is not storable", id, method);
+					}
+					try {
+						((IDBStorableModel)model).store(db);
+					} catch(IOException e) {
+						writeError(e.getMessage(), id, method);
+					}
+					writeModels(new TransferableModel[]{model}, id, method, "OK");
 					
 				} else if(method.equals("LOGOUT")) {
 					writeLine(formatCommand(id, "LOGOUT"));
@@ -209,7 +213,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 		}
 		
 	}
-	
+
 	/**
 	 * Disconnect the client
 	 * 
