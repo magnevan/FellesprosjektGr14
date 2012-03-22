@@ -43,7 +43,12 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		
 	}
 	
-	private CalendarModel add(MeetingModel meeting, boolean silent) {
+	/**
+	 * Adds the meeting to the calendar
+	 * @param meeting
+	 * @return the current calendar model. This is so that you can chain adds like cal.add(model).add(othermodel)
+	 */
+	public CalendarModel add(MeetingModel meeting) {
 		if (meetings.contains(meeting)) return this;
 		
 		meetings.add(meeting);
@@ -58,19 +63,24 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		
 		meeting.addPropertyChangeListener(this);
 
-		if (!silent) pcs.firePropertyChange(MEETING_ADDED, null, meeting);
+		pcs.firePropertyChange(MEETING_ADDED, null, meeting);
 		
 		return this;
 	}
 	
-	private CalendarModel addAll(Collection<MeetingModel> c, boolean silent) {
+	public CalendarModel addAll(Collection<MeetingModel> c) {
 		for (MeetingModel mm : c)
-			add(mm, silent);
+			add(mm);
 		
 		return this;
 	}
 	
-	private CalendarModel remove(MeetingModel meeting, boolean silent) {
+	/**
+	 * Removes the meeting from the calendar
+	 * @param meeting
+	 * @return the current calendar model. This is so that you can chain removes like cal.remove(model).remove(othermodel)
+	 */
+	public CalendarModel remove(MeetingModel meeting) {
 		if (!meetings.contains(meeting)) return this;
 		
 		meetingsFrom.get(meeting.getTimeFrom()).remove(meeting);
@@ -79,14 +89,14 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		
 		meeting.removePropertyChangeListener(this);
 		
-		if (!silent) pcs.firePropertyChange(MEETING_REMOVED, null, meeting);
+		pcs.firePropertyChange(MEETING_REMOVED, null, meeting);
 		
 		return this;
 	}
 	
-	private CalendarModel removeAll(Collection<MeetingModel> c, boolean silent) {
+	public CalendarModel removeAll(Collection<MeetingModel> c) {
 		for (MeetingModel mm : c)
-			remove(mm, silent);
+			remove(mm);
 		
 		return this;
 	}
@@ -194,7 +204,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 				System.out.println(m);
 			System.out.println("----------------------------");
 			
-			this.addAll(models, false);
+			this.addAll(models);
 		}
 	}
 	

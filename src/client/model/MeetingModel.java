@@ -526,6 +526,9 @@ public class MeetingModel implements TransferableModel {
 			// Make sure the correct version of the model is cached, and return
 			ModelCacher.free(stored);
 			ModelCacher.cache(this);
+			
+			//Add to current calendar
+			this.owner.getCalendarModel().add(this);
 		}
 	}
 	
