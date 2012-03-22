@@ -7,6 +7,5 @@ tmp
 eclipse
 logs
 *~
-src/server.properties
 *.orig
 src/client/Debug*.java
