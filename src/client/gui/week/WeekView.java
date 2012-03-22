@@ -22,7 +22,9 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 
+import client.ClientMain;
 import client.gui.avtale.AppointmentPanel;
+import client.model.CalendarModel;
 import client.model.MeetingModel;
 import client.model.UserModel;
 
@@ -42,6 +44,8 @@ public class WeekView extends JPanel {
 		SHOWHOURS = 12;
 	
 	
+	private final CalendarModel calModel;
+	
 	private final Calendar date;
 	private final JScrollPane weekScroll, scrollTest;
 	private final JLabel weekLabel;
@@ -51,6 +55,8 @@ public class WeekView extends JPanel {
 	
 	
 	public WeekView() {
+		
+		calModel = ClientMain.getActiveUser().getCalendarModel();
 
 		date = Calendar.getInstance(); //Sets the default week to view as the current week
 		
