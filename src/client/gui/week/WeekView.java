@@ -127,7 +127,7 @@ public class WeekView extends JPanel {
 		if (hour > (23-SHOWHOURS/2)) hour = (23-SHOWHOURS/2);
 		hour -= SHOWHOURS/2;
 		
-		System.out.println(hour);
+		//System.out.println(hour);
 		
 //		It seems like getMaximum returns only half of the maximum. Dividing by two to compensate
 		vs.setValue(
@@ -249,11 +249,12 @@ public class WeekView extends JPanel {
 		public void mouseReleased(MouseEvent arg0) {}
 	}
 	
-	private void addAppointment(AppointmentPanel avtale) {
+	private void addAppointment(MeetingModel MM) {
+		AppointmentPanel avtale = new AppointmentPanel(MM);
 		//Legger til en avtale på 2.layer
 		AppointmentLayer.add(avtale,2, 0);
 		avtale.setOpaque(true);
-		avtale.setBounds(33, 400, avtale.getWidth(),avtale.getLength());
+		avtale.setBounds(avtale.getX(), avtale.getY(), avtale.getWidth(),avtale.getLength());
 		
 		
 	}
@@ -261,22 +262,31 @@ public class WeekView extends JPanel {
 	public static void main (String args[]) { 
         JFrame frame = new JFrame("");
         Calendar from =  Calendar.getInstance();
-        from.set(2012, 3, 21, 12, 0);
+        from.set(2012, 3, 21, 10, 0);
         Calendar to = Calendar.getInstance();
-        to.set(2012, 3, 21, 14, 30);
-        UserModel testPerson = new UserModel("testbruker", "test@hotmail.com", "Test Etternavn");
-        MeetingModel  MM = new MeetingModel();
-        MM.setName("testMøte");
-        MM.setLocation("testLocation");
-        MM.setTimeFrom(from);
-        MM.setTimeTo(to);
-        MM.setOwner(testPerson);
+        to.set(2012, 3, 21, 15, 0);
+        UserModel testPerson = new UserModel("Olano", "ola@hotmail.com", "Ola Nordmann");
+        MeetingModel  MM = new MeetingModel(from, to, testPerson);
+        MM.setName("Viktig avtale");
+        MM.setLocation("spisesalen");
         MM.setActive(true);
-        AppointmentPanel AP = new AppointmentPanel(MM);
+        
+        Calendar from2 =  Calendar.getInstance();
+        from2.set(2012, 3, 23, 13, 0);
+        Calendar to2 = Calendar.getInstance();
+        to2.set(2012, 3, 23, 14, 0);
+        UserModel testPerson2 = new UserModel("Hansern", "hans@hotmail.com", "Hans Hansen");
+        MeetingModel  MM2 = new MeetingModel(from2, to2, testPerson2);
+        MM2.setName("Verksted");
+        MM2.setLocation("Fjordgata 2");
+        MM2.setActive(true);
+        
+        
         
         WeekView WV = new WeekView();
         WV.setOpaque(true);
-        WV.addAppointment(AP);
+        WV.addAppointment(MM);
+        WV.addAppointment(MM2);
         frame.getContentPane().add(WV); 
         frame.pack();  
         frame.setVisible(true);   

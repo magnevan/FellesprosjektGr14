@@ -24,7 +24,7 @@ import client.model.MeetingModel;
 import client.model.MeetingRoomModel;
 import client.model.UserModel;
 
-public class AppointmentPanel extends JPanel implements PropertyChangeListener {
+public class AppointmentPanel extends JPanel {
 
 
 	private GridBagConstraints c;
@@ -35,6 +35,8 @@ public class AppointmentPanel extends JPanel implements PropertyChangeListener {
 	
 	
 	public AppointmentPanel(MeetingModel MM){
+		
+		model = MM;
 		
 		
 		color=new Color(0,100,255);
@@ -66,66 +68,26 @@ public class AppointmentPanel extends JPanel implements PropertyChangeListener {
 	    ownerLabel = new JLabel();
 		add(ownerLabel,c);
 		
-		setModel(MM);
+		setPanel();
 
 	}
 	
-
-	public void setModel(MeetingModel model){
-		this.model = model;
-		
-		//Sletting av avtale
-		if(!model.isActive()){
-			//trenger en metode som fjerner AppointmentPanel
-			
-			return;
-		}
-		
+	private void setPanel(){
 		nameLabel.setText(model.getName());
 
-		if(!model.getLocation().equals("Annet")){locationLabel.setText(model.getLocation());}
-		else{locationLabel.setText(model.getRoom().getRoomNumber());}
+		//Dette må nok endres på når jeg vet hvordan logikken bak location og møterom
+		if(model.getLocation() != null)locationLabel.setText(model.getLocation());
+		else locationLabel.setText(model.getRoom().getName());
 			
 		timeLabel.setText((timeToString(model.getTimeFrom(), model.getTimeTo())));
 		iconLabel.setIcon(getIcon(model.getInvitations()));
 		ownerLabel.setText(model.getOwner().getFullName());
 		
-		setAppointmentTime(model.getTimeFrom(), model.getTimeTo());
-		
-	}
-		
-	public MeetingModel getModel(){
-		return model;
+		setView(model.getTimeFrom(), model.getTimeTo());
 	}
 	
-	@Override
-	public void propertyChange(PropertyChangeEvent event) {
-		final String name = event.getPropertyName();
-		
-		if (name == MeetingModel.NAME_PROPERTY){
-			nameLabel.setText(model.getName());
-		}
-		if (name == MeetingModel.ROOM_PROPERTY){
-			locationLabel.setText(model.getRoom().getRoomNumber());
-		}
-		if (name == MeetingModel.LOCATION_PROPERTY){
-			locationLabel.setText(model.getLocation());
-		}
-		if (name == MeetingModel.TIME_FROM_PROPERTY){
-			timeLabel.setText((timeToString(model.getTimeFrom(), model.getTimeTo())));
-			setAppointmentTime(model.getTimeFrom(), model.getTimeTo());
-		}
-		if (name == MeetingModel.TIME_TO_PROPERTY){
-			timeLabel.setText((timeToString(model.getTimeFrom(), model.getTimeTo())));
-			setAppointmentTime(model.getTimeFrom(), model.getTimeTo());
-		}
-		//Må ha en for status til møte
-		
-		
-	}
-	
-	
-	//En ikke fungerende funksjon for å sette ikonet i avtalen
+
+	//Denne er bare et foreløpig test får logikken bak dette er helt klar
 	private ImageIcon getIcon(ArrayList<InvitationModel> invitations){
 		ImageIcon typeIcon;
 		
@@ -146,7 +108,7 @@ public class AppointmentPanel extends JPanel implements PropertyChangeListener {
 	}
 
 	
-	//lager og returnerer et stringformat av start og slutt av avtalen
+	//lager og returnerer et stringformat til start og slutt av avtalen
 	private String timeToString(Calendar S, Calendar E){
 		String tempString= "";
 		
@@ -160,8 +122,9 @@ public class AppointmentPanel extends JPanel implements PropertyChangeListener {
 	
 	
 	
-	//Setter størrelse på panel + hva som skal vises
-	private void setAppointmentTime(Calendar S, Calendar E){
+
+	
+	private void setView(Calendar S, Calendar E){
 		
 		long SMilli = S.getTimeInMillis();
 		long EMilli = E.getTimeInMillis();
@@ -169,38 +132,30 @@ public class AppointmentPanel extends JPanel implements PropertyChangeListener {
 		int minutes = (int)((EMilli-SMilli)/60000);
 		
 		AppointmentLength = (minutes*WeekView.HOURHEIGHT)/60;
-
-//		this.setPreferredSize(new Dimension(WeekView.HOURWIDTH - 5, AppointmentLength));
-//		this.setMinimumSize(new Dimension(WeekView.HOURWIDTH - 5, AppointmentLength));
-//		this.setMaximumSize(new Dimension(WeekView.HOURWIDTH - 5, AppointmentLength));
-
-		
+		System.out.println(minutes);
 		//Kjapp test av hvordan justering av avtale kan gjøres
 		if(minutes == 15){
-			setView(true, false, false,false, false, 10);
+			showComponents(true, false, false,false, false, 10);
 		}
 		else if(minutes ==30){
-			setView(true, true, false,false, false, 10);
+			showComponents(true, true, false,false, false, 10);
 		}
 		else if(minutes == 45){
-			setView(true, true, false,true, false, 10);
-
+			showComponents(true, true, false,true, false, 10);
 		}
-		else if(minutes == 60 && minutes == 75){
-			setView(true, true, true,true, false, 10);
+		else if(minutes == 60 || minutes == 75){
+			showComponents(true, true, false,true, false, 10);
 		}
 		else if(minutes == 90){
-			setView(true, true, true,true, true, 10);
+			showComponents(true, true, true,true, true, 10);
 		}
 		else{
-			setView(true, true, true,true, true, 13);
+			showComponents(true, true, true,true, true, 13);
 		}
-		
-
 	}
 	
 	//bestemmer hva som skal vises i panelet + størrelse på skriften
-	private void setView(boolean name, boolean location, boolean time, boolean icon ,boolean owner, int fontSize){
+	private void showComponents(boolean name, boolean location, boolean time, boolean icon ,boolean owner, int fontSize){
 		nameLabel.setVisible(name);
 		locationLabel.setVisible(location);
 		timeLabel.setVisible(time);
@@ -220,35 +175,148 @@ public class AppointmentPanel extends JPanel implements PropertyChangeListener {
 	}
 	
 	public int getWidth(){
-//		if(overlapp) return (WeekView.HOURWIDTH - 1)/2;
-		
+//		if(overlapp) return (WeekView.HOURWIDTH - 1)/2;		
 		return (WeekView.HOURWIDTH - 1);
 	}
 	
 	public int getLength(){
-		return AppointmentLength;
+		return AppointmentLength -1;
 	}
 	
+	public int getX(){
+		//Calender.DAY_OF_WEEK hadde torsdag som startdag, lagde derfor dette arrayet
+		int[] dayOfWeek = new int[] {3,4,5,6,0,1,2};
+		int padding = 32;
+		int day = dayOfWeek[(model.getTimeFrom().get(Calendar.DAY_OF_WEEK)-1)];
+		return padding + ((day)*(WeekView.HOURWIDTH - 1)) + day;
+	}
 	
-	public static void main (String args[]) { 
-        JFrame frame = new JFrame("");
-        Calendar from =  Calendar.getInstance();
-        from.set(2012, 10, 3, 12, 0);
-        Calendar to = Calendar.getInstance();
-        to.set(2012, 10, 3, 15, 0);
-        UserModel testPerson = new UserModel("testbruker", "test@hotmail.com", "Test Etternavn");
-        MeetingModel  MM = new MeetingModel();
-        MM.setName("testMøte");
-        MM.setLocation("testLocation");
-        MM.setTimeFrom(from);
-        MM.setTimeTo(to);
-        MM.setOwner(testPerson);
-        MM.setActive(true);
-        AppointmentPanel ap = new AppointmentPanel(MM);
-        
-        frame.getContentPane().add(ap); 
-        frame.pack();  
-        frame.setVisible(true);   
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    }
+	public int getY(){
+		int padding = 36;
+
+		//Skaffer tiden fra midnatt
+		Calendar c = (Calendar)model.getTimeFrom().clone();
+		long now = c.getTimeInMillis();
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND, 0);
+		c.set(Calendar.MILLISECOND, 0);
+		long passed = now - c.getTimeInMillis();
+		
+		//Gjør om tiden til riktig pixel avstand
+		final int minutes = (int)(((passed)/60000));
+		int time = ((minutes*WeekView.HOURHEIGHT)/60);
+
+		return padding + time;
+	}
+	
+//	
+//	public static void main (String args[]) { 
+//        JFrame frame = new JFrame("");
+//        Calendar from =  Calendar.getInstance();
+//        from.set(2012, 10, 3, 12, 0);
+//        Calendar to = Calendar.getInstance();
+//        to.set(2012, 10, 3, 15, 0);
+//        UserModel testPerson = new UserModel("testbruker", "test@hotmail.com", "Test Etternavn");
+//        MeetingModel  MM = new MeetingModel(from, to, testPerson);
+//        MM.setName("Viktig avtale");
+//        MM.setLocation("spisesalen");
+//        MM.setActive(true);
+//        AppointmentPanel ap = new AppointmentPanel(MM);
+//        
+//        frame.getContentPane().add(ap); 
+//        frame.pack();  
+//        frame.setVisible(true);   
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//    }
+//	
+
+//	public void setModel(MeetingModel model){
+//		this.model = model;
+//		
+//		//Sletting av avtale
+//		if(!model.isActive()){
+//			//trenger en metode som fjerner AppointmentPanel
+//			
+//			return;
+//		}
+//		
+//		nameLabel.setText(model.getName());
+//
+//		if(!model.getLocation().equals("Annet")){locationLabel.setText(model.getLocation());}
+//		else{locationLabel.setText(model.getRoom().getRoomNumber());}
+//			
+//		timeLabel.setText((timeToString(model.getTimeFrom(), model.getTimeTo())));
+//		iconLabel.setIcon(getIcon(model.getInvitations()));
+//		ownerLabel.setText(model.getOwner().getFullName());
+//		
+//		setAppointmentTime(model.getTimeFrom(), model.getTimeTo());
+//		
+//	}
+//		
+//	public MeetingModel getModel(){
+//		return model;
+//	}
+//	
+//	@Override
+//	public void propertyChange(PropertyChangeEvent event) {
+//		final String name = event.getPropertyName();
+//		
+//		if (name == MeetingModel.NAME_PROPERTY){
+//			nameLabel.setText(model.getName());
+//		}
+//		if (name == MeetingModel.ROOM_PROPERTY){
+//			locationLabel.setText(model.getRoom().getRoomNumber());
+//		}
+//		if (name == MeetingModel.LOCATION_PROPERTY){
+//			locationLabel.setText(model.getLocation());
+//		}
+//		if (name == MeetingModel.TIME_FROM_PROPERTY){
+//			timeLabel.setText((timeToString(model.getTimeFrom(), model.getTimeTo())));
+//			setAppointmentTime(model.getTimeFrom(), model.getTimeTo());
+//		}
+//		if (name == MeetingModel.TIME_TO_PROPERTY){
+//			timeLabel.setText((timeToString(model.getTimeFrom(), model.getTimeTo())));
+//			setAppointmentTime(model.getTimeFrom(), model.getTimeTo());
+//		}
+//		//Må ha en for status til møte
+//		
+//		
+//	}	
+	
+	
+	
+//	//Setter størrelse på panel + hva som skal vises
+//	private void setAppointmentTime(Calendar S, Calendar E){
+//		
+//		long SMilli = S.getTimeInMillis();
+//		long EMilli = E.getTimeInMillis();
+//		
+//		int minutes = (int)((EMilli-SMilli)/60000);
+//		
+//		AppointmentLength = (minutes*WeekView.HOURHEIGHT)/60;
+//		
+//		//Kjapp test av hvordan justering av avtale kan gjøres
+//		if(minutes == 15){
+//			showComponents(true, false, false,false, false, 10);
+//		}
+//		else if(minutes ==30){
+//			showComponents(true, true, false,false, false, 10);
+//		}
+//		else if(minutes == 45){
+//			showComponents(true, true, false,true, false, 10);
+//
+//		}
+//		else if(minutes == 60 && minutes == 75){
+//			showComponents(true, true, true,true, false, 10);
+//		}
+//		else if(minutes == 90){
+//			showComponents(true, true, true,true, true, 10);
+//		}
+//		else{
+//			showComponents(true, true, true,true, true, 13);
+//		}
+//		
+//
+//	}
 }
