@@ -489,7 +489,12 @@ public class ServerConnection extends AbstractConnection {
 	public static void main(String[] args) throws Exception {
 		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
 		
-		ServerConnection.instance().requestMeeting(new Listener(), 54);
+		Calendar from = Calendar.getInstance();
+		from.set(2012, 1, 1);
+		Calendar to = Calendar.getInstance();
+		to.set(2013, 1, 1);
+		
+		ServerConnection.instance().requestMeetings(new Listener(), from, to);
 	}
 }
 
@@ -502,9 +507,7 @@ class Listener implements IServerResponseListener {
 		System.out.println(mm.getName());
 		
 		System.out.println(mm.getInvitation(ClientMain.getActiveUser()));
-		try {
-			mm.getInvitation(ClientMain.getActiveUser()).delete();
-		} catch(IOException e) {}
+		
 	}
 	
 }
