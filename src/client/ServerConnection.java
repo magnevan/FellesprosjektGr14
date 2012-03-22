@@ -134,7 +134,7 @@ public class ServerConnection extends AbstractConnection {
 			
 		
 		try {
-			//socket = new Socket(address, port);			
+			socket = new Socket(address, port);			
 			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 			//writer = new DebugWriter(new OutputStreamWriter(socket.getOutputStream()));
