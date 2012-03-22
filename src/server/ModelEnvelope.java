@@ -111,9 +111,10 @@ public class ModelEnvelope {
 			throw new IOException("Expected empty line after envelope, got "+line);
 		}
 		
-		// Have all models pull in dependencies
-		for(TransferableModel m : list) {
-			m.registerSubModels(modelBuff);
+		// Have all models pull in dependencies, and register models in cacher
+		for(int i = 0; i < list.length; i++) {
+			list[i].registerSubModels(modelBuff);
+			list[i] = ModelCacher.cache(list[i]);
 		}
 		
 		models = new Stack<TransferableModel>();
@@ -281,9 +282,6 @@ public class ModelEnvelope {
 				else
 					model = new ActiveUserModel(reader);
 					
-			// If we're on client run model through the cacher 
-			if(!server && model != null) 
-				model = ModelCacher.cache(model);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}

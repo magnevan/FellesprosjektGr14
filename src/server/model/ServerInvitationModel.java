@@ -42,9 +42,8 @@ public class ServerInvitationModel extends InvitationModel
 	 * @param modelBuff
 	 * @throws IOException
 	 */
-	public ServerInvitationModel(BufferedReader reader, 
-			HashMap<String, TransferableModel> modelBuff) throws IOException {
-		super(reader, modelBuff);
+	public ServerInvitationModel(BufferedReader reader) throws IOException {
+		super(reader);
 	}
 
 	/**

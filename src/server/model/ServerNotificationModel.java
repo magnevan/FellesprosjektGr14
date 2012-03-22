@@ -51,9 +51,8 @@ public class ServerNotificationModel extends NotificationModel
 	 * @param modelBuff
 	 * @throws IOException
 	 */
-	public ServerNotificationModel(BufferedReader reader, 
-			HashMap<String, TransferableModel> modelBuff) throws IOException {
-		super(reader, modelBuff);
+	public ServerNotificationModel(BufferedReader reader) throws IOException {
+		super(reader);
 	}
 	
 	/**

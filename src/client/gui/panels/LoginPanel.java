@@ -123,7 +123,6 @@ public class LoginPanel extends JPanel implements ActionListener{
 		
 		try {
 			ServerConnection.login(target, port, username, password);
-			//ServerConnection.login(InetAddress.getByName("78.91.7.8"), 9034, "runar", "runar");
 		} catch (BadLoginException e) {
 			lblStatus.setText("Ugyldig brukernavn/passord");
 		} catch (ConnectException e) {

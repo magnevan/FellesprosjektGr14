@@ -31,9 +31,8 @@ public class ServerActiveUserModel extends ActiveUserModel {
 	 * @param modelBuff
 	 * @throws IOException
 	 */
-	public ServerActiveUserModel(BufferedReader reader,
-			HashMap<String, TransferableModel> modelBuff) throws IOException {
-		super(reader, modelBuff);
+	public ServerActiveUserModel(BufferedReader reader) throws IOException {
+		super(reader);
 	}
 	
 	/**

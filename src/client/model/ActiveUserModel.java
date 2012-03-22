@@ -30,9 +30,7 @@ public class ActiveUserModel extends UserModel {
 		super(username, email, fullName);
 		notifications = new ArrayList<NotificationModel>();
 	}
-	
-	private String[] notificationsUMIDs;
-	
+		
 	/**
 	 * Create model from reader
 	 * 
@@ -49,6 +47,8 @@ public class ActiveUserModel extends UserModel {
 			notificationsUMIDs[n-1] = reader.readLine();
 		}
 	}
+
+	private String[] notificationsUMIDs;
 	
 	/**
 	 * Pull in sub models

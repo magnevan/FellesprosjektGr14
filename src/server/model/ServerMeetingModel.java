@@ -62,9 +62,8 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 	 * @param modelBuff
 	 * @throws IOException
 	 */
-	public ServerMeetingModel(BufferedReader reader, 
-			HashMap<String, TransferableModel> modelBuff) throws IOException {
-		super(reader, modelBuff);
+	public ServerMeetingModel(BufferedReader reader) throws IOException {
+		super(reader);
 	}
 
 	/**
