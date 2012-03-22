@@ -48,7 +48,7 @@ public class MeetingModel implements TransferableModel {
 	/**
 	 * Protected constructor
 	 */
-	protected MeetingModel() {
+	public MeetingModel() {
 		changeSupport = new PropertyChangeSupport(this);
 		id = -1;
 		name = location = description = "";
@@ -100,8 +100,7 @@ public class MeetingModel implements TransferableModel {
 	 * @param modelBuff
 	 * @throws IOException
 	 */
-	public MeetingModel(BufferedReader reader, 
-			HashMap<String, TransferableModel> modelBuff) throws IOException {
+	public MeetingModel(BufferedReader reader) throws IOException {
 		this();
 		
 		id = Integer.parseInt(reader.readLine());
@@ -122,21 +121,35 @@ public class MeetingModel implements TransferableModel {
 		}
 		
 		location = reader.readLine();
-		owner = (UserModel) modelBuff.get(reader.readLine());
-		
-		l = reader.readLine();
-		if(!l.equals("")) 
-			room = (MeetingRoomModel) modelBuff.get(l);
+		owner_umid = reader.readLine();		
+		room_umid = reader.readLine();
 		
 		int invitations = Integer.parseInt(reader.readLine());
+		invitation_umids = new String[invitations];
 		for( ; invitations > 0; invitations--) {
-			InvitationModel i = (InvitationModel) modelBuff.get(reader.readLine());
-			
-			// We've got a circular denpendency here, if we're sending a meeting
-			// the invitation will have a null meeting
-			if(i.getMeeting() == null)
-				i.setMeeting(this);
+			invitation_umids[invitations-1] = reader.readLine();
 		}
+	}
+	
+	private String owner_umid;
+	private String room_umid;
+	private String[] invitation_umids;
+	
+	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
+		owner = (UserModel) modelBuff.get(owner_umid);
+		if(!room_umid.equals("")) {
+			room = (MeetingRoomModel) modelBuff.get(room_umid);
+		}
+		for(String s : invitation_umids) {
+			invitations.add((InvitationModel) modelBuff.get(s));
+		}
+	}
+	
+
+	@Override
+	public void copyFrom(TransferableModel source) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	/**
@@ -299,7 +312,7 @@ public class MeetingModel implements TransferableModel {
 	}
 	
 	public String toString() {
-		return getName() + "(" + timeFrom.getTime() + " - " + timeTo.getTime() + ")";
+		return getName() + " (" + timeFrom.getTime() + " - " + timeTo.getTime() + ")";
 	}
 	
 	/**
@@ -513,6 +526,16 @@ public class MeetingModel implements TransferableModel {
 			ModelCacher.free(stored);
 			ModelCacher.cache(this);
 		}
+	}
+	
+	/**
+	 * Delete meeting
+	 * 
+	 */
+	public void delete() throws IOException {
+		if(!ClientMain.client().getActiveUser().equals(getOwner()))
+			throw new IOException("User does not own meeting");
+		ServerConnection.instance().deleteMeeting(this);
 	}
 	
 }

@@ -11,7 +11,6 @@ import server.DBConnection;
 import client.model.InvitationModel;
 import client.model.InvitationStatus;
 import client.model.MeetingModel;
-import client.model.NotificationModel;
 import client.model.NotificationType;
 import client.model.TransferableModel;
 import client.model.UserModel;
@@ -23,7 +22,8 @@ import client.model.UserModel;
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public class ServerInvitationModel extends InvitationModel implements IDBStorableModel {
+public class ServerInvitationModel extends InvitationModel 
+	implements IDBStorableModel {
 	
 	/**
 	 * Construct model from a ResultSet and the related user and meeting model
@@ -42,9 +42,8 @@ public class ServerInvitationModel extends InvitationModel implements IDBStorabl
 	 * @param modelBuff
 	 * @throws IOException
 	 */
-	public ServerInvitationModel(BufferedReader reader, 
-			HashMap<String, TransferableModel> modelBuff) throws IOException {
-		super(reader, modelBuff);
+	public ServerInvitationModel(BufferedReader reader) throws IOException {
+		super(reader);
 	}
 
 	/**
@@ -77,14 +76,43 @@ public class ServerInvitationModel extends InvitationModel implements IDBStorabl
 				
 				// Create a new notification
 				ServerNotificationModel notification = new ServerNotificationModel(
-						NotificationType.A_INVITATION, getUser(), getMeeting());
+						NotificationType.A_INVITATION, getUser(), getMeeting(), 
+						getMeeting().getOwner());
 				notification.store(db);
+				
+
+			// Update invitation
+			} else {
+				db.preformUpdate(String.format("UPDATE user_appointment " +
+						"SET status = '%s' WHERE appointment_id=%d AND username='%s'",
+						getStatus(), getMeeting().getId(), getUser().getUsername()));
+				
+				if(getStatus() == InvitationStatus.DECLINED) {
+					ServerNotificationModel notification = new ServerNotificationModel(
+							NotificationType.A_USER_DENIED, getMeeting().getOwner(), 
+							getMeeting(), getUser());
+					notification.store(db);
+				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 	
+	/**
+	 * Delete invitation
+	 * 
+	 * @param db
+	 */
+	public void delete(DBConnection db) {
+		try {
+			db.preformUpdate(String.format("DELETE FROM user_appointment " +
+					"WHERE appointment_id=%d AND username='%s'",
+					getMeeting().getId(), getUser().getUsername()));
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	/**
 	 * Find all invitations registered for the given meeting

@@ -2,15 +2,14 @@ package client.model;
 
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 
 import server.ModelEnvelope;
-import client.ModelCacher;
 
 /**
  * Model representing a Notification
@@ -28,11 +27,11 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 	public final static String READ_PROPERTY = "read";
 	
 	protected int id = -1;
-	private MeetingModel regards_meeting;
-	private NotificationType type;
-	private Calendar time;
-	private UserModel given_to, regards_user;
-	private boolean read;
+	protected MeetingModel regards_meeting;
+	protected NotificationType type;
+	protected Calendar time;
+	protected UserModel given_to, regards_user;
+	protected boolean read;
 	
 	private PropertyChangeSupport changeSupport;
 	
@@ -96,8 +95,7 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 	 * @param modelBuff
 	 * @throws IOException
 	 */
-	public NotificationModel(BufferedReader reader, 
-			HashMap<String, TransferableModel> modelBuff) throws IOException {
+	public NotificationModel(BufferedReader reader) throws IOException {
 		
 		DateFormat df = DateFormat.getDateTimeInstance();
 		
@@ -111,13 +109,27 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 			throw new IOException(e.toString());
 		}
 		
-		given_to = (UserModel) modelBuff.get(reader.readLine());
+		given_to_umid = reader.readLine();
 		
-		String l;
-		if(!(l = reader.readLine()).equals("")) 
-			regards_meeting = (MeetingModel) modelBuff.get(l);
-		if(!(l = reader.readLine()).equals(""))
-			regards_user = (UserModel) modelBuff.get(l);		
+		regards_meeting_umid = reader.readLine();
+		regards_user_umid = reader.readLine();
+	}
+	
+	private String given_to_umid, regards_meeting_umid, regards_user_umid;
+	
+	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
+		given_to = (UserModel) modelBuff.get(given_to_umid);
+		if(!regards_meeting_umid.equals("")) {
+			regards_meeting = (MeetingModel) modelBuff.get(regards_meeting_umid);
+		}
+		if(!regards_user_umid.equals("")) {
+			regards_user = (UserModel) modelBuff.get(regards_user_umid);
+		}
+	}
+	
+	
+	public void copyFrom(TransferableModel model) {
+		setRead(((NotificationModel)model).isRead());
 	}
 	
 	
@@ -281,7 +293,7 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 		sb.append(getId() + "\r\n");
 		sb.append(getType() + "\r\n");
 		sb.append(df.format(getTime().getTime()) + "\r\n");
-		sb.append(getGivenTo().getUMID());
+		sb.append(getGivenTo().getUMID()+"\r\n");
 		
 		if(getRegardsMeeting() != null) 
 			sb.append(getRegardsMeeting().getUMID());
@@ -294,7 +306,14 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 
 	@Override
 	public int compareTo(NotificationModel e) {
-		return this.getTime().compareTo(e.getTime());
+		return -this.getTime().compareTo(e.getTime());
 	}
 	
+	@Override
+	public String toString() {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm");
+		if (regards_meeting != null)
+			return sdf.format(time.getTime()) + " " + regards_meeting.getName() + read;
+		else return sdf.format(time.getTime()) + read;
+	}
 }

@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import server.ModelEnvelope;
 import client.gui.exceptions.BadLoginException;
 import client.model.ActiveUserModel;
+import client.model.InvitationModel;
 import client.model.MeetingModel;
 import client.model.NotificationModel;
 import client.model.TransferableModel;
@@ -136,7 +137,8 @@ public class ServerConnection extends AbstractConnection {
 		try {
 			socket = new Socket(address, port);			
 			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			//writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			writer = new DebugWriter(new OutputStreamWriter(socket.getOutputStream()));
 			
 			LOGGER.info(reader.readLine()); // Read welcome message
 			
@@ -192,6 +194,10 @@ public class ServerConnection extends AbstractConnection {
 						continue;
 					} 
 					
+					if(method.equals("DELETE")) {
+						continue;
+					}
+					
 					List<TransferableModel> models = readModels();
 					
 					// Broadcasts come with a zero id
@@ -199,7 +205,7 @@ public class ServerConnection extends AbstractConnection {
 						TransferableModel model = models.get(0);
 						
 						if(model instanceof NotificationModel) {
-							user.addNotification((NotificationModel) model);
+							user.addNotification((NotificationModel)model);
 						}
 						continue;
 					}
@@ -319,7 +325,7 @@ public class ServerConnection extends AbstractConnection {
 		try {
 			writeModels(Arrays.asList(model), id, "STORE");
 			
-			long time = System.currentTimeMillis();
+			//long time = System.currentTimeMillis();
 			
 			// Updated model will come in reader thread, halt untill it's there
 			while(!storedModels.containsKey(id) 
@@ -399,6 +405,26 @@ public class ServerConnection extends AbstractConnection {
 	}
 	
 	/**
+	 * Delete a meeting
+	 * 
+	 * @param meeting
+	 * @return
+	 */
+	public int deleteMeeting(MeetingModel meeting) {
+		int id = ++nextRequestId;
+		
+		try {
+			writeLine(formatCommand(id, "DELETE", "MEETING "+meeting.getId()));			
+		} catch(IOException e) {
+			listeners.remove(id);
+			LOGGER.severe("IOException requestFilteredUserList");
+			LOGGER.severe(e.toString());
+			return -1;
+		}
+		return id;
+	}
+	
+	/**
 	 * Add server connection listener
 	 * 
 	 * @param listener
@@ -436,38 +462,6 @@ public class ServerConnection extends AbstractConnection {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
-		
-		Calendar from = Calendar.getInstance();
-		from.add(Calendar.HOUR_OF_DAY, -1);
-		Calendar to = Calendar.getInstance();
-		
-		MeetingModel mm = new MeetingModel(from, to, ClientMain.getActiveUser());
-		mm.setName("Test møte");
-		mm.addAttendee(ClientMain.getActiveUser());
-		mm.store();
-		
-		System.out.println("Meeing has been stored with id "+mm.getId());
-		
-		ServerConnection.instance().requestMeeting(new Listener(mm), mm.getId());
-		
+		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");		
 	}
-}
-
-class Listener implements IServerResponseListener {
-
-	private MeetingModel mm;
-	public Listener(MeetingModel mm) {
-		this.mm = mm;
-	}
-	
-	@Override
-	public void onServerResponse(int requestId, Object data) {
-		@SuppressWarnings("unchecked")
-		MeetingModel m2 = ((List<MeetingModel>) data).get(0);
-		
-		System.out.println(m2.equals(mm));
-		
-	}
-	
 }

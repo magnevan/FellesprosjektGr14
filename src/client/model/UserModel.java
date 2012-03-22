@@ -26,7 +26,7 @@ public class UserModel implements TransferableModel {
 	
 	private CalendarModel calendar;
 	
-	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	protected final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	public static final String NAME_CHANGE = "name change";
 	
 	//These variables control which colors are given to new user calendars.
@@ -73,11 +73,18 @@ public class UserModel implements TransferableModel {
 	 * @param reader
 	 * @param modelBuff
 	 */
-	public UserModel(BufferedReader reader, 
-			HashMap<String, TransferableModel> modelBuff) throws IOException {
+	public UserModel(BufferedReader reader) throws IOException {
 		this(reader.readLine(), reader.readLine(), reader.readLine());
 	}
 	
+	@Override
+	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
+		
+	}
+	
+	public void copyFrom(TransferableModel model) {
+		// Cannot happen
+	}
 	
 	/**
 	 * Get username

@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Calendar;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -88,6 +89,20 @@ public class DBConnection {
 		} catch(SQLException e) {
 			// Ignore
 		}
+	}
+	
+	/**
+	 * Format a Calendar for MySQL's DATETIME field
+	 * 
+	 * @param c
+	 * @return
+	 */
+	public static String getFormattedDate(Calendar c) {
+		return String.format(
+				"%d-%d-%d %d:%d:%d",
+				c.get(Calendar.YEAR), c.get(Calendar.MONTH)+1, c.get(Calendar.DAY_OF_MONTH),
+				c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND)				
+		);
 	}
 	
 }

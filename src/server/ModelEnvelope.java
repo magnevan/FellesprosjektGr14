@@ -101,7 +101,7 @@ public class ModelEnvelope {
 		for(int i = 0; i < numModels; i++) {	
 			String name = reader.readLine(),
 					umid = reader.readLine();
-			list[i] = createModel(name, reader, modelBuff, server);
+			list[i] = createModel(name, reader, server);
 			if(!umid.equals(""))
 				modelBuff.put(umid, list[i]);
 		}
@@ -109,6 +109,12 @@ public class ModelEnvelope {
 		// Validate that we're at the end
 		if(!reader.readLine().equals("")) {
 			throw new IOException("Expected empty line after envelope, got "+line);
+		}
+		
+		// Have all models pull in dependencies, and register models in cacher
+		for(int i = 0; i < list.length; i++) {
+			list[i].registerSubModels(modelBuff);
+			list[i] = ModelCacher.cache(list[i]);
 		}
 		
 		models = new Stack<TransferableModel>();
@@ -241,45 +247,41 @@ public class ModelEnvelope {
 	 * @return
 	 */
 	private TransferableModel createModel(String modelName,
-			BufferedReader reader, HashMap<String, TransferableModel> modelBuff,
-			boolean server) {
+			BufferedReader reader, boolean server) {
 
 		TransferableModel model = null;
 		try {
 			if(modelName.equals("UserModel"))
 				if(server) 
-					model = new ServerUserModel(reader, modelBuff);
+					model = new ServerUserModel(reader);
 				else
-					model = new UserModel(reader, modelBuff);
+					model = new UserModel(reader);
 			else if(modelName.equals("MeetingModel"))
 				if(server)
-					model = new ServerMeetingModel(reader, modelBuff);
+					model = new ServerMeetingModel(reader);
 				else
-					model = new MeetingModel(reader, modelBuff);
+					model = new MeetingModel(reader);
 			else if(modelName.equals("MeetingRoomModel"))
 				if(server)
-					model = new ServerMeetingRoomModel(reader, modelBuff);
+					model = new ServerMeetingRoomModel(reader);
 				else
-					model = new MeetingRoomModel(reader, modelBuff);
+					model = new MeetingRoomModel(reader);
 			else if(modelName.equals("InvitationModel"))
 				if(server)
-					model = new ServerInvitationModel(reader, modelBuff);
+					model = new ServerInvitationModel(reader);
 				else
-					model = new InvitationModel(reader, modelBuff);
+					model = new InvitationModel(reader);
 			else if(modelName.equals("NotificationModel"))
 				if(server)
-					model = new ServerNotificationModel(reader, modelBuff);
+					model = new ServerNotificationModel(reader);
 				else
-					model = new NotificationModel(reader, modelBuff);
+					model = new NotificationModel(reader);
 			else if(modelName.equals("ActiveUserModel"))
 				if(server)
-					model = new ServerActiveUserModel(reader, modelBuff);
+					model = new ServerActiveUserModel(reader);
 				else
-					model = new ActiveUserModel(reader, modelBuff);
+					model = new ActiveUserModel(reader);
 					
-			// If we're on client run model through the cacher 
-			if(!server && model != null) 
-				model = ModelCacher.cache(model);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
