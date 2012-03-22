@@ -47,7 +47,7 @@ public class NotificationList extends JPanel {
 		list.setModel(listModel);
 		list.setCellRenderer(new NotificationListCellRenderer());
 		scrollPane = new JScrollPane(list);
-		scrollPane.setPreferredSize(new Dimension(270,200));
+		scrollPane.setPreferredSize(new Dimension(310, 485));
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		this.add(scrollPane);
 	}
