@@ -76,7 +76,8 @@ public class HovedPanel extends JPanel{
 		String lol = now();
 		label1.setText(lol);
 		label1.setFont(new Font("", Font.BOLD, 18));
-	//	label1.setForeground(Color.WHITE);
+		label1.setForeground(Color.WHITE);
+		
 		//adding panels
 		this.add(topPanel);
 		this.add(new JLabel("Dagens aktiviteter "));
