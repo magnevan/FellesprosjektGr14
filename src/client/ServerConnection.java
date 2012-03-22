@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import server.ModelEnvelope;
 import client.gui.exceptions.BadLoginException;
 import client.model.ActiveUserModel;
+import client.model.InvitationModel;
 import client.model.MeetingModel;
 import client.model.NotificationModel;
 import client.model.TransferableModel;
@@ -136,8 +137,8 @@ public class ServerConnection extends AbstractConnection {
 		try {
 			socket = new Socket(address, port);			
 			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-			//writer = new DebugWriter(new OutputStreamWriter(socket.getOutputStream()));
+			//writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			writer = new DebugWriter(new OutputStreamWriter(socket.getOutputStream()));
 			
 			LOGGER.info(reader.readLine()); // Read welcome message
 			
