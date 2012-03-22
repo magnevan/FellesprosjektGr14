@@ -84,7 +84,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		this.add(tidPanel);
 		
 		//Moterom
-		this.add(new JLabel("Mï¿½terom"));
+		this.add(new JLabel("Møterom"));
 		JPanel moteromPanel = new JPanel();
 		moteromComboBox = new JComboBox();
 		moteromText = new JDefaultTextField("Skriv mï¿½teplass...", 15);

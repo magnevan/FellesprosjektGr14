@@ -21,7 +21,6 @@ import java.util.logging.Logger;
 import server.ModelEnvelope;
 import client.gui.exceptions.BadLoginException;
 import client.model.ActiveUserModel;
-import client.model.InvitationModel;
 import client.model.MeetingModel;
 import client.model.NotificationModel;
 import client.model.TransferableModel;
@@ -35,7 +34,9 @@ import client.model.UserModel;
 public class ServerConnection extends AbstractConnection {
 	
 	// Stores listeners interested in server connection changes
-	private static final Set<IServerConnectionListener> serverConnectionListeners = new HashSet<IServerConnectionListener>();
+	private static final Set<IServerConnectionListener> serverConnectionListeners 
+							= Collections.synchronizedSet(new HashSet<IServerConnectionListener>());
+	
 	
 	private static Logger LOGGER = Logger.getLogger("ServerConnection");
 	private static ServerConnection instance = null;	
@@ -137,8 +138,8 @@ public class ServerConnection extends AbstractConnection {
 		try {
 			socket = new Socket(address, port);			
 			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			//writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-			writer = new DebugWriter(new OutputStreamWriter(socket.getOutputStream()));
+			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+//			writer = new DebugWriter(new OutputStreamWriter(socket.getOutputStream()));
 			
 			LOGGER.info(reader.readLine()); // Read welcome message
 			
@@ -447,7 +448,7 @@ public class ServerConnection extends AbstractConnection {
 	 * 
 	 * @param change
 	 */
-	private static void fireServerConnectionChange(String change) {
+	private static  void fireServerConnectionChange(String change) {
 		for (IServerConnectionListener listener : serverConnectionListeners)
 			listener.serverConnectionChange(change);
 	}	

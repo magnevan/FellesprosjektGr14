@@ -41,7 +41,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		
 		pcs = new PropertyChangeSupport(this);
 		
-		ServerConnection.instance().addServerConnectionListener(this);
+		ServerConnection.addServerConnectionListener(this);
 	}
 	
 	private CalendarModel add(MeetingModel meeting, boolean silent) {
@@ -74,9 +74,9 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	private CalendarModel remove(MeetingModel meeting, boolean silent) {
 		if (!meetings.contains(meeting)) return this;
 		
-		meetings.remove(meeting);
 		meetingsFrom.get(meeting.getTimeFrom()).remove(meeting);
 		meetingsTo.get(meeting.getTimeTo()).remove(meeting);
+		meetings.remove(meeting);
 		
 		meeting.removePropertyChangeListener(this);
 		
@@ -162,6 +162,9 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		
 		System.out.println("----LIST OF MEETINGS----");
 		for (MeetingModel m : returnSet) {
+			Calendar c = (Calendar)m.getTimeFrom().clone(); //TODO FJERN DETTE, MODIFISERER MØTE PGA BUG ANNEN PLASS
+			c.roll(Calendar.HOUR, 2);
+			m.setTimeTo(c);
 			System.out.println(m);
 		}
 		System.out.println("------------------------");
@@ -195,7 +198,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 			this.addAll(models, false);
 		}
 	}
-
+	
 	@Override
 	public void propertyChange(PropertyChangeEvent e) {
 		
@@ -203,8 +206,22 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		if (	e.getPropertyName() == MeetingModel.TIME_FROM_PROPERTY
 			|| 	e.getPropertyName() == MeetingModel.TIME_TO_PROPERTY) {
 			
-			this.remove((MeetingModel)e.getSource(), true);
-			this.add((MeetingModel)e.getSource(), true);
+			TreeMap<Calendar, Set<MeetingModel>> moveMap = null;
+			MeetingModel m = (MeetingModel)e.getSource();
+			
+			switch (e.getPropertyName()) {
+			case MeetingModel.TIME_FROM_PROPERTY: moveMap = meetingsFrom; break;
+			case MeetingModel.TIME_TO_PROPERTY:   moveMap = meetingsTo;   break;
+			}
+			
+			//Remove
+			moveMap.get((Calendar)e.getOldValue()).remove(m);
+			//Add
+			if (!moveMap.containsKey((Calendar)e.getNewValue()))
+				moveMap.put((Calendar)e.getNewValue(), new HashSet<MeetingModel>());
+			
+			moveMap.get((Calendar)e.getNewValue()).add(m);
+			
 		}
 	}
 
