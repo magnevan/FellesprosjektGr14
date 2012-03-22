@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import server.ModelEnvelope;
 import client.gui.exceptions.BadLoginException;
 import client.model.ActiveUserModel;
+import client.model.InvitationModel;
 import client.model.MeetingModel;
 import client.model.NotificationModel;
 import client.model.TransferableModel;
@@ -33,7 +34,9 @@ import client.model.UserModel;
 public class ServerConnection extends AbstractConnection {
 	
 	// Stores listeners interested in server connection changes
-	private static final Set<IServerConnectionListener> serverConnectionListeners = new HashSet<IServerConnectionListener>();
+	private static final Set<IServerConnectionListener> serverConnectionListeners 
+							= Collections.synchronizedSet(new HashSet<IServerConnectionListener>());
+	
 	
 	private static Logger LOGGER = Logger.getLogger("ServerConnection");
 	private static ServerConnection instance = null;	
@@ -417,7 +420,29 @@ public class ServerConnection extends AbstractConnection {
 			writeLine(formatCommand(id, "DELETE", "MEETING "+meeting.getId()));			
 		} catch(IOException e) {
 			listeners.remove(id);
-			LOGGER.severe("IOException requestFilteredUserList");
+			LOGGER.severe("IOException deleteMeeting");
+			LOGGER.severe(e.toString());
+			return -1;
+		}
+		return id;
+	}
+	
+	/**
+	 * Delete a invitation
+	 * 
+	 * @param invitation
+	 * @return
+	 */
+	public int deleteInvitation(InvitationModel invitation) {
+		int id = ++nextRequestId;
+		
+		try {
+			writeLine(formatCommand(id, "DELETE", "INVITATION "+invitation.getUser().getUsername()+
+					" "+invitation.getMeeting().getId()));			
+			
+		} catch(IOException e) {
+			listeners.remove(id);
+			LOGGER.severe("IOException deleteInvitations");
 			LOGGER.severe(e.toString());
 			return -1;
 		}
@@ -447,7 +472,7 @@ public class ServerConnection extends AbstractConnection {
 	 * 
 	 * @param change
 	 */
-	private static void fireServerConnectionChange(String change) {
+	private static  void fireServerConnectionChange(String change) {
 		for (IServerConnectionListener listener : serverConnectionListeners)
 			listener.serverConnectionChange(change);
 	}	
@@ -462,6 +487,24 @@ public class ServerConnection extends AbstractConnection {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");		
+		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
+		
+		ServerConnection.instance().requestMeeting(new Listener(), 54);
 	}
+}
+
+
+class Listener implements IServerResponseListener {
+
+	@Override
+	public void onServerResponse(int requestId, Object data) {
+		MeetingModel mm = ((List<MeetingModel>) data).get(0);
+		System.out.println(mm.getName());
+		
+		System.out.println(mm.getInvitation(ClientMain.getActiveUser()));
+		try {
+			mm.getInvitation(ClientMain.getActiveUser()).delete();
+		} catch(IOException e) {}
+	}
+	
 }
