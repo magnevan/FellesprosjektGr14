@@ -1,9 +1,13 @@
 package client.model;
 
 import java.awt.Color;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.HashMap;
+
+import server.ModelEnvelope;
 
 /**
  * A model for the users in the calendar system
@@ -12,18 +16,23 @@ import java.io.IOException;
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  * @author Magne vikjord
  */
-public class UserModel extends TransferableModel {
+public class UserModel implements TransferableModel {
 	
 	protected String	username,
-						//password,
 						email,
 						fullName;
 	
 	private Color color;
 	
+	private CalendarModel calendar;
+	
+	protected final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	public static final String NAME_CHANGE = "name change";
+	
 	//These variables control which colors are given to new user calendars.
 	private static final Color[] availiableColors = new Color[]{
 		new Color(0xE78649),
+		new Color(0x5E72AC),
 		new Color(0x646BD0),
 		new Color(0x223AF8),
 		new Color(0x3C57FA),
@@ -55,15 +64,31 @@ public class UserModel extends TransferableModel {
 		this.email = email;
 		this.fullName = fullName;
 		this.color = UserModel.getNextColor();
+		this.calendar = new CalendarModel(this);
 	}
 	
 	/**
-	 * Empty constructor 
+	 * Create a user model from stream
 	 * 
-	 * Should only be used in combination with fromStream() otherwise the object
-	 * will be unusable
+	 * @param reader
+	 * @param modelBuff
 	 */
+
 	public UserModel() {this.color = UserModel.getNextColor();}
+
+	public UserModel(BufferedReader reader) throws IOException {
+		this(reader.readLine(), reader.readLine(), reader.readLine());
+	}
+	
+	@Override
+	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
+		
+	}
+	
+	public void copyFrom(TransferableModel model) {
+		// Cannot happen
+	}
+
 	
 	/**
 	 * Get username
@@ -79,8 +104,10 @@ public class UserModel extends TransferableModel {
 	 * Get unique ID
 	 */
 	@Override
-	protected Object getMID() {
-		return username;
+	public String getUMID() {
+		if(username == null)
+			return null;
+		return "user_"+username;
 	}
 
 	/**
@@ -100,6 +127,10 @@ public class UserModel extends TransferableModel {
 	public String getEmail() {
 		return email;
 	}
+	
+	public CalendarModel getCalendarModel() {
+		return this.calendar;
+	}
 
 	/**
 	 * 
@@ -110,29 +141,21 @@ public class UserModel extends TransferableModel {
 	}
 
 	/**
-	 * Dump the fields of the user model to a stream
+	 * Unused, UserModel contains no other models
+	 * @param envelope
 	 */
 	@Override
-	public void toStream(BufferedWriter os) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("UserModel\r\n");
+	public void addSubModels(ModelEnvelope envelope) {}
+
+	/**
+	 * Write the model to a StringBuffer
+	 */
+	@Override
+	public void toStringBuilder(StringBuilder sb) {
 		sb.append(getUsername() + "\r\n");
-		//sb.append(getPassword() + "\r\n");
 		sb.append(getEmail() + "\r\n");
 		sb.append(getFullName() + "\r\n");
 		
-		os.write(sb.toString());
-	}
-	
-	/**
-	 * Read the fields of the user model from a stream
-	 */
-	@Override
-	public void fromStream(BufferedReader in) throws IOException {
-		username = in.readLine();
-		email = in.readLine();
-		fullName = in.readLine();
 	}
 	
 	public Color getColor() {
@@ -143,5 +166,18 @@ public class UserModel extends TransferableModel {
 		Color c = availiableColors[nextColor];
 		nextColor = (nextColor + 1) % availiableColors.length;
 		return c;
+	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
+	
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		pcs.removePropertyChangeListener(listener);
+	}
+	
+	public void clearListeners() {
+		for (PropertyChangeListener listener : pcs.getPropertyChangeListeners())
+			pcs.removePropertyChangeListener(listener);
 	}
 }

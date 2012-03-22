@@ -1,25 +1,26 @@
 package client.model;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.HashMap;
 
-import server.DBConnection;
-import server.model.ServerUserModel;
+import server.ModelEnvelope;
 
 /**
  * Model representing a single invitation
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-public class InvitationModel extends TransferableModel {
+public class InvitationModel implements TransferableModel {
 
 	protected UserModel user;
 	protected MeetingModel meeting;
 	protected InvitationStatus status;
+	
+	private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+	public static final String STATUS_CHANGED = "status changed";
 	
 	/**
 	 * Create a new invitation
@@ -35,112 +36,151 @@ public class InvitationModel extends TransferableModel {
 	}
 	
 	/**
-	 * Create a new invitation with INVITED status
+	 * Create a new invitation with NOT_YET_SAVED status
 	 * @param user
 	 * @param meetingModel
 	 */
 	public InvitationModel(UserModel user, MeetingModel meetingModel) {
-		this(user, meetingModel, InvitationStatus.INVITED);
+		this(user, meetingModel, InvitationStatus.NOT_YET_SAVED);
 	}
-	
-	public InvitationModel() {}
 	
 	/**
-	 * Construct model from ResultSet
+	 * Construct a Invitation model based on a BufferedReader and a model buffer
 	 * 
-	 * @param rs
+	 * @param reader
+	 * @param modelBuff
 	 */
-	public InvitationModel(ResultSet rs) throws SQLException {
-		this.status = InvitationStatus.valueOf(rs.getString("status"));
+	public InvitationModel(BufferedReader reader) throws IOException {
+		
+		status = InvitationStatus.valueOf(reader.readLine());
+		meeting_umid = reader.readLine();
+		user_umid = reader.readLine();
 	}
 	
+	private String meeting_umid;
+	private String user_umid;
+	
+	/**
+	 * Load in sub models
+	 */
+	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
+		meeting = (MeetingModel) modelBuff.get(meeting_umid);
+		user = (UserModel) modelBuff.get(user_umid);
+	}
 
+	@Override
+	public void copyFrom(TransferableModel source) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	/**
 	 * Unique ID
 	 */
 	@Override
-	protected Object getMID() {
+	public String getUMID() {
 		if(getUser() != null && getUser().getUsername() != null && 
 				getMeeting() != null && getMeeting().getId() != -1) {
-			return getUser().getUsername() + "_" + getMeeting().getId();
+			return "invitation_"+getUser().getUsername() + "_" + getMeeting().getId();
 		}
 		return null;
 	}
 	
+	/**
+	 * @return User that was invited
+	 */
 	public UserModel getUser() {
 		return user;
 	}
-	public void setUser(UserModel user) {
-		this.user = user;
-	}
+	
+	/**
+	 * @return Meeting that user has been invited to
+	 */
 	public MeetingModel getMeeting() {
 		return meeting;
 	}
+	
+	/**
+	 * Set meeting
+	 * 
+	 * @param meeting
+	 */
 	public void setMeeting(MeetingModel meeting) {
 		this.meeting = meeting;
 	}
+	
+	/**
+	 * @return Current invitation status
+	 */
 	public InvitationStatus getStatus() {
 		return status;
 	}
+	
+	/**
+	 * Change current invitation status
+	 * @param status
+	 */
 	public void setStatus(InvitationStatus status) {
+		InvitationStatus oldval = this.status;
 		this.status = status;
+		changeSupport.firePropertyChange(STATUS_CHANGED, oldval, status);
 	}
 	
+	/**
+	 * Add property change listener
+	 * 
+	 * @param listener
+	 */
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		changeSupport.addPropertyChangeListener(listener);
+	}
+	
+	/**
+	 * Remove property change listener
+	 * 
+	 * @param listener
+	 */
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		changeSupport.removePropertyChangeListener(listener);
+	}
+	
+	/**
+	 * clear property change listeners
+	 */
+	public void clearPropertyChangeListeners() {
+		for (PropertyChangeListener listener : changeSupport.getPropertyChangeListeners())
+			changeSupport.removePropertyChangeListener(listener);
+	}
+	
+	/**
+	 * String representation of invitation
+	 */
 	public String toString() {
 		return getUser().getFullName() + " | " + status;
 	}
 	
 	/**
-	 * Read a invitation and its user object off stream
+	 * Part of the model envelope support, request that the model registers
+	 * all of its sub or dependant models
 	 */
 	@Override
-	public void fromStream(BufferedReader reader) throws IOException {
-		setStatus(InvitationStatus.valueOf(reader.readLine()));
-		reader.readLine(); // User header
-		user = new UserModel();
-		user.fromStream(reader);
+	public void addSubModels(ModelEnvelope envelope) {
+		envelope.addModel(getMeeting());
+		envelope.addModel(getUser());		
 	}
-	
+
 	/**
-	 * Dump the invitation to stream
+	 * Dump the model to a string buffer
 	 * 
-	 * A invitation will dump it's internal status, and the related user object,
-	 * but not the related meeting object. 
+	 * This dumps three lines, the status value aswell as the UMID for the
+	 * related meeting and user models for later reassembly
+	 *  
 	 */
 	@Override
-	public void toStream(BufferedWriter writer) throws IOException {
-		writer.write("InvitationModel\r\n");
-		writer.write(status.toString()+"\r\n");
-		user.toStream(writer);
-	}
-	
-	/**
-	 * Find all invitations registered for the given meeting
-	 * 
-	 * @param id
-	 * @param dbConnection
-	 * @return
-	 */
-	public static ArrayList<InvitationModel> findByMeeting(MeetingModel meeting,
-			DBConnection db) {
-		
-		ArrayList<InvitationModel> ret = new ArrayList<InvitationModel>();
-		try {
-			ResultSet rs = db.preformQuery(
-					"SELECT * FROM user_appointment as ua " +
-					"INNER JOIN user as u ON ua.username = u.username " +
-					"WHERE ua.appointment_id = "+meeting.getId()+";");
-			while (rs.next()) {
-				UserModel user = new ServerUserModel(rs);
-				InvitationModel invitation = new InvitationModel(rs);
-				invitation.setUser(user);
-				invitation.setMeeting(meeting);
-				ret.add(invitation);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return ret;
+	public void toStringBuilder(StringBuilder sb) {
+		sb.append(getStatus()+"\r\n");
+		sb.append(getMeeting().getUMID()+"\r\n");
+		sb.append(getUser().getUMID()+"\r\n");
 	}
 	
 }

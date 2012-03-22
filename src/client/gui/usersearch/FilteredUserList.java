@@ -1,16 +1,12 @@
 package client.gui.usersearch;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashSet;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -37,7 +33,6 @@ import client.model.UserModel;
  * String[][] = list.getSelectedUsers();
  * </code>
  * 
- * @TODO The model should deal in User object and not String[]
  * @TODO General code cleanup
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
@@ -56,7 +51,7 @@ public class FilteredUserList extends JPanel
 	// Internal and external model
 	private UserListModel userListModel;
 	private IFilteredUserListModel model;
-	
+		
 	/**
 	 * Create a new list of user object with a search box for live search
 	 *  
@@ -131,7 +126,6 @@ public class FilteredUserList extends JPanel
 	/**
 	 * Table model providing data for the internal JTable 
 	 */
-	@SuppressWarnings("serial")
 	class UserListModel extends AbstractTableModel {
 
 		/**

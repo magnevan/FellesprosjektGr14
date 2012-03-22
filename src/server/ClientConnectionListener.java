@@ -7,14 +7,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import server.model.ServerActiveUserModel;
 import server.model.ServerUserModel;
+import client.model.TransferableModel;
 
 /**
  * ClientConnectionListener
@@ -69,7 +69,7 @@ public class ClientConnectionListener {
 	 * 
 	 * @param user
 	 */
-	public void removeClient(ServerUserModel user) {
+	public void removeClient(ServerActiveUserModel user) {
 		if(clients.containsKey(user.getUsername())) {
 			clients.remove(user.getUsername());
 			LOGGER.info(String.format("%s is gone", user));
@@ -125,7 +125,11 @@ public class ClientConnectionListener {
 					writer.flush();
 					
 					// Store and start separate handler thread
-					ClientConnection cc = new ClientConnection(s, reader, writer, user, this);
+					ClientConnection cc = new ClientConnection(
+							s, reader, writer, 
+							new ServerActiveUserModel(user), this
+					);
+					
 					clients.put(user.getUsername(), cc);
 					LOGGER.info(String.format("Client from %s authenticated as %s", s.getInetAddress().toString(), username));
 					LOGGER.info(String.format("%d client(s) in total", clients.size()));
@@ -147,6 +151,21 @@ public class ClientConnectionListener {
 			}
 		}
 		
+	}
+
+	/**
+	 * Broadcast a model that has either been created or updated to the 
+	 * specified user
+	 * 
+	 * @param model
+	 * @param username
+	 */
+	public void broadcastModel(TransferableModel model,	
+			String username) throws IOException {
+		
+		if(clients.containsKey(username)) {
+			clients.get(username).broadcastModel(model);
+		}
 	}
 	
 }

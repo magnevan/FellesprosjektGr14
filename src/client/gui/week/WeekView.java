@@ -14,11 +14,17 @@ import java.util.Calendar;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
+
+import client.gui.avtale.AppointmentPanel;
+import client.model.MeetingModel;
+import client.model.UserModel;
 
 
 /**
@@ -37,14 +43,15 @@ public class WeekView extends JPanel {
 	
 	
 	private final Calendar date;
-	private final JScrollPane weekScroll;
+	private final JScrollPane weekScroll, scrollTest;
 	private final JLabel weekLabel;
 	private final JButton prevWeekButton, todayButton, nextWeekButton;
+	private JLayeredPane AppointmentLayer;
 	private PropertyChangeSupport pcs;
 	
 	
 	public WeekView() {
-		
+
 		date = Calendar.getInstance(); //Sets the default week to view as the current week
 		
 		this.setLayout(new BorderLayout());
@@ -65,26 +72,48 @@ public class WeekView extends JPanel {
 		
 		northPanel.add(weekLabel, BorderLayout.CENTER);
 		northPanel.add(buttonPanel, BorderLayout.EAST);
+		JPanel testPanel = createDayPanel(date);
+		JPanel dayPanelWithPadding = new JPanel(); //Because of the field on the left side that contains the times, e.g. "13:00", we need some extra padding.
+		dayPanelWithPadding.add(Box.createHorizontalStrut(12));
+		dayPanelWithPadding.add(testPanel);
+		northPanel.add(dayPanelWithPadding, BorderLayout.SOUTH);
 		
 		//Center
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		
-		JPanel dayPanel = createDayPanel(date);
-		JPanel dayPanelWithPadding = new JPanel(); //Because of the field on the left side that contains the times, e.g. "13:00", we need some extra padding.
-		dayPanelWithPadding.add(Box.createHorizontalStrut(12));
-		dayPanelWithPadding.add(dayPanel);
+//		JPanel dayPanel = createDayPanel(date);
+//		JPanel dayPanelWithPadding = new JPanel(); //Because of the field on the left side that contains the times, e.g. "13:00", we need some extra padding.
+//		dayPanelWithPadding.add(Box.createHorizontalStrut(12));
+//		dayPanelWithPadding.add(dayPanel);
 		JPanel wvi = createWeekViewInternal();
 		
-		centerPanel.add(dayPanelWithPadding, BorderLayout.NORTH);
+		//centerPanel.add(dayPanelWithPadding, BorderLayout.NORTH);
 		centerPanel.add(wvi, BorderLayout.CENTER);
 		
 		weekScroll = new JScrollPane(wvi);
 		weekScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		weekScroll.setPreferredSize(new Dimension(HOURWIDTH*7 + 55,HOURHEIGHT*SHOWHOURS));
-		centerPanel.add(weekScroll);
+		//centerPanel.add(weekScroll);
+		
+		
+		centerPanel.add(wvi);
+	
 		
 		this.add(northPanel, BorderLayout.NORTH);
-		this.add(centerPanel, BorderLayout.CENTER);
+
+		
+		//Legger CenterPanel i et JLayeredPane så jeg kan plasser avtaler over CenterPanel
+		AppointmentLayer = new JLayeredPane();
+		AppointmentLayer.setPreferredSize(new Dimension(HOURWIDTH*7+30,HOURHEIGHT*24));
+		//Legger til centerpanel på 1.layer
+		AppointmentLayer.add(centerPanel, 1, 0);
+		centerPanel.setBounds(0,0,HOURWIDTH*7+50,HOURHEIGHT*25);
+		
+		scrollTest = new JScrollPane(AppointmentLayer);
+		scrollTest.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollTest.setPreferredSize(new Dimension(HOURWIDTH*7 + 50,HOURHEIGHT*SHOWHOURS));
+		this.add(scrollTest, BorderLayout.CENTER);
+		
 		
 		pcs = new PropertyChangeSupport(this);
 	}
@@ -103,7 +132,7 @@ public class WeekView extends JPanel {
 		if (hour > (23-SHOWHOURS/2)) hour = (23-SHOWHOURS/2);
 		hour -= SHOWHOURS/2;
 		
-		System.out.println(hour);
+		//System.out.println(hour);
 		
 //		It seems like getMaximum returns only half of the maximum. Dividing by two to compensate
 		vs.setValue(
@@ -224,4 +253,49 @@ public class WeekView extends JPanel {
 		@Override
 		public void mouseReleased(MouseEvent arg0) {}
 	}
+	
+	private void addAppointment(MeetingModel MM) {
+		AppointmentPanel avtale = new AppointmentPanel(MM);
+		//Legger til en avtale på 2.layer
+		AppointmentLayer.add(avtale,2, 0);
+		avtale.setOpaque(true);
+		avtale.setBounds(avtale.getX(), avtale.getY(), avtale.getWidth(),avtale.getLength());
+		
+		
+	}
+	
+//	public static void main (String args[]) { 
+//        JFrame frame = new JFrame("");
+//        Calendar from =  Calendar.getInstance();
+//        from.set(2012, 3, 21, 0, 0);
+//        Calendar to = Calendar.getInstance();
+//        to.set(2012, 3, 21, 14, 0);
+//        UserModel testPerson = new UserModel("Olano", "ola@hotmail.com", "Ola Nordmann");
+//        MeetingModel  MM = new MeetingModel(from, to, testPerson);
+//        MM.setName("Viktig avtale");
+//        MM.setLocation("spisesalen");
+//        MM.setActive(true);
+//        
+//        Calendar from2 =  Calendar.getInstance();
+//        from2.set(2012, 3, 23, 13, 0);
+//        Calendar to2 = Calendar.getInstance();
+//        to2.set(2012, 3, 23, 14, 0);
+//        UserModel testPerson2 = new UserModel("Hansern", "hans@hotmail.com", "Hans Hansen");
+//        MeetingModel  MM2 = new MeetingModel(from2, to2, testPerson2);
+//        MM2.setName("Verksted");
+//        MM2.setLocation("Fjordgata 2");
+//        MM2.addAttendee(testPerson);
+//        MM2.setActive(true);
+//        
+//        
+//        
+//        WeekView WV = new WeekView();
+//        WV.setOpaque(true);
+//        WV.addAppointment(MM);
+//        WV.addAppointment(MM2);
+//        frame.getContentPane().add(WV); 
+//        frame.pack();  
+//        frame.setVisible(true);   
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//    }
 }

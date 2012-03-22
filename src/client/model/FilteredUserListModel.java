@@ -1,6 +1,9 @@
 package client.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 import client.IServerResponseListener;
 import client.ServerConnection;
@@ -20,7 +23,9 @@ public class FilteredUserListModel
 	// Internal variables
 	private int lastRequestId;
 	private UserModel[] filtered;
-	private String lastFilter = null;
+	private String lastFilter = null;	
+	private HashSet<UserModel> userBlacklist;
+	private List<UserModel> serverList;
 	
 	/**
 	 * Setup a new FilteredUserListModel
@@ -28,6 +33,7 @@ public class FilteredUserListModel
 	 */
 	public FilteredUserListModel() {
 		filtered = new UserModel[0];
+		userBlacklist = new HashSet<UserModel>();
 	}
 
 	/**
@@ -52,7 +58,7 @@ public class FilteredUserListModel
 	 */
 	@Override
 	public void setFilter() {
-		setFilter(null);
+		setFilter("");
 	}
 
 	/**
@@ -61,6 +67,42 @@ public class FilteredUserListModel
 	@Override
 	public UserModel[] getUserList() {
 		return filtered;
+	}
+	
+	/**
+	 * Add a array of users to the blacklist
+	 * 
+	 * @param users
+	 */
+	public void addUsersToBlacklist(UserModel[] users) {
+		userBlacklist.addAll(Arrays.asList(users));
+		rebuildFilteredList();
+	}
+	
+	/**
+	 * Remove a array of users from the blacklist
+	 * 
+	 * @param users
+	 */
+	public void removeUsersFromBlacklist(UserModel[] users) {
+		userBlacklist.removeAll(Arrays.asList(users));
+		rebuildFilteredList();
+	}
+	
+	/**
+	 * Rebuild the filtered list
+	 * 
+	 */
+	private void rebuildFilteredList() {
+
+		UserModel[] old = filtered;
+		
+		HashSet<UserModel> tmp = new HashSet<UserModel>();
+		tmp.addAll(serverList);
+		tmp.removeAll(userBlacklist);
+		filtered = tmp.toArray(new UserModel[tmp.size()]);		
+		
+		fireUserListChangeEvent(old, filtered);
 	}
 
 	/**
@@ -72,13 +114,10 @@ public class FilteredUserListModel
 	@Override
 	public void onServerResponse(int requestId, Object data) {
 		// We're only interested in the newest responses, throw out old ones
-		if (lastRequestId == requestId) {
-			UserModel[] old = filtered;
+		if (lastRequestId == requestId) {			
+			serverList = (List<UserModel>)data;
 			
-			ArrayList<UserModel> response = (ArrayList<UserModel>)data;			
-			filtered = response.toArray(new UserModel[response.size()]);
-			
-			fireUserListChangeEvent(old, filtered);
+			rebuildFilteredList();
 		}
 	}
 

@@ -1,12 +1,14 @@
 package server.model;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import server.DBConnection;
-import client.model.InvitationModel;
-import client.model.MeetingModel;
+import client.model.TransferableModel;
 import client.model.UserModel;
 
 /**
@@ -16,7 +18,7 @@ import client.model.UserModel;
  * 
  * @author Peter Ringset
  */
-public class ServerUserModel extends UserModel implements IServerModel  {
+public class ServerUserModel extends UserModel  {
 	
 	/**
 	 * Create a new ServerUserModel
@@ -30,10 +32,13 @@ public class ServerUserModel extends UserModel implements IServerModel  {
 	}
 	
 	/**
-	 * Empty constructor
+	 * Build model from a reader
+	 * @param reader
+	 * @param modelBuff
+	 * @throws IOException
 	 */
-	public ServerUserModel() {
-		super();
+	public ServerUserModel(BufferedReader reader) throws IOException {
+		super(reader);
 	}
 	
 	/**
@@ -160,12 +165,5 @@ public class ServerUserModel extends UserModel implements IServerModel  {
 		}
 		return ret;
 	}
-
-	/**
-	 * Store user in database
-	 * 
-	 */
-	@Override
-	public void store() {}
 
 }

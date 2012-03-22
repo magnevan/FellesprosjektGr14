@@ -1,18 +1,24 @@
 package server.model;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 import server.DBConnection;
 import client.model.MeetingRoomModel;
+import client.model.TransferableModel;
 
-public class ServerMeetingRoomModel extends MeetingRoomModel implements IServerModel {
+/**
+ * Server side version of the MeetingRoomModel
+ * 
+ * @author Runar B. Olsen <runar.b.olsen@gmail.com>
+ */
+public class ServerMeetingRoomModel extends MeetingRoomModel {
 
-	public ServerMeetingRoomModel() {
-		super();
-	}
 	
 	/**
 	 * Construct a MeetingRoom model from a ResultSet
@@ -20,9 +26,19 @@ public class ServerMeetingRoomModel extends MeetingRoomModel implements IServerM
 	 * @param rs
 	 */
 	public ServerMeetingRoomModel(ResultSet rs) throws SQLException {
-		super(rs.getString("room_number"));
-		this.setName(rs.getString("name"));
-		this.setNoPlaces(rs.getInt("no_places"));
+		super(rs.getString("room_number"), rs.getString("name"), 
+				rs.getInt("no_places"));
+	}
+	
+	/**
+	 * Create model from stream
+	 * 
+	 * @param reader
+	 * @param modelBuff
+	 * @throws IOException
+	 */
+	public ServerMeetingRoomModel(BufferedReader reader) throws IOException {		
+		super(reader);
 	}
 	
 	/**
@@ -37,7 +53,7 @@ public class ServerMeetingRoomModel extends MeetingRoomModel implements IServerM
 			Calendar from, Calendar to, DBConnection db) {
 
 		if(from.after(to)) {
-			throw new IllegalArgumentException("From must be after to");
+			throw new IllegalArgumentException("From must not be after to");
 		}		
 		ArrayList<ServerMeetingRoomModel> ret = new ArrayList<ServerMeetingRoomModel>();
 		try {			
@@ -45,7 +61,7 @@ public class ServerMeetingRoomModel extends MeetingRoomModel implements IServerM
 					"SELECT * FROM meeting_room WHERE room_number NOT IN " +
 					"(SELECT DISTINCT meeting_room_number FROM appointment AS a " +
 					"INNER JOIN meeting_room_booking AS mrb ON mrb.appointment_id = a.id " +
-					"WHERE (a.start_date <= '"+getFormattedDate(to)+"' AND a.end_date >= '"+getFormattedDate(to)+"') " +
+					"WHERE (a.start_date <= '"+getFormattedDate(from)+"' AND a.end_date > '"+getFormattedDate(from)+"') " +
 					"OR (a.start_date >= '"+getFormattedDate(from)+"' AND a.start_date < '"+getFormattedDate(to)+"'));");
 			while (rs.next()) {
 				ret.add(new ServerMeetingRoomModel(rs));
@@ -55,13 +71,33 @@ public class ServerMeetingRoomModel extends MeetingRoomModel implements IServerM
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return null;
-		
-		/**
-		 * SELECT * FROM meeting_room WHERE room_number NOT IN (SELECT DISTINCT meeting_room_number FROM appointment AS a INNER JOIN meeting_room_booking AS mrb ON mrb.appointment_id = a.id WHERE (a.start_date <= '2012-03-19 15:00:00' AND a.end_date >= '2012-03-19 15:00:00') OR (a.start_date >= '2012-03-19 12:00:00' AND a.start_date < '2012-03-19 15:00:00'));
-		 */
-		
+		return null;		
 	}
+
+	/**
+	 * Find the room thats reserved for the given meeting, if any
+	 * 
+	 * @param id
+	 * @param db
+	 * @return
+	 */
+	public static ServerMeetingRoomModel findReservedRoom(int id, DBConnection db) {
+		try {
+			ResultSet rs = db.preformQuery(
+					"SELECT * FROM meeting_room AS mr " +
+					"LEFT JOIN meeting_room_booking AS mrb ON mr.room_number = mrb.meeting_room_number " +
+					"WHERE mrb.appointment_id = " + id + ";");
+			
+			if(rs.next()) {
+				return new ServerMeetingRoomModel(rs);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	
 
 	/**
@@ -77,11 +113,4 @@ public class ServerMeetingRoomModel extends MeetingRoomModel implements IServerM
 				c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND)				
 		);
 	}
-	
-	@Override
-	public void store() {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

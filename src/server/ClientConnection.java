@@ -7,11 +7,13 @@ import java.net.Socket;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.logging.Logger;
 
-import server.model.IServerModel;
-import server.model.ServerInvitationModel;
+import server.model.IDBStorableModel;
+import server.model.ServerActiveUserModel;
 import server.model.ServerMeetingModel;
 import server.model.ServerMeetingRoomModel;
 import server.model.ServerUserModel;
@@ -36,7 +38,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 	private static Logger LOGGER = Logger.getLogger("ClientConnection");	
 	
 	// Internal variables
-	private final ServerUserModel user;	
+	private final ServerActiveUserModel user;	
 	private final ClientConnectionListener handler;	
 	private boolean running = true;
 	
@@ -48,10 +50,46 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 	 * @param writer
 	 */
 	public ClientConnection(Socket s, BufferedReader reader, BufferedWriter writer, 
-			ServerUserModel user, ClientConnectionListener handler) {
+			ServerActiveUserModel user, ClientConnectionListener handler) {
 		super(s, writer, reader);
 		this.user = user;
 		this.handler = handler;
+	}
+	
+	/**
+	 * Broadcast a model that has been added or updated
+	 * 
+	 * @param model
+	 */
+	public void broadcastModel(TransferableModel model) throws IOException {
+		writeModels(Arrays.asList(model), 0, "BROADCAST");
+	}
+	
+	/**
+	 * Write a set of models to the client
+	 * @param models
+	 * @param id
+	 * @param method
+	 * @param smethod
+	 * @throws IOException
+	 */
+	private void writeModels(TransferableModel[] models, int id, String method)
+			throws IOException {
+		writeModels(Arrays.asList(models), id, method, "");
+	}
+	
+	/**
+	 * Write a set of models to the client
+	 * 
+	 * @param models
+	 * @param id
+	 * @param method
+	 * @param smethod
+	 * @throws IOException
+	 */
+	private void writeModels(TransferableModel[] models, int id, String method,
+			String smethod) throws IOException {
+		writeModels(Arrays.asList(models), id, method, smethod);
 	}
 	
 	/**
@@ -67,9 +105,9 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 		DBConnection db = ServerMain.dbConnection;
 		try {
 			
-			writeModels(new TransferableModel[]{user}, 0, "USER");
+			writeModels(Arrays.asList((TransferableModel) user), 0, "USER");
 			
-			// Read loop, read untill we've shutting down or we reach EOF
+			// Read loop, read until we're shutting down or we reach EOF
 			String line = null;
 			while(running && (line = reader.readLine()) != null) {
 				
@@ -96,7 +134,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 						ArrayList<ServerUserModel> matches = ServerUserModel.searchByUsernameAndEmail(
 								filter, filter, ServerMain.dbConnection);
 						writeModels((TransferableModel[]) matches.toArray(new TransferableModel[matches.size()]), 
-								id, method, smethod);
+								id, method, smethod);	
 						
 					} else if(smethod.equals("MEETING_LIST")) {
 						DateFormat df = DateFormat.getDateTimeInstance();
@@ -116,7 +154,8 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 						int mid = Integer.parseInt(parts[3]);
 						
 						ServerMeetingModel match = ServerMeetingModel.findById(mid, ServerMain.dbConnection);
-						writeModels(new TransferableModel[]{match},	id, method, smethod);	
+						writeModels(new TransferableModel[]{match},	id, method, smethod);
+						
 					} else if(smethod.equals("AVAILABLE_ROOMS")) {
 						DateFormat df = DateFormat.getDateTimeInstance();
 						Calendar from = Calendar.getInstance();
@@ -133,12 +172,16 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 				
 				} else if(method.equals("STORE")) {
 					// Store model
-					
-					// TODO Handle exceptions, send them back to client
-					
-					TransferableModel model = readModels().get(0);		
-					((IServerModel)model).store();					
-					writeModels(new TransferableModel[]{model}, id, method);
+					TransferableModel model = readModels().get(0);
+					if(!(model instanceof IDBStorableModel)) {
+						writeError("Model is not storable", id, method);
+					}
+					try {
+						((IDBStorableModel)model).store(db);
+					} catch(IOException e) {
+						writeError(e.getMessage(), id, method);
+					}
+					writeModels(new TransferableModel[]{model}, id, method, "OK");
 					
 				} else if(method.equals("LOGOUT")) {
 					writeLine(formatCommand(id, "LOGOUT"));
@@ -170,7 +213,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 		}
 		
 	}
-	
+
 	/**
 	 * Disconnect the client
 	 * 
@@ -186,21 +229,15 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 			// Ignore
 		}
 	}
-	
+
 	/**
-	 * Construct client side models for readModels()
+	 * Read a list of models off stream
+	 * 
 	 */
-	protected TransferableModel createModel(String name) {
-		if(name.equals("UserModel")) {
-			return new ServerUserModel();
-		} else if(name.equals("MeetingModel")) {
-			return new ServerMeetingModel();
-		} else if(name.equals("MeetingRoomModel")) {
-			return new ServerMeetingRoomModel();
-		} else if(name.equals("InvitationModel")) {
-			return new ServerInvitationModel();
-		}
-		return null;
+	@Override
+	protected List<TransferableModel> readModels() throws IOException {
+		ModelEnvelope envelope = new ModelEnvelope(reader, true);
+		return envelope.getModels();
 	}
 	
 }
