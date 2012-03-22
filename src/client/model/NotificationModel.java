@@ -2,7 +2,6 @@ package client.model;
 
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -10,7 +9,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import server.ModelEnvelope;
-import client.ModelCacher;
 
 /**
  * Model representing a Notification
@@ -281,7 +279,7 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 		sb.append(getId() + "\r\n");
 		sb.append(getType() + "\r\n");
 		sb.append(df.format(getTime().getTime()) + "\r\n");
-		sb.append(getGivenTo().getUMID());
+		sb.append(getGivenTo().getUMID()+"\r\n");
 		
 		if(getRegardsMeeting() != null) 
 			sb.append(getRegardsMeeting().getUMID());

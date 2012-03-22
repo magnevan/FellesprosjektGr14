@@ -106,7 +106,8 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 				st.executeUpdate(String.format(
 						"INSERT INTO appointment(title, start_date, end_date, description, owner, location)"
 						+" VALUES('%s', '%s', '%s', '%s', '%s', '%s')",						
-						getName(), getFormattedDate(getTimeFrom()), getFormattedDate(getTimeTo()),
+						getName(), DBConnection.getFormattedDate(getTimeFrom()), 
+						DBConnection.getFormattedDate(getTimeTo()),
 						getDescription(), getOwner().getUsername(), getLocation()),
 						Statement.RETURN_GENERATED_KEYS);
 				
@@ -122,13 +123,7 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 						"VALUES(%s, %d);", getRoom().getRoomNumber(), getId()
 					));
 				}				
-				st.close();
-				
-				// Invitations are only saved on updates 
-				// Save all invitations
-				//for(InvitationModel i : invitations)
-					//((ServerInvitationModel) i).store(db);
-				
+				st.close();				
 			} else {
 				// TODO Update, her må vi finne ut hva som er endret, sende notifications og eventuelt resette invitasjoner
 				System.err.println("Update is not implemented");
@@ -137,28 +132,38 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 				// Use old meeting as a reference
 				ServerMeetingModel old = ServerMeetingModel.findById(getId(), db);
 				
-				// Resend invitations if time or room has changed
-				boolean resetInv = !old.getTimeFrom().equals(getTimeFrom()) 
-						|| !old.getTimeTo().equals(getTimeTo()) 
-						|| !old.getLocation().equals(getLocation())
-						|| !old.getRoom().equals(getRoom());
-				
-				// Handle invitations, first remove any users that we're removed from a meeting
+				// Handle invitations, first remove any users that we've removed from a meeting
 				for(InvitationModel i : old.getInvitations()) {
 					if(getInvitation(i.getUser()) == null) {
 						((ServerInvitationModel)i).delete(db);						
 					}
 				}
 				
-				// Then store all invitations 
+				// Then add all new invitations
 				for(InvitationModel i : invitations) {
-					((ServerInvitationModel)i).store(db);
+					if(old.getInvitation(i.getUser()) == null) {
+						((ServerInvitationModel)i).store(db);
+					}
 				}
 				
 				// Update the actual meeting model
-				// TODO sql here
+				db.preformUpdate(String.format(
+						"UPDATE appointment SET title='%s', start_date='%s', end_date='%s', " +
+						"description='%s', owner='%s', location='%s' WHERE id=%d",			
+						getName(), DBConnection.getFormattedDate(getTimeFrom()), 
+						DBConnection.getFormattedDate(getTimeTo()),	getDescription(), 
+						getOwner().getUsername(), getLocation(), getId()));
 				
-				// Push changed to all connected users
+
+				// Reset invitations if needed
+				boolean resetInv = !old.getTimeFrom().equals(getTimeFrom()) 
+						|| !old.getTimeTo().equals(getTimeTo()) 
+						|| !old.getLocation().equals(getLocation())
+						|| ((old.getRoom() != null) && !old.getRoom().equals(getRoom()));
+				
+				if(resetInv) {
+					resetInvitations();
+				}
 				
 			}
 		} catch (SQLException e) {
@@ -167,18 +172,13 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 	}
 	
 	/**
-	 * Format a Calendar for MySQL's DATETIME field
+	 * Reset all invitaions sent for this meeting
 	 * 
-	 * @param c
-	 * @return
 	 */
-	private static String getFormattedDate(Calendar c) {
-		return String.format(
-				"%d-%d-%d %d:%d:%d", 
-				c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH),
-				c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND)				
-		);
+	private void resetInvitations() {
+		// Set all invitaions to INVITED, send a notification to every user
 	}
+	
 
 	/**
 	 * Search database for meetings concerning all the given users, within the
@@ -207,8 +207,8 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 			ResultSet rs = db.preformQuery(
 					"SELECT DISTINCT a.* FROM appointment as a " +
 					"LEFT JOIN user_appointment as ap ON a.id = ap.appointment_id " +
-					"WHERE start_date >= '"+getFormattedDate(startDate)+"' " +
-					"AND start_date < '"+getFormattedDate(endDate)+"'" +
+					"WHERE start_date >= '"+DBConnection.getFormattedDate(startDate)+"' " +
+					"AND start_date < '"+DBConnection.getFormattedDate(endDate)+"'" +
 					"AND (a.owner IN (" + userList + ") OR ap.username IN ("+userList+"))");
 			while (rs.next()) {
 				ret.add(new ServerMeetingModel(rs, db));

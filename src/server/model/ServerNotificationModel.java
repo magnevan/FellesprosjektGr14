@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Calendar;
 import java.util.HashMap;
 
 import server.DBConnection;
@@ -30,6 +29,18 @@ public class ServerNotificationModel extends NotificationModel implements IDBSto
 	}
 	
 	/**
+	 * Construct a new Notification
+	 * 
+	 * @param type
+	 * @param given_to
+	 * @param regards_meeting
+	 * @param regards_user
+	 */
+	public ServerNotificationModel(NotificationType type, UserModel given_to, MeetingModel regards_meeting, UserModel regards_user) {
+		super(type, given_to, regards_meeting, regards_user);
+	}
+	
+	/**
 	 * Construct NotificationModel from reader
 	 * 
 	 * @param reader
@@ -42,8 +53,9 @@ public class ServerNotificationModel extends NotificationModel implements IDBSto
 	}
 	
 	/**
-	 * Store notifications
+	 * Store notification
 	 * 
+	 * This will also broadcast the notification to the recipient if he's online
 	 */
 	@Override
 	public void store(DBConnection db) {
@@ -55,8 +67,8 @@ public class ServerNotificationModel extends NotificationModel implements IDBSto
 				st.executeUpdate(String.format("INSERT INTO notification(`type`, `time`, " +
 						"`given_to`, `read`, `regards_appointment`, `regards_user`) " +
 						"VALUES ('%s', '%s', '%s', %s, %s, %s)",
-						getType(), getFormattedDate(getTime()), getGivenTo().getUsername(),
-						(isRead() ? "TRUE" : "FALSE"), 
+						getType(), DBConnection.getFormattedDate(getTime()), 
+						getGivenTo().getUsername(),	(isRead() ? "TRUE" : "FALSE"), 
 						(getRegardsMeeting() != null ? getRegardsMeeting().getId() : "NULL"),
 						(getRegardsUser() != null ? "'"+getRegardsUser().getUsername()+"'" : "NULL")
 					), Statement.RETURN_GENERATED_KEYS);
@@ -77,20 +89,5 @@ public class ServerNotificationModel extends NotificationModel implements IDBSto
 		}
 		
 	}
-
-	/**
-	 * Format a Calendar for MySQL's DATETIME field
-	 * 
-	 * @param c
-	 * @return
-	 */
-	private static String getFormattedDate(Calendar c) {
-		return String.format(
-				"%d-%d-%d %d:%d:%d", 
-				c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH),
-				c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND)				
-		);
-	}
-
 
 }

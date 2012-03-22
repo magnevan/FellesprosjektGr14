@@ -1,6 +1,5 @@
 package client.model;
 
-import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ public class ActiveUserModel extends UserModel {
 	public final static String NOTIFICATIONS_PROPERTY = "notifications";
 	
 	protected ArrayList<NotificationModel> notifications;
-	protected PropertyChangeSupport changeSupport;
 	
 	/**
 	 * Create a new ActiveUserModel 
@@ -30,7 +28,6 @@ public class ActiveUserModel extends UserModel {
 	 */
 	public ActiveUserModel(String username, String email, String fullName) {
 		super(username, email, fullName);
-		changeSupport = new PropertyChangeSupport(this);
 		notifications = new ArrayList<NotificationModel>();
 	}
 	
@@ -58,7 +55,7 @@ public class ActiveUserModel extends UserModel {
 	 */
 	public void addNotification(NotificationModel notification) {
 		notifications.add(notification);
-		changeSupport.firePropertyChange(NOTIFICATIONS_PROPERTY, null, notification);		
+		pcs.firePropertyChange(NOTIFICATIONS_PROPERTY, null, notification);		
 	}
 
 	/**
