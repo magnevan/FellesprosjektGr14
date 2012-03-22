@@ -43,12 +43,9 @@ public class VarselPanel extends JPanel implements PropertyChangeListener {
 		pcs = new PropertyChangeSupport(this);
 		
 		// Top content, the person label
-		JPanel topPanel = new JPanel();
-		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
-		topPanel.setPreferredSize(new Dimension(310, 50));
 		PersonLabel personLabel = new PersonLabel();
-		topPanel.add(personLabel);
-		this.add(topPanel);
+		personLabel.setPreferredSize(new Dimension(310, 50));
+		this.add(personLabel);
 		
 		
 		// Center content, the notification list

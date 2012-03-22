@@ -33,7 +33,6 @@ import client.model.UserModel;
  * String[][] = list.getSelectedUsers();
  * </code>
  * 
- * @TODO The model should deal in User object and not String[]
  * @TODO General code cleanup
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>

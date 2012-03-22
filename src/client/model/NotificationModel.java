@@ -96,7 +96,7 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 	 * @throws IOException
 	 */
 	public NotificationModel(BufferedReader reader) throws IOException {
-		
+		this();
 		DateFormat df = DateFormat.getDateTimeInstance();
 		
 		id = Integer.parseInt(reader.readLine());

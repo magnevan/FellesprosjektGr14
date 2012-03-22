@@ -67,7 +67,6 @@ public class NotificationList extends JPanel {
 			if (notificationModel.isRead()) read.add(notificationModel);
 			else unread.add(notificationModel);
 		}
-		System.out.println("PROP.CH: NotificationList: " + unread.size());
 		pcs.firePropertyChange(NOTIFICATION_COUNT, null, new Integer(unread.size()));
 	}
 	
@@ -94,7 +93,6 @@ public class NotificationList extends JPanel {
 		}
 		listModel.add(0, newNotification);
 		unread.add(newNotification);
-		System.out.println("PROP.CH: NotificationList: " + unread.size());
 		pcs.firePropertyChange(NOTIFICATION_COUNT, null, new Integer(unread.size()));
 	}
 	
