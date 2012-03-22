@@ -77,7 +77,8 @@ public class ServerInvitationModel extends InvitationModel
 				
 				// Create a new notification
 				ServerNotificationModel notification = new ServerNotificationModel(
-						NotificationType.A_INVITATION, getUser(), getMeeting());
+						NotificationType.A_INVITATION, getUser(), getMeeting(), 
+						getMeeting().getOwner());
 				notification.store(db);
 				
 
