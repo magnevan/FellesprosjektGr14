@@ -13,7 +13,6 @@ public class MeetingModelRenderer extends DefaultListCellRenderer implements Lis
 	
 	JLabel label3, label2;
 	MeetingModel model;
-	//JTextArea area;
 	
 	public MeetingModelRenderer(){
 		label2 = new JLabel();

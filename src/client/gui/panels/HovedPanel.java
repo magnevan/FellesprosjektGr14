@@ -26,13 +26,11 @@ import client.model.UserModel;
 
 /**
  * Panel for the "Hoved" tab
- * @author Magne
+ * @author Magne og Susanne
  *
  */
 public class HovedPanel extends JPanel{
 	
-	//private final JLabel nameLabel;
-	//private final JButton logoutButton;
 	private final JList appointmentList;
 	private final JButton newAppointmentButton;
 	JLabel label = new JLabel();
@@ -42,13 +40,13 @@ public class HovedPanel extends JPanel{
 	
 	public HovedPanel() {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
-		
-		//Top
+		 
+		//Top panel
 		JPanel topPanel = new JPanel();
 		PersonLabel personLabel = new PersonLabel();
 		topPanel.add(personLabel);
 		
-		//Center
+		//Center panel
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		DefaultListModel test = new DefaultListModel();
 		
@@ -72,6 +70,7 @@ public class HovedPanel extends JPanel{
 		newAppointmentButton.setOpaque(true);
 		bottomPanel.add(newAppointmentButton);
 		
+		//Today date
 		JLabel label1 = new JLabel();
 		String lol = now();
 		label1.setText(lol);
