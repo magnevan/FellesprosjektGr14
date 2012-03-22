@@ -194,6 +194,10 @@ public class ServerConnection extends AbstractConnection {
 						continue;
 					} 
 					
+					if(method.equals("DELETE")) {
+						continue;
+					}
+					
 					List<TransferableModel> models = readModels();
 					
 					// Broadcasts come with a zero id
@@ -321,7 +325,7 @@ public class ServerConnection extends AbstractConnection {
 		try {
 			writeModels(Arrays.asList(model), id, "STORE");
 			
-			long time = System.currentTimeMillis();
+			//long time = System.currentTimeMillis();
 			
 			// Updated model will come in reader thread, halt untill it's there
 			while(!storedModels.containsKey(id) 
@@ -397,6 +401,26 @@ public class ServerConnection extends AbstractConnection {
 			return -1;
 		}
 		
+		return id;
+	}
+	
+	/**
+	 * Delete a meeting
+	 * 
+	 * @param meeting
+	 * @return
+	 */
+	public int deleteMeeting(MeetingModel meeting) {
+		int id = ++nextRequestId;
+		
+		try {
+			writeLine(formatCommand(id, "DELETE", "MEETING "+meeting.getId()));			
+		} catch(IOException e) {
+			listeners.remove(id);
+			LOGGER.severe("IOException requestFilteredUserList");
+			LOGGER.severe(e.toString());
+			return -1;
+		}
 		return id;
 	}
 	

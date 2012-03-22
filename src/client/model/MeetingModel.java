@@ -527,4 +527,14 @@ public class MeetingModel implements TransferableModel {
 		}
 	}
 	
+	/**
+	 * Delete meeting
+	 * 
+	 */
+	public void delete() throws IOException {
+		if(!ClientMain.client().getActiveUser().equals(getOwner()))
+			throw new IOException("User does not own meeting");
+		ServerConnection.instance().deleteMeeting(this);
+	}
+	
 }

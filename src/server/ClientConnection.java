@@ -186,6 +186,17 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 				} else if(method.equals("LOGOUT")) {
 					writeLine(formatCommand(id, "LOGOUT"));
 					disconnect();
+				
+				} else if(method.equals("DELETE") && parts.length == 4) {
+					String smethod = parts[2];
+					
+					// Delete meeting
+					if(smethod.equals("MEETING")) {
+						ServerMeetingModel.findById(
+								Integer.parseInt(parts[3]), ServerMain.dbConnection)
+								.delete(ServerMain.dbConnection);
+						writeLine(formatCommand(id, method, smethod+" OK"));
+					}
 				}
 				
 				else {

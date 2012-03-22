@@ -83,10 +83,10 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		this.add(tidPanel);
 		
 		//Moterom
-		this.add(new JLabel("Møterom"));
+		this.add(new JLabel("Mï¿½terom"));
 		JPanel moteromPanel = new JPanel();
 		moteromComboBox = new JComboBox();
-		moteromText = new JDefaultTextField("Skriv møteplass...", 15);
+		moteromText = new JDefaultTextField("Skriv mï¿½teplass...", 15);
 		moteromPanel.add(moteromComboBox);
 		moteromPanel.add(moteromText);
 		
@@ -234,7 +234,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		//Date+time
 		model.setTimeFrom(this.getFromTime());
 		model.setTimeTo(this.getToTime());
-		//Møteplass
+		//Mï¿½teplass
 		model.setRoom((MeetingRoomModel)moteromComboBox.getSelectedItem());
 		model.setLocation(moteromText.getText());
 		//Beskrivelse
@@ -252,7 +252,14 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	}
 	
 	private void deleteMeeting() {
-		throw new UnsupportedOperationException("Delete møte er ikke laget enda"); //TODO Hva skal denne gjøre dersom møtet enda ikke er lagret?
+		if(model.getId() != -1) {
+			try {
+				model.delete();
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		//throw new UnsupportedOperationException("Delete mï¿½te er ikke laget enda"); //TODO Hva skal denne gjï¿½re dersom mï¿½tet enda ikke er lagret?
 	}
 	
 	private void addEmployee() {
@@ -287,7 +294,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 			
 			moteromComboBox.removeAllItems();
 			
-			moteromComboBox.addItem(null); //Et blankt valg om man ønsker å heller sette lokasjon som tekst
+			moteromComboBox.addItem(null); //Et blankt valg om man ï¿½nsker ï¿½ heller sette lokasjon som tekst
 			for (MeetingRoomModel room : rooms)
 				moteromComboBox.addItem(room);
 			
