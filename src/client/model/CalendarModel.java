@@ -12,6 +12,7 @@ public class CalendarModel {
 	
 	private PropertyChangeSupport pcs;
 
+	//These essentially hold a buffer of meetings
 	protected final Set<MeetingModel> 		meetings;
 	protected final TreeSet<MeetingModel> 	meetingsFrom,
 											meetingsTo;
@@ -19,7 +20,7 @@ public class CalendarModel {
 	public final static String	MEETING_ADDED = "MEETING_ADDED";
 	public final static String  MEETING_REMOVED = "MEETING REMOVE";
 	
-	public final UserModel owner;
+	private final UserModel owner;
 	
 	public CalendarModel(UserModel owner) {
 		
@@ -30,9 +31,17 @@ public class CalendarModel {
 		meetingsTo = new TreeSet<MeetingModel>();
 		
 		pcs = new PropertyChangeSupport(this);
+		
+		//Requests a chuck of meetings from the server
+		Calendar 	from = Calendar.getInstance(),
+					to   = Calendar.getInstance();
+		
+		from.roll(Calendar.MONTH, -1);
+		to  .roll(Calendar.MONTH,  1);
+		from.set(Calendar.DAY_OF_MONTH, 1);
 	}
 	
-	public CalendarModel add(MeetingModel meeting) {
+	private CalendarModel add(MeetingModel meeting) {
 		
 		meetings.add(meeting);
 		meetingsFrom.add(meeting);
@@ -43,7 +52,7 @@ public class CalendarModel {
 		return this;
 	}
 	
-	public CalendarModel addAll(Collection<MeetingModel> c) {
+	private CalendarModel addAll(Collection<MeetingModel> c) {
 		meetings.addAll(c);
 		meetingsFrom.addAll(c);
 		meetingsTo.addAll(c);
@@ -54,7 +63,7 @@ public class CalendarModel {
 		return this;
 	}
 	
-	public CalendarModel remove(MeetingModel meeting) {
+	private CalendarModel remove(MeetingModel meeting) {
 		
 		meetings.remove(meeting);
 		meetingsFrom.remove(meeting);
@@ -65,7 +74,7 @@ public class CalendarModel {
 		return this;
 	}
 	
-	public CalendarModel removeAll(Collection<MeetingModel> c) {
+	private CalendarModel removeAll(Collection<MeetingModel> c) {
 		meetings.removeAll(c);
 		meetingsFrom.removeAll(c);
 		meetingsTo.removeAll(c);
@@ -78,6 +87,25 @@ public class CalendarModel {
 	
 	public boolean contains(MeetingModel meeting) {
 		return meetings.contains(meeting);
+	}
+	
+	public Set<MeetingModel> getMeetingsInWeek(Calendar date) {
+		Calendar fromTime = (Calendar)date.clone(),
+				   toTime = (Calendar)date.clone();
+		
+		fromTime.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+		toTime.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+		
+		fromTime.set(Calendar.HOUR_OF_DAY, 0);
+		fromTime.set(Calendar.MINUTE, 0);
+		fromTime.set(Calendar.SECOND, 0);
+		
+		fromTime.set(Calendar.HOUR_OF_DAY, 23);
+		fromTime.set(Calendar.MINUTE, 59);
+		fromTime.set(Calendar.SECOND, 59);
+		
+		
+		return getMeetingInterval(fromTime, toTime,true);
 	}
 	
 	/**
