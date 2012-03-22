@@ -264,38 +264,38 @@ public class WeekView extends JPanel {
 		
 	}
 	
-	public static void main (String args[]) { 
-        JFrame frame = new JFrame("");
-        Calendar from =  Calendar.getInstance();
-        from.set(2012, 3, 21, 0, 0);
-        Calendar to = Calendar.getInstance();
-        to.set(2012, 3, 21, 14, 0);
-        UserModel testPerson = new UserModel("Olano", "ola@hotmail.com", "Ola Nordmann");
-        MeetingModel  MM = new MeetingModel(from, to, testPerson);
-        MM.setName("Viktig avtale");
-        MM.setLocation("spisesalen");
-        MM.setActive(true);
-        
-        Calendar from2 =  Calendar.getInstance();
-        from2.set(2012, 3, 23, 13, 0);
-        Calendar to2 = Calendar.getInstance();
-        to2.set(2012, 3, 23, 14, 0);
-        UserModel testPerson2 = new UserModel("Hansern", "hans@hotmail.com", "Hans Hansen");
-        MeetingModel  MM2 = new MeetingModel(from2, to2, testPerson2);
-        MM2.setName("Verksted");
-        MM2.setLocation("Fjordgata 2");
-        MM2.addAttendee(testPerson);
-        MM2.setActive(true);
-        
-        
-        
-        WeekView WV = new WeekView();
-        WV.setOpaque(true);
-        WV.addAppointment(MM);
-        WV.addAppointment(MM2);
-        frame.getContentPane().add(WV); 
-        frame.pack();  
-        frame.setVisible(true);   
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    }
+//	public static void main (String args[]) { 
+//        JFrame frame = new JFrame("");
+//        Calendar from =  Calendar.getInstance();
+//        from.set(2012, 3, 21, 0, 0);
+//        Calendar to = Calendar.getInstance();
+//        to.set(2012, 3, 21, 14, 0);
+//        UserModel testPerson = new UserModel("Olano", "ola@hotmail.com", "Ola Nordmann");
+//        MeetingModel  MM = new MeetingModel(from, to, testPerson);
+//        MM.setName("Viktig avtale");
+//        MM.setLocation("spisesalen");
+//        MM.setActive(true);
+//        
+//        Calendar from2 =  Calendar.getInstance();
+//        from2.set(2012, 3, 23, 13, 0);
+//        Calendar to2 = Calendar.getInstance();
+//        to2.set(2012, 3, 23, 14, 0);
+//        UserModel testPerson2 = new UserModel("Hansern", "hans@hotmail.com", "Hans Hansen");
+//        MeetingModel  MM2 = new MeetingModel(from2, to2, testPerson2);
+//        MM2.setName("Verksted");
+//        MM2.setLocation("Fjordgata 2");
+//        MM2.addAttendee(testPerson);
+//        MM2.setActive(true);
+//        
+//        
+//        
+//        WeekView WV = new WeekView();
+//        WV.setOpaque(true);
+//        WV.addAppointment(MM);
+//        WV.addAppointment(MM2);
+//        frame.getContentPane().add(WV); 
+//        frame.pack();  
+//        frame.setVisible(true);   
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//    }
 }
