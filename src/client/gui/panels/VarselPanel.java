@@ -12,7 +12,9 @@ import javax.swing.*;
 import client.ClientMain;
 import client.gui.VerticalLayout;
 import client.model.ActiveUserModel;
+import client.model.MeetingModel;
 import client.model.NotificationModel;
+import client.model.NotificationType;
 
 /**
  * The panel for displaying and handling notifications
@@ -71,7 +73,6 @@ public class VarselPanel extends JPanel implements PropertyChangeListener {
 		bottomPanel.add(newAppointmentButton);
 		this.add(bottomPanel);
 		
-		initializeList(ClientMain.client().getActiveUser().getNotifications());
 		ClientMain.client().getActiveUser().addPropertyChangeListener(this);
 	}
 	
@@ -105,69 +106,17 @@ public class VarselPanel extends JPanel implements PropertyChangeListener {
 			receiveNotification((NotificationModel)evt.getNewValue());
 		} else if (evt.getPropertyName() == NotificationList.NOTIFICATION_COUNT) {
 			pcs.firePropertyChange(evt);
+		} else if (evt.getPropertyName() == NotificationList.NOTIFICATION_CLICKED) {
+			NotificationModel notification = (NotificationModel) evt.getNewValue();
+			if (!notification.isRead()) {
+				notification.setRead(true);
+				if (notification.getType() != NotificationType.A_CANCELED) {
+					MeetingModel meetingModel = notification.getRegardsMeeting();
+					// TODO: fire a property change message to notify MainPanel to open the appointment
+				} else {
+					notification.setRead(true);
+				}
+			}
 		}
 	}
-	
-//	public static void main(String[] args) {		
-//		JFrame frame = new JFrame("Varsel testing");
-//		
-//		VarselPanel panel = new VarselPanel();
-//		
-//		UserModel peter = new UserModel("peter", "peter@example.com", "Peter Ringset");
-//		UserModel magne = new UserModel("magne", "magne@example.com", "Magne Magnesen");
-//		
-//		Calendar kl11 = Calendar.getInstance();
-//		kl11.set(Calendar.HOUR_OF_DAY, 11);
-//		kl11.set(Calendar.MINUTE, 0);
-//		Calendar kl10 = Calendar.getInstance();
-//		kl10.set(Calendar.HOUR_OF_DAY, 10);
-//		kl10.set(Calendar.MINUTE, 0);
-//		Calendar kl9 = Calendar.getInstance();
-//		kl9.set(Calendar.HOUR_OF_DAY, 9);
-//		kl9.set(Calendar.MINUTE, 0);
-//		Calendar kl8 = Calendar.getInstance();
-//		kl8.set(Calendar.HOUR_OF_DAY, 8);
-//		kl8.set(Calendar.MINUTE, 0);
-//		
-//		MeetingModel m1 = new MeetingModel(kl8, kl11, magne);
-//		m1.setName("Tidlig lunsj");
-//		NotificationModel n1 = new NotificationModel(NotificationType.A_CANCELED, // type
-//				peter, // given to
-//				m1, // regards meeting
-//				magne, // regards user
-//				kl9, // time
-//				true); // read
-//		NotificationModel n2 = new NotificationModel(NotificationType.A_EDITED, // type
-//				peter, // given to
-//				m1, // regards meeting
-//				magne, // regards user
-//				kl8, // time
-//				false); // read
-//		NotificationModel n3 = new NotificationModel(NotificationType.A_INVITATION, // type
-//				peter, // given to
-//				m1, // regards meeting
-//				magne, // regards user
-//				kl10, // time
-//				false); // read
-//		NotificationModel n4 = new NotificationModel(NotificationType.A_USER_DENIED, // type
-//				peter, // given to
-//				m1, // regards meeting
-//				magne, // regards user
-//				kl11, // time
-//				false); // read
-//		
-//		ArrayList<NotificationModel> existing = new ArrayList<NotificationModel>();
-//		existing.add(n1);
-//		existing.add(n2);
-//
-//		panel.initializeList(existing);
-//		
-//		frame.add(panel);
-//		frame.pack();
-//		frame.setVisible(true);
-//		
-//		panel.receiveNotification(n3);
-//		panel.receiveNotification(n4);
-//		
-//	}
 }

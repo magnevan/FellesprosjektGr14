@@ -36,6 +36,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		HovedPanel hp = new HovedPanel();
 		VarselPanel vp = new VarselPanel();
 		vp.addPropertyChangeListener(this);
+
 		AndrePanel akp = new AndrePanel();
 		
 		optionTabbedPane.addTab("Hoved", hp); //TODO
@@ -51,6 +52,9 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		
 		this.add(optionTabbedPane,BorderLayout.CENTER);
 		this.add(calendarTabbedPane, BorderLayout.EAST);
+
+		// Initialize notifications
+		vp.initializeList(ClientMain.client().getActiveUser().getNotifications());
 		
 		//Listeners
 		ActionListener listener = new NewAppointmentListener();
@@ -67,6 +71,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		optionTabbedPane.setSelectedComponent(newAppointmentPane);
 	}
 	
+	
 	class NewAppointmentListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -75,10 +80,9 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 	}
 
 	@Override
-	public void propertyChange(PropertyChangeEvent pce) {
-		if (pce.getPropertyName() == NotificationList.NOTIFICATION_COUNT) {
-			optionTabbedPane.setTitleAt(2, "Varsel (" + ((Integer)pce.getNewValue()) + ")");
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt.getPropertyName() == NotificationList.NOTIFICATION_COUNT) {
+			optionTabbedPane.setTitleAt(2, "Varsel (" + ((Integer)evt.getNewValue()) + ")");
 		}
-	}
-	
+	}	
 }
