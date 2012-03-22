@@ -5,10 +5,14 @@ import java.beans.PropertyChangeSupport;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class CalendarModel {
+import client.IServerResponseListener;
+import client.ServerConnection;
+
+public class CalendarModel implements IServerResponseListener{
 	
 	private PropertyChangeSupport pcs;
 
@@ -22,13 +26,15 @@ public class CalendarModel {
 	
 	private final UserModel owner;
 	
+	private int meetingsReq;
+	
 	public CalendarModel(UserModel owner) {
 		
 		this.owner = owner;
 		
 		meetings = new HashSet<MeetingModel>();
-		meetingsFrom = new TreeSet<MeetingModel>();
-		meetingsTo = new TreeSet<MeetingModel>();
+		meetingsFrom = new TreeSet<MeetingModel>(MeetingModel.timeFromComparator);
+		meetingsTo = new TreeSet<MeetingModel>(MeetingModel.timeToComparator);
 		
 		pcs = new PropertyChangeSupport(this);
 		
@@ -39,9 +45,13 @@ public class CalendarModel {
 		from.roll(Calendar.MONTH, -1);
 		to  .roll(Calendar.MONTH,  1);
 		from.set(Calendar.DAY_OF_MONTH, 1);
+		to.set(Calendar.DAY_OF_MONTH, to.getActualMaximum(Calendar.DAY_OF_MONTH));
+		
+		meetingsReq = ServerConnection.instance().requestMeetings(this, new UserModel[]{owner}, from, to);
 	}
 	
 	private CalendarModel add(MeetingModel meeting) {
+		if (meetings.contains(meeting)) return this;
 		
 		meetings.add(meeting);
 		meetingsFrom.add(meeting);
@@ -53,17 +63,14 @@ public class CalendarModel {
 	}
 	
 	private CalendarModel addAll(Collection<MeetingModel> c) {
-		meetings.addAll(c);
-		meetingsFrom.addAll(c);
-		meetingsTo.addAll(c);
-		
 		for (MeetingModel mm : c)
-			pcs.firePropertyChange(MEETING_ADDED, null, mm);
+			add(mm);
 		
 		return this;
 	}
 	
 	private CalendarModel remove(MeetingModel meeting) {
+		if (meetings.contains(meeting)) return this;
 		
 		meetings.remove(meeting);
 		meetingsFrom.remove(meeting);
@@ -75,12 +82,8 @@ public class CalendarModel {
 	}
 	
 	private CalendarModel removeAll(Collection<MeetingModel> c) {
-		meetings.removeAll(c);
-		meetingsFrom.removeAll(c);
-		meetingsTo.removeAll(c);
-		
 		for (MeetingModel mm : c)
-			pcs.firePropertyChange(MEETING_REMOVED, null, mm);
+			remove(mm);
 		
 		return this;
 	}
@@ -89,6 +92,11 @@ public class CalendarModel {
 		return meetings.contains(meeting);
 	}
 	
+	/**
+	 * Returns meetings within a week, from Monday 00:00:00 to Sunday 23:59:59
+	 * @param date a date within the week you wish to get meetings from
+	 * @return
+	 */
 	public Set<MeetingModel> getMeetingsInWeek(Calendar date) {
 		Calendar fromTime = (Calendar)date.clone(),
 				   toTime = (Calendar)date.clone();
@@ -127,7 +135,11 @@ public class CalendarModel {
 		Set<MeetingModel> returnSet;
 		
 		//TODO Uses a sort blank MeetingModel for the comparison. Non-elegant solution but couldn't find anything better
-		Set<MeetingModel> fromSet = meetingsFrom.subSet(new MeetingModel(fromTime, toTime, null), true, new MeetingModel(fromTime, toTime, null), true);
+		Set<MeetingModel> fromSet = meetingsFrom.subSet(
+					new MeetingModel(fromTime, toTime, null), true,
+					new MeetingModel(fromTime, toTime, null), true
+				);
+		
 		Set<MeetingModel> toSet = meetingsTo.subSet(new MeetingModel(fromTime, toTime, null), true, new MeetingModel(fromTime, toTime, null), true);
 		
 		
@@ -157,6 +169,14 @@ public class CalendarModel {
 	
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		pcs.removePropertyChangeListener(listener);
+	}
+
+	@Override
+	public void onServerResponse(int requestId, Object data) {
+		if (requestId == meetingsReq) {
+			List<MeetingModel> models = (List<MeetingModel>) data;
+			
+		}
 	}
 	
 }

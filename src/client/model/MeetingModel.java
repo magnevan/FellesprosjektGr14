@@ -490,7 +490,8 @@ public class MeetingModel implements TransferableModel {
 		for (PropertyChangeListener listener : changeSupport.getPropertyChangeListeners())
 			changeSupport.removePropertyChangeListener(listener);
 	}
-		
+	
+	
 	/**
 	 * Store the meeting object on server
 	 * 
