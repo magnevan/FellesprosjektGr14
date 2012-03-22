@@ -26,7 +26,7 @@ public class UserModel implements TransferableModel {
 	
 	private CalendarModel calendar;
 	
-	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	protected final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	public static final String NAME_CHANGE = "name change";
 	
 	//These variables control which colors are given to new user calendars.
@@ -78,6 +78,9 @@ public class UserModel implements TransferableModel {
 		this(reader.readLine(), reader.readLine(), reader.readLine());
 	}
 	
+	public void copyFrom(TransferableModel model) {
+		// Cannot happen
+	}
 	
 	/**
 	 * Get username

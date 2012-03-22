@@ -57,6 +57,12 @@ public class InvitationModel implements TransferableModel {
 		meeting = (MeetingModel) modelBuff.get(reader.readLine());
 		user = (UserModel) modelBuff.get(reader.readLine());
 	}
+
+	@Override
+	public void copyFrom(TransferableModel source) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	/**
 	 * Unique ID

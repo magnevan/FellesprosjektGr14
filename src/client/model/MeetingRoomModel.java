@@ -50,6 +50,13 @@ public class MeetingRoomModel implements TransferableModel {
 				Integer.parseInt(reader.readLine()));
 	}
 
+
+	@Override
+	public void copyFrom(TransferableModel source) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	/**
 	 * Get unique model ID
 	 */
@@ -133,4 +140,5 @@ public class MeetingRoomModel implements TransferableModel {
 	public String toString() {
 		return this.name;
 	}
+
 }

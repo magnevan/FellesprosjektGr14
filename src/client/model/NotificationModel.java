@@ -2,7 +2,6 @@ package client.model;
 
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -10,7 +9,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 import server.ModelEnvelope;
-import client.ModelCacher;
 
 /**
  * Model representing a Notification
@@ -28,11 +26,11 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 	public final static String READ_PROPERTY = "read";
 	
 	protected int id = -1;
-	private MeetingModel regards_meeting;
-	private NotificationType type;
-	private Calendar time;
-	private UserModel given_to, regards_user;
-	private boolean read;
+	protected MeetingModel regards_meeting;
+	protected NotificationType type;
+	protected Calendar time;
+	protected UserModel given_to, regards_user;
+	protected boolean read;
 	
 	private PropertyChangeSupport changeSupport;
 	
@@ -118,6 +116,11 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 			regards_meeting = (MeetingModel) modelBuff.get(l);
 		if(!(l = reader.readLine()).equals(""))
 			regards_user = (UserModel) modelBuff.get(l);		
+	}
+	
+	
+	public void copyFrom(TransferableModel model) {
+		setRead(((NotificationModel)model).isRead());
 	}
 	
 	
@@ -281,7 +284,7 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 		sb.append(getId() + "\r\n");
 		sb.append(getType() + "\r\n");
 		sb.append(df.format(getTime().getTime()) + "\r\n");
-		sb.append(getGivenTo().getUMID());
+		sb.append(getGivenTo().getUMID()+"\r\n");
 		
 		if(getRegardsMeeting() != null) 
 			sb.append(getRegardsMeeting().getUMID());
