@@ -64,7 +64,7 @@ public class ServerNotificationModel extends NotificationModel
 	public ServerNotificationModel(ResultSet rs, DBConnection db) throws SQLException {
 		id = rs.getInt("id");
 		time = Calendar.getInstance();
-		time.setTime(rs.getDate("time"));
+		time.setTime(rs.getTimestamp("time"));
 		type = NotificationType.valueOf(rs.getString("type"));
 		read = rs.getBoolean("read");
 		given_to = ServerUserModel.findByUsername(rs.getString("given_to"), db);

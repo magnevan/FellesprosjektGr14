@@ -45,10 +45,10 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 		setRoom(ServerMeetingRoomModel.findReservedRoom(id, db));
 		
 		Calendar fromTime = Calendar.getInstance();
-		fromTime.setTime(rs.getDate("start_date"));
+		fromTime.setTime(rs.getTimestamp("start_date"));
 		setTimeFrom(fromTime);
 		Calendar toTime = Calendar.getInstance();
-		toTime.setTime(rs.getDate("start_date"));
+		toTime.setTime(rs.getTimestamp("start_date"));
 		setTimeTo(toTime);
 		
 		// Set invitations to null forcing a re-fetch on next getInvitations()
