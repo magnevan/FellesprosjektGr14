@@ -68,7 +68,7 @@ public class HovedPanel extends JPanel{
 		//Bottom
 		JPanel bottomPanel = new JPanel(new BorderLayout());
 		bottomPanel.setPreferredSize(new Dimension(270,100));
-		newAppointmentButton = new JButton("Opprett en avtale/møte");
+		newAppointmentButton = new JButton("Opprett en avtale/m¿te");
 		newAppointmentButton.setOpaque(true);
 		bottomPanel.add(newAppointmentButton);
 		
@@ -76,7 +76,7 @@ public class HovedPanel extends JPanel{
 		String lol = now();
 		label1.setText(lol);
 		label1.setFont(new Font("", Font.BOLD, 18));
-		label1.setForeground(Color.WHITE);
+		label1.setForeground(Color.BLUE);
 		
 		//adding panels
 		this.add(topPanel);
