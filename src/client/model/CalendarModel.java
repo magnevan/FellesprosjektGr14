@@ -1,5 +1,6 @@
 package client.model;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Calendar;
@@ -13,7 +14,7 @@ import java.util.TreeMap;
 import client.IServerResponseListener;
 import client.ServerConnection;
 
-public class CalendarModel implements IServerResponseListener{
+public class CalendarModel implements IServerResponseListener, PropertyChangeListener{
 	
 	private PropertyChangeSupport pcs;
 
@@ -53,7 +54,7 @@ public class CalendarModel implements IServerResponseListener{
 		meetingsReq = ServerConnection.instance().requestMeetings(this, new UserModel[]{owner}, from, to);
 	}
 	
-	private CalendarModel add(MeetingModel meeting) {
+	private CalendarModel add(MeetingModel meeting, boolean silent) {
 		if (meetings.contains(meeting)) return this;
 		
 		meetings.add(meeting);
@@ -65,34 +66,38 @@ public class CalendarModel implements IServerResponseListener{
 		
 		meetingsFrom.get(meeting.getTimeTo()).add(meeting);
 		meetingsTo.get(meeting.getTimeTo()).add(meeting);
+		
+		meeting.addPropertyChangeListener(this);
 
-		pcs.firePropertyChange(MEETING_ADDED, null, meeting);
+		if (!silent) pcs.firePropertyChange(MEETING_ADDED, null, meeting);
 		
 		return this;
 	}
 	
-	private CalendarModel addAll(Collection<MeetingModel> c) {
+	private CalendarModel addAll(Collection<MeetingModel> c, boolean silent) {
 		for (MeetingModel mm : c)
-			add(mm);
+			add(mm, silent);
 		
 		return this;
 	}
 	
-	private CalendarModel remove(MeetingModel meeting) {
+	private CalendarModel remove(MeetingModel meeting, boolean silent) {
 		if (!meetings.contains(meeting)) return this;
 		
 		meetings.remove(meeting);
 		meetingsFrom.get(meeting.getTimeFrom()).remove(meeting);
 		meetingsTo.get(meeting.getTimeTo()).remove(meeting);
 		
-		pcs.firePropertyChange(MEETING_REMOVED, null, meeting);
+		meeting.removePropertyChangeListener(this);
+		
+		if (!silent) pcs.firePropertyChange(MEETING_REMOVED, null, meeting);
 		
 		return this;
 	}
 	
-	private CalendarModel removeAll(Collection<MeetingModel> c) {
+	private CalendarModel removeAll(Collection<MeetingModel> c, boolean silent) {
 		for (MeetingModel mm : c)
-			remove(mm);
+			remove(mm, silent);
 		
 		return this;
 	}
@@ -188,6 +193,18 @@ public class CalendarModel implements IServerResponseListener{
 		if (requestId == meetingsReq) {
 			List<MeetingModel> models = (List<MeetingModel>) data;
 			
+		}
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent e) {
+		
+		//If the time of a meeting is changed, we silently remove and re-add it so that it is placed in the correct position
+		if (	e.getPropertyName() == MeetingModel.TIME_FROM_PROPERTY
+			|| 	e.getPropertyName() == MeetingModel.TIME_TO_PROPERTY) {
+			
+			this.remove((MeetingModel)e.getSource(), true);
+			this.add((MeetingModel)e.getSource(), true);
 		}
 	}
 	
