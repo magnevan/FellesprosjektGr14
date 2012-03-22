@@ -53,6 +53,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	private final ParticipantStatusList participantList;
 	private final JButton 				storeButton,
 										deleteButton;
+	private final FilteredUserListModel filteredUserListModel;
 	
 	private int meetingRoomReqID;
 	
@@ -104,7 +105,8 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		
 		//Ansatte
 		this.add(new JLabel("Ansatte:"));
-		filteredUserList = new FilteredUserList(new FilteredUserListModel());
+		filteredUserListModel = new FilteredUserListModel();
+		filteredUserList = new FilteredUserList(filteredUserListModel);
 		filteredUserList.setPreferredSize(new Dimension(
 					this.getPreferredSize().width,
 					150
@@ -264,12 +266,14 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	
 	private void addEmployee() {
 		UserModel[] selUsers = filteredUserList.getSelectedUsers();
+		filteredUserListModel.addUsersToBlacklist(selUsers);
 		
 		for (UserModel user : selUsers)
 			model.addAttendee(user);
 	}
 	
 	private void removeEmployee() {
+		// filteredUserListModel.removeUsersFromBlacklist()
 		throw new UnsupportedOperationException("");
 	}
 	
