@@ -22,7 +22,6 @@ public class AndrePanel extends JPanel{
 	final PersonLabel personLabel;
 	final UserModel person;
 	static JCheckBox checkBox;
-	 // make your JList as check list 
 	CheckListManager checkListManager; 
 	FilteredUserList search;
 	
@@ -42,7 +41,6 @@ public class AndrePanel extends JPanel{
 		search = new FilteredUserList(new FilteredUserListModel());
 		search.setPreferredSize(new Dimension(270,100));
 		person = new UserModel();
-		
 		
 		//button panel
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -70,6 +68,7 @@ public class AndrePanel extends JPanel{
 		scroll2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		bottomPanel.add(scroll2);
 		
+		// meetingBox panel
 		JPanel addMeetingPanel = new JPanel(new BorderLayout());
 		addMeetingPanel.setPreferredSize(new Dimension(270,100));
 		newAppointmentButton = new JButton("Opprett en avtale/m¿te");
@@ -109,10 +108,6 @@ public class AndrePanel extends JPanel{
 	public static UserModel createUser(String userName, String email){
 		
 		UserModel person = new UserModel();
-		//userName = "Susanne";
-		//email = "lool";
-		//person.setName(userName);
-		//person.setEmail(email);
 		return person;
 	}
 		
