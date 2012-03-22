@@ -1,49 +1,65 @@
 package client.gui.panels;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import javax.swing.*;
 
-public class PersonLabel extends JPanel {
+import client.ClientMain;
+import client.ServerConnection;
+import client.model.UserModel;
+
+/**
+ * The default top-label with an icon, the name of the user and a logoutbutton 
+ * 
+ * @author Peter Ringset
+ *
+ */
+public class PersonLabel extends JPanel implements PropertyChangeListener, ActionListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4966425223154846186L;
 	private final JLabel nameLabel;
 	private final JButton logoutButton;
 	
 	public PersonLabel(){
-		
-		JPanel panel = new JPanel();
-		panel.setPreferredSize(new Dimension(200,100));
+		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));		
 		
 		ImageIcon icon = new ImageIcon("src/resources/man_silhouette_clip_art_alt.png");
-		nameLabel = new JLabel("Ola Nordmann", icon, SwingConstants.LEFT);
+		nameLabel = new JLabel(ClientMain.getActiveUser().getFullName(), icon, SwingConstants.LEFT);
 		nameLabel.setFont(new Font("Times New Roman", Font.PLAIN, 18));
 		
 		logoutButton = new JButton("Logg ut");
-		JPanel logoutButtonPanel = new JPanel(); //this panel is here to avoid that the button stretches vertically
-		logoutButtonPanel.add(logoutButton);
+		logoutButton.setAlignmentY(Component.CENTER_ALIGNMENT);
 		
-		JPanel topPanel = new JPanel(new BorderLayout(10,0));
+		this.add(nameLabel);
+		this.add(Box.createHorizontalGlue());
+		this.add(logoutButton);
 		
-		logoutButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
-				//logout
-				JOptionPane.showMessageDialog(null, "Er du sikker på at du vil logge ut?");
-			}
-		});
+		//Listeners
+		ClientMain.getActiveUser().addPropertyChangeListener(this);
 		
-		topPanel.add(nameLabel, BorderLayout.WEST);
-		topPanel.add(logoutButtonPanel, BorderLayout.EAST);
-		
-		this.add(topPanel,    BorderLayout.NORTH);
-		
-		
-		
+		//Events
+		logoutButton.addActionListener(this);
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt.getPropertyName() == UserModel.NAME_CHANGE) {
+			nameLabel.setName((String)evt.getNewValue());
+		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		ServerConnection.logout();
 	}
 
 }

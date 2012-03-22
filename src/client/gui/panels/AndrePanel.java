@@ -6,9 +6,10 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import client.gui.CheckListManager;
 import client.gui.VerticalLayout;
-import client.gui.usersearch.FilteredUserList;
 import client.model.FilteredUserListModel;
 import client.model.UserModel;
+import client.gui.usersearch.FilteredUserList;
+
 
 /**
  * Panel for the "Andre Kalendere" tab
@@ -17,26 +18,28 @@ import client.model.UserModel;
  */
 public class AndrePanel extends JPanel{
 	
+	private FilteredUserList search;
+	private UserModel person;
+	private CheckListManager checkListManager;
 	private final JList activeCalenders;
 	private final JButton upButton, downButton, newAppointmentButton;
 	final PersonLabel personLabel;
-	final UserModel person;
-	static JCheckBox checkBox;
-	 // make your JList as check list 
-	CheckListManager checkListManager; 
-	FilteredUserList search;
+
 	
 	public AndrePanel(){
 		super(new VerticalLayout(5,SwingConstants.LEFT));
 		
-		//top
+		// Top content, the person label
 		JPanel topPanel = new JPanel();
 		personLabel = new PersonLabel();
+		personLabel.setPreferredSize(new Dimension(310, 50));
 		topPanel.add(personLabel);
 		
-		//employee center
+		// Employees label
 		JLabel ansatte = new JLabel();
 		ansatte.setText("Ansatte");
+		
+		
 		
 		//search panel
 		search = new FilteredUserList(new FilteredUserListModel());
@@ -45,13 +48,18 @@ public class AndrePanel extends JPanel{
 		
 		
 		//button panel
-		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		buttonPanel.setPreferredSize(new Dimension(250,60));
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+		buttonPanel.setPreferredSize(new Dimension(310,30));
 		upButton = new JButton("Legg til");
 		downButton = new JButton("Fjern");
+		buttonPanel.add(Box.createHorizontalGlue());
+		upButton.setAlignmentX(LEFT_ALIGNMENT);
 		buttonPanel.add(upButton);
-		buttonPanel.add(Box.createHorizontalStrut(40));
+		downButton.setAlignmentX(RIGHT_ALIGNMENT);
 		buttonPanel.add(downButton);
+		buttonPanel.add(Box.createHorizontalGlue());
+		this.add(buttonPanel);
 		
 		//active calenders center
 		JLabel aktiveKalendere = new JLabel();
@@ -72,7 +80,7 @@ public class AndrePanel extends JPanel{
 		
 		JPanel addMeetingPanel = new JPanel(new BorderLayout());
 		addMeetingPanel.setPreferredSize(new Dimension(270,100));
-		newAppointmentButton = new JButton("Opprett en avtale/m¿te");
+		newAppointmentButton = new JButton("Opprett en avtale/mï¿½te");
 		newAppointmentButton.setOpaque(true);
 		addMeetingPanel.add(newAppointmentButton);
 		
@@ -92,8 +100,10 @@ public class AndrePanel extends JPanel{
 				lol.removeElement(activeCalenders.getSelectedValue());
  			}
 		});
+
 		
 		//add elements
+
 		this.add(topPanel);
 		this.add(Box.createVerticalStrut(30));
 		this.add(ansatte);
@@ -104,6 +114,7 @@ public class AndrePanel extends JPanel{
 		this.add(aktiveKalendere);
 		this.add(bottomPanel);
 		this.add(addMeetingPanel);
+
 	}
 	
 	public static UserModel createUser(String userName, String email){
@@ -121,5 +132,9 @@ public class AndrePanel extends JPanel{
 		UserModel person = new UserModel(userName, email, fullName);
 		return person;
 		
+	}
+	
+	public JButton getNewAppointmentButton() {
+		return newAppointmentButton;
 	}
 }
