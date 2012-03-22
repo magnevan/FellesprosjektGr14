@@ -45,7 +45,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		
 		
 		calendarTabbedPane.addTab("Uke", new WeekView());
-		calendarTabbedPane.addTab("Mï¿½ned", new JPanel()); //TODO
+		calendarTabbedPane.addTab("Måned", new JPanel()); //TODO
 		
 		//TODO This should probably be done in a better manner
 		optionTabbedPane.setPreferredSize(new Dimension(330,calendarTabbedPane.getPreferredSize().height));
@@ -54,7 +54,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		this.add(calendarTabbedPane, BorderLayout.EAST);
 
 		// Initialize notifications
-		vp.initializeList(ClientMain.client().getActiveUser().getNotifications());
+		vp.initializeList(ClientMain.getActiveUser().getNotifications());
 		
 		//Listeners
 		ActionListener listener = new NewAppointmentListener();

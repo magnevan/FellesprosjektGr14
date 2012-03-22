@@ -15,7 +15,7 @@ import client.IServerConnectionListener;
 import client.IServerResponseListener;
 import client.ServerConnection;
 
-public class CalendarModel implements IServerResponseListener, PropertyChangeListener, IServerConnectionListener{
+public class CalendarModel implements IServerResponseListener, PropertyChangeListener, IServerConnectionListener {
 	
 	private PropertyChangeSupport pcs;
 
@@ -41,7 +41,6 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		
 		pcs = new PropertyChangeSupport(this);
 		
-		ServerConnection.addServerConnectionListener(this);
 	}
 	
 	private CalendarModel add(MeetingModel meeting, boolean silent) {
@@ -162,9 +161,9 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		
 		System.out.println("----LIST OF MEETINGS----");
 		for (MeetingModel m : returnSet) {
-			Calendar c = (Calendar)m.getTimeFrom().clone(); //TODO FJERN DETTE, MODIFISERER MØTE PGA BUG ANNEN PLASS
-			c.roll(Calendar.HOUR, 2);
-			m.setTimeTo(c);
+//			Calendar c = (Calendar)m.getTimeFrom().clone(); //TODO FJERN DETTE, MODIFISERER MØTE PGA BUG ANNEN PLASS
+//			c.roll(Calendar.HOUR, 2);
+//			m.setTimeTo(c);
 			System.out.println(m);
 		}
 		System.out.println("------------------------");
@@ -202,16 +201,17 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	@Override
 	public void propertyChange(PropertyChangeEvent e) {
 		
-		//If the time of a meeting is changed, we silently remove and re-add it so that it is placed in the correct position
+		//If the time of a meeting is changed, we silently move it so that it is placed in the correct position
 		if (	e.getPropertyName() == MeetingModel.TIME_FROM_PROPERTY
 			|| 	e.getPropertyName() == MeetingModel.TIME_TO_PROPERTY) {
 			
 			TreeMap<Calendar, Set<MeetingModel>> moveMap = null;
 			MeetingModel m = (MeetingModel)e.getSource();
 			
-			switch (e.getPropertyName()) {
-			case MeetingModel.TIME_FROM_PROPERTY: moveMap = meetingsFrom; break;
-			case MeetingModel.TIME_TO_PROPERTY:   moveMap = meetingsTo;   break;
+			if (e.getPropertyName() == MeetingModel.TIME_FROM_PROPERTY) {
+				moveMap = meetingsFrom;
+			} else if (e.getPropertyName() == MeetingModel.TIME_FROM_PROPERTY) {
+				moveMap = meetingsTo;
 			}
 			
 			//Remove
@@ -225,21 +225,36 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		}
 	}
 
-	@Override
-	public void serverConnectionChange(String change) {
-		if (change == IServerConnectionListener.LOGIN) {
-			//Requests a chuck of meetings from the server
-			Calendar 	from = Calendar.getInstance(),
-						to   = Calendar.getInstance();
-			
-			from.roll(Calendar.MONTH, -1);
-			to  .roll(Calendar.MONTH,  1);
-			from.set(Calendar.DAY_OF_MONTH, 1);
-			to.set(Calendar.DAY_OF_MONTH, to.getActualMaximum(Calendar.DAY_OF_MONTH));
-			
-			System.out.printf("Request buffer (%s) - (%s)\n", from.getTime().toString(), to.getTime().toString());
-			meetingsReq = ServerConnection.instance().requestMeetings(this, new UserModel[]{owner}, from, to);
+	/**
+	 * Waits until the client is online, then requests a buffer
+	 */
+	public void requestDefaultBuffer() {
+		if (ServerConnection.isOnline()) {
+			sendRequestForBuffer();
+		} else {
+			ServerConnection.addServerConnectionListener(this);
 		}
 	}
+	
+	@Override
+	public void serverConnectionChange(String change) {
+		sendRequestForBuffer();
+		ServerConnection.removeServerConnectionListener(this);
+	}
+	
+	private void sendRequestForBuffer() {
+		//Requests a chuck of meetings from the server
+		Calendar 	from = Calendar.getInstance(),
+					to   = Calendar.getInstance();
+		
+		from.roll(Calendar.MONTH, -1);
+		to  .roll(Calendar.MONTH,  1);
+		from.set(Calendar.DAY_OF_MONTH, 1);
+		to.set(Calendar.DAY_OF_MONTH, to.getActualMaximum(Calendar.DAY_OF_MONTH));
+		
+		System.out.printf("Request buffer (%s) - (%s)\n", from.getTime().toString(), to.getTime().toString());
+		meetingsReq = ServerConnection.instance().requestMeetings(this, new UserModel[]{owner}, from, to);
+	}
+
 	
 }
