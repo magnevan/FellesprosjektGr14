@@ -186,16 +186,17 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	
 	private Calendar getFromTime() {
 		Calendar from = Calendar.getInstance();
-		from.setTime(dateChooser.getDate());
+		from.setTime(dateChooser.getJCalendar().getDate());
 		from.set(Calendar.HOUR_OF_DAY, fromTime.getHour());
 		from.set(Calendar.MINUTE, fromTime.getMinute());
 		from.set(Calendar.SECOND, 0);
+		System.out.printf("Fromtime (%s)\n", from.getTime());
 		return from;
 	}
 	
 	private Calendar getToTime() {
 		Calendar to = Calendar.getInstance();
-		to.setTime(dateChooser.getDate());
+		to.setTime(dateChooser.getJCalendar().getDate());
 		to.set(Calendar.HOUR_OF_DAY, toTime.getHour());
 		to.set(Calendar.MINUTE, toTime.getMinute());
 		to.set(Calendar.SECOND, 0);

@@ -39,9 +39,9 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		meetingsFrom = new TreeMap<Calendar, Set<MeetingModel>>();
 		meetingsTo = new TreeMap<Calendar, Set<MeetingModel>>();
 		
-		
-		
 		pcs = new PropertyChangeSupport(this);
+		
+		ServerConnection.instance().addServerConnectionListener(this);
 	}
 	
 	private CalendarModel add(MeetingModel meeting, boolean silent) {
@@ -54,7 +54,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		if (!meetingsTo.containsKey(meeting.getTimeTo()))
 			meetingsTo.put(meeting.getTimeTo(), new HashSet<MeetingModel>());
 		
-		meetingsFrom.get(meeting.getTimeTo()).add(meeting);
+		meetingsFrom.get(meeting.getTimeFrom()).add(meeting);
 		meetingsTo.get(meeting.getTimeTo()).add(meeting);
 		
 		meeting.addPropertyChangeListener(this);
@@ -116,7 +116,6 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		fromTime.set(Calendar.MINUTE, 59);
 		fromTime.set(Calendar.SECOND, 59);
 		
-		
 		return getMeetingInterval(fromTime, toTime,true);
 	}
 	
@@ -126,13 +125,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	 * @return
 	 */
 	public Set<MeetingModel> getMeetingInterval(Calendar fromTime, Calendar toTime) {
-		Set<MeetingModel> rset = getMeetingInterval(fromTime, toTime, false);
-		
-		for (MeetingModel m : rset) {
-			System.out.println(m);
-		}
-		
-		return rset;
+		return getMeetingInterval(fromTime, toTime, false);
 	}
 	
 	/**
@@ -152,9 +145,8 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		
 		Set<MeetingModel> toSet = new HashSet<MeetingModel>();
 		for (Map.Entry<Calendar, Set<MeetingModel>> entry : meetingsTo.subMap(fromTime, true, toTime, true).entrySet()) {
-			fromSet.addAll(entry.getValue());
+			toSet.addAll(entry.getValue());
 		}
-		
 		
 		if (tight) {
 			//This should represent the set operation returnSet = fromSet (CUT) toSet
@@ -167,6 +159,12 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 			returnSet = fromSet;
 			returnSet.addAll(toSet);
 		}
+		
+		System.out.println("----LIST OF MEETINGS----");
+		for (MeetingModel m : returnSet) {
+			System.out.println(m);
+		}
+		System.out.println("------------------------");
 		
 		
 		return returnSet;
@@ -189,6 +187,12 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		if (requestId == meetingsReq) {
 			List<MeetingModel> models = (List<MeetingModel>) data;
 			
+			System.out.println("----Response from server----");
+			for (MeetingModel m : models)
+				System.out.println(m);
+			System.out.println("----------------------------");
+			
+			this.addAll(models, false);
 		}
 	}
 
@@ -216,6 +220,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 			from.set(Calendar.DAY_OF_MONTH, 1);
 			to.set(Calendar.DAY_OF_MONTH, to.getActualMaximum(Calendar.DAY_OF_MONTH));
 			
+			System.out.printf("Request buffer (%s) - (%s)\n", from.getTime().toString(), to.getTime().toString());
 			meetingsReq = ServerConnection.instance().requestMeetings(this, new UserModel[]{owner}, from, to);
 		}
 	}
