@@ -51,7 +51,7 @@ public class WeekView extends JPanel {
 	
 	
 	public WeekView() {
-		
+
 		date = Calendar.getInstance(); //Sets the default week to view as the current week
 		
 		this.setLayout(new BorderLayout());
@@ -72,17 +72,22 @@ public class WeekView extends JPanel {
 		
 		northPanel.add(weekLabel, BorderLayout.CENTER);
 		northPanel.add(buttonPanel, BorderLayout.EAST);
+		JPanel testPanel = createDayPanel(date);
+		JPanel dayPanelWithPadding = new JPanel(); //Because of the field on the left side that contains the times, e.g. "13:00", we need some extra padding.
+		dayPanelWithPadding.add(Box.createHorizontalStrut(12));
+		dayPanelWithPadding.add(testPanel);
+		northPanel.add(dayPanelWithPadding, BorderLayout.SOUTH);
 		
 		//Center
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		
-		JPanel dayPanel = createDayPanel(date);
-		JPanel dayPanelWithPadding = new JPanel(); //Because of the field on the left side that contains the times, e.g. "13:00", we need some extra padding.
-		dayPanelWithPadding.add(Box.createHorizontalStrut(12));
-		dayPanelWithPadding.add(dayPanel);
+//		JPanel dayPanel = createDayPanel(date);
+//		JPanel dayPanelWithPadding = new JPanel(); //Because of the field on the left side that contains the times, e.g. "13:00", we need some extra padding.
+//		dayPanelWithPadding.add(Box.createHorizontalStrut(12));
+//		dayPanelWithPadding.add(dayPanel);
 		JPanel wvi = createWeekViewInternal();
 		
-		centerPanel.add(dayPanelWithPadding, BorderLayout.NORTH);
+		//centerPanel.add(dayPanelWithPadding, BorderLayout.NORTH);
 		centerPanel.add(wvi, BorderLayout.CENTER);
 		
 		weekScroll = new JScrollPane(wvi);
@@ -99,14 +104,14 @@ public class WeekView extends JPanel {
 		
 		//Legger CenterPanel i et JLayeredPane så jeg kan plasser avtaler over CenterPanel
 		AppointmentLayer = new JLayeredPane();
-		AppointmentLayer.setPreferredSize(new Dimension(HOURWIDTH*7+55,HOURHEIGHT*25));
+		AppointmentLayer.setPreferredSize(new Dimension(HOURWIDTH*7+30,HOURHEIGHT*24));
 		//Legger til centerpanel på 1.layer
 		AppointmentLayer.add(centerPanel, 1, 0);
-		centerPanel.setBounds(0,0,HOURWIDTH*7+55,HOURHEIGHT*25);
+		centerPanel.setBounds(0,0,HOURWIDTH*7+50,HOURHEIGHT*25);
 		
 		scrollTest = new JScrollPane(AppointmentLayer);
 		scrollTest.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollTest.setPreferredSize(new Dimension(HOURWIDTH*7 + 55,HOURHEIGHT*SHOWHOURS));
+		scrollTest.setPreferredSize(new Dimension(HOURWIDTH*7 + 50,HOURHEIGHT*SHOWHOURS));
 		this.add(scrollTest, BorderLayout.CENTER);
 		
 		
@@ -262,9 +267,9 @@ public class WeekView extends JPanel {
 	public static void main (String args[]) { 
         JFrame frame = new JFrame("");
         Calendar from =  Calendar.getInstance();
-        from.set(2012, 3, 21, 10, 0);
+        from.set(2012, 3, 21, 0, 0);
         Calendar to = Calendar.getInstance();
-        to.set(2012, 3, 21, 15, 0);
+        to.set(2012, 3, 21, 14, 0);
         UserModel testPerson = new UserModel("Olano", "ola@hotmail.com", "Ola Nordmann");
         MeetingModel  MM = new MeetingModel(from, to, testPerson);
         MM.setName("Viktig avtale");
@@ -279,6 +284,7 @@ public class WeekView extends JPanel {
         MeetingModel  MM2 = new MeetingModel(from2, to2, testPerson2);
         MM2.setName("Verksted");
         MM2.setLocation("Fjordgata 2");
+        MM2.addAttendee(testPerson);
         MM2.setActive(true);
         
         

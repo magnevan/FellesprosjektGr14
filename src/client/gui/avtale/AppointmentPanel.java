@@ -47,7 +47,7 @@ public class AppointmentPanel extends JPanel {
     	
     	c.gridx = 0;
     	c.gridy = 0;
-    	//c.fill = c.HORIZONTAL;
+    	c.fill = c.HORIZONTAL;
 	    nameLabel = new JLabel();
 		add(nameLabel,c);
 		
@@ -192,7 +192,7 @@ public class AppointmentPanel extends JPanel {
 	}
 	
 	public int getY(){
-		int padding = 36;
+		int padding = 1;
 
 		//Skaffer tiden fra midnatt
 		Calendar c = (Calendar)model.getTimeFrom().clone();
@@ -207,6 +207,7 @@ public class AppointmentPanel extends JPanel {
 		final int minutes = (int)(((passed)/60000));
 		int time = ((minutes*WeekView.HOURHEIGHT)/60);
 
+		//if(overlapp) something something
 		return padding + time;
 	}
 	
