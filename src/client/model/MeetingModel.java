@@ -93,7 +93,7 @@ public class MeetingModel implements TransferableModel {
 		return new MeetingModel(timeFrom, timeTo, owner);
 	}
 	
-	/*
+	/**
 	 * Construct MeetingModel from stream
 	 * 
 	 * @param reader
@@ -351,6 +351,7 @@ public class MeetingModel implements TransferableModel {
 	 * @return
 	 */
 	public InvitationModel getInvitation(UserModel user) {
+		// TODO Store invitations in a map indexed by username
 		for(InvitationModel invitation : getInvitations()) {
 			if(invitation.getUser().getUsername().equals(user.getUsername())) {
 				return invitation;
@@ -532,7 +533,7 @@ public class MeetingModel implements TransferableModel {
 	 * 
 	 */
 	public void delete() throws IOException {
-		if(!ClientMain.client().getActiveUser().equals(getOwner()))
+		if(!ClientMain.getActiveUser().equals(getOwner()))
 			throw new IOException("User does not own meeting");
 		ServerConnection.instance().deleteMeeting(this);
 	}

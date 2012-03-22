@@ -137,8 +137,8 @@ public class ServerConnection extends AbstractConnection {
 		try {
 			socket = new Socket(address, port);			
 			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			//writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-			writer = new DebugWriter(new OutputStreamWriter(socket.getOutputStream()));
+			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			//writer = new DebugWriter(new OutputStreamWriter(socket.getOutputStream()));
 			
 			LOGGER.info(reader.readLine()); // Read welcome message
 			
@@ -417,7 +417,29 @@ public class ServerConnection extends AbstractConnection {
 			writeLine(formatCommand(id, "DELETE", "MEETING "+meeting.getId()));			
 		} catch(IOException e) {
 			listeners.remove(id);
-			LOGGER.severe("IOException requestFilteredUserList");
+			LOGGER.severe("IOException deleteMeeting");
+			LOGGER.severe(e.toString());
+			return -1;
+		}
+		return id;
+	}
+	
+	/**
+	 * Delete a invitation
+	 * 
+	 * @param invitation
+	 * @return
+	 */
+	public int deleteInvitation(InvitationModel invitation) {
+		int id = ++nextRequestId;
+		
+		try {
+			writeLine(formatCommand(id, "DELETE", "INVITATION "+invitation.getUser().getUsername()+
+					" "+invitation.getMeeting().getId()));			
+			
+		} catch(IOException e) {
+			listeners.remove(id);
+			LOGGER.severe("IOException deleteInvitations");
 			LOGGER.severe(e.toString());
 			return -1;
 		}
@@ -462,6 +484,24 @@ public class ServerConnection extends AbstractConnection {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");		
+		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
+		
+		ServerConnection.instance().requestMeeting(new Listener(), 54);
 	}
+}
+
+
+class Listener implements IServerResponseListener {
+
+	@Override
+	public void onServerResponse(int requestId, Object data) {
+		MeetingModel mm = ((List<MeetingModel>) data).get(0);
+		System.out.println(mm.getName());
+		
+		System.out.println(mm.getInvitation(ClientMain.getActiveUser()));
+		try {
+			mm.getInvitation(ClientMain.getActiveUser()).delete();
+		} catch(IOException e) {}
+	}
+	
 }

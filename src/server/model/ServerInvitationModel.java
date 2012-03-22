@@ -100,7 +100,7 @@ public class ServerInvitationModel extends InvitationModel
 	}
 	
 	/**
-	 * Delete invitation
+	 * Delete invitation, caused by a change in the containing meeting
 	 * 
 	 * @param db
 	 */
@@ -112,6 +112,18 @@ public class ServerInvitationModel extends InvitationModel
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Delete invitation, caused by a user, this will notify the meeting owner
+	 */
+	public void userDelete(DBConnection db) {
+		delete(db);
+		
+		new ServerNotificationModel(
+				NotificationType.A_USER_DENIED, getMeeting().getOwner(),
+				getMeeting(), getUser()
+		).store(db);		
 	}
 	
 	/**
@@ -133,6 +145,32 @@ public class ServerInvitationModel extends InvitationModel
 			while (rs.next()) {
 				UserModel user = new ServerUserModel(rs);
 				ret.add(new ServerInvitationModel(rs, user, meeting));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	
+	/**
+	 * Find a single meeting based on the meeting and user model
+	 * 
+	 * @param meeting
+	 * @param user
+	 * @param db
+	 * @return
+	 */
+	public static ServerInvitationModel findByMeetingAndUser(
+			MeetingModel meeting, UserModel user, DBConnection db) {
+		
+		ServerInvitationModel ret = null;
+		try {
+			ResultSet rs = db.preformQuery(
+					"SELECT * FROM user_appointment " +
+					"WHERE appointment_id = "+meeting.getId()+" " +
+					"AND username = '"+user.getUsername()+"';");
+			if(rs.next()) {
+				ret = new ServerInvitationModel(rs, user, meeting);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
