@@ -126,7 +126,13 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	 * @return
 	 */
 	public Set<MeetingModel> getMeetingInterval(Calendar fromTime, Calendar toTime) {
-		return getMeetingInterval(fromTime, toTime, false);
+		Set<MeetingModel> rset = getMeetingInterval(fromTime, toTime, false);
+		
+		for (MeetingModel m : rset) {
+			System.out.println(m);
+		}
+		
+		return rset;
 	}
 	
 	/**
