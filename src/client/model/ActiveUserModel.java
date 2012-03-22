@@ -31,6 +31,8 @@ public class ActiveUserModel extends UserModel {
 		notifications = new ArrayList<NotificationModel>();
 	}
 	
+	private String[] notificationsUMIDs;
+	
 	/**
 	 * Create model from reader
 	 * 
@@ -38,15 +40,25 @@ public class ActiveUserModel extends UserModel {
 	 * @param modelBuff
 	 * @throws IOException
 	 */
-	public ActiveUserModel(BufferedReader reader, 
-			HashMap<String, TransferableModel> modelBuff) throws IOException {
-		super(reader, modelBuff);
+	public ActiveUserModel(BufferedReader reader) throws IOException {
+		super(reader);
 		notifications = new ArrayList<NotificationModel>();
 		int n = Integer.parseInt(reader.readLine());
+		notificationsUMIDs = new String[n];
 		for( ; n > 0; n-- ) {
-			TransferableModel notification = modelBuff.get(reader.readLine());	
-			notifications.add((NotificationModel) notification);
+			notificationsUMIDs[n-1] = reader.readLine();
 		}
+	}
+	
+	/**
+	 * Pull in sub models
+	 */
+	@Override
+	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
+		for(int i = notificationsUMIDs.length-1; i >= 0; i--) {
+			notifications.add((NotificationModel) modelBuff.get(notificationsUMIDs[i]));
+		}
+		notificationsUMIDs = null;
 	}
 
 	/**

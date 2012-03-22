@@ -73,9 +73,13 @@ public class UserModel implements TransferableModel {
 	 * @param reader
 	 * @param modelBuff
 	 */
-	public UserModel(BufferedReader reader, 
-			HashMap<String, TransferableModel> modelBuff) throws IOException {
+	public UserModel(BufferedReader reader) throws IOException {
 		this(reader.readLine(), reader.readLine(), reader.readLine());
+	}
+	
+	@Override
+	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
+		
 	}
 	
 	public void copyFrom(TransferableModel model) {

@@ -116,7 +116,19 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 		if(!(l = reader.readLine()).equals("")) 
 			regards_meeting = (MeetingModel) modelBuff.get(l);
 		if(!(l = reader.readLine()).equals(""))
-			regards_user = (UserModel) modelBuff.get(l);		
+			regards_user = (UserModel) modelBuff.get(l);
+	}
+	
+	private String given_to_umid, regards_meeting_umid, regards_user_umid;
+	
+	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
+		given_to = (UserModel) modelBuff.get(given_to_umid);
+		if(!regards_meeting_umid.equals("")) {
+			regards_meeting = (MeetingModel) modelBuff.get(regards_meeting_umid);
+		}
+		if(!regards_user_umid.equals("")) {
+			regards_user = (UserModel) modelBuff.get(regards_user_umid);
+		}
 	}
 	
 	

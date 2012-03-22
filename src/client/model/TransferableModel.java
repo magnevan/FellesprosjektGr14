@@ -1,5 +1,7 @@
 package client.model;
 
+import java.util.HashMap;
+
 import server.ModelEnvelope;
 
 /**
@@ -41,6 +43,15 @@ public interface TransferableModel {
 	 */
 	public void toStringBuilder(StringBuilder sb);	
 		
+	/**
+	 * Pull in any dependencies
+	 * 
+	 * Last step on receiving end
+	 * 
+	 * @param modelBuff
+	 */
+	public void registerSubModels(HashMap<String, TransferableModel> modelBuff);
+	
 	/**
 	 * Return the value of the primary key identifier for this model
 	 *
