@@ -8,9 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import client.IServerResponseListener;
 import client.ServerConnection;
@@ -81,7 +79,7 @@ public class CalendarModel implements IServerResponseListener{
 	}
 	
 	private CalendarModel remove(MeetingModel meeting) {
-		if (meetings.contains(meeting)) return this;
+		if (!meetings.contains(meeting)) return this;
 		
 		meetings.remove(meeting);
 		meetingsFrom.get(meeting.getTimeFrom()).remove(meeting);
