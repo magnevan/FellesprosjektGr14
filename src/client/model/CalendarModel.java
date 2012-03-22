@@ -11,10 +11,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import client.IServerConnectionListener;
 import client.IServerResponseListener;
 import client.ServerConnection;
 
-public class CalendarModel implements IServerResponseListener, PropertyChangeListener{
+public class CalendarModel implements IServerResponseListener, PropertyChangeListener, IServerConnectionListener{
 	
 	private PropertyChangeSupport pcs;
 
@@ -41,17 +42,6 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		
 		
 		pcs = new PropertyChangeSupport(this);
-		
-		//Requests a chuck of meetings from the server
-		Calendar 	from = Calendar.getInstance(),
-					to   = Calendar.getInstance();
-		
-		from.roll(Calendar.MONTH, -1);
-		to  .roll(Calendar.MONTH,  1);
-		from.set(Calendar.DAY_OF_MONTH, 1);
-		to.set(Calendar.DAY_OF_MONTH, to.getActualMaximum(Calendar.DAY_OF_MONTH));
-		
-		meetingsReq = ServerConnection.instance().requestMeetings(this, new UserModel[]{owner}, from, to);
 	}
 	
 	private CalendarModel add(MeetingModel meeting, boolean silent) {
@@ -205,6 +195,22 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 			
 			this.remove((MeetingModel)e.getSource(), true);
 			this.add((MeetingModel)e.getSource(), true);
+		}
+	}
+
+	@Override
+	public void serverConnectionChange(String change) {
+		if (change == IServerConnectionListener.LOGIN) {
+			//Requests a chuck of meetings from the server
+			Calendar 	from = Calendar.getInstance(),
+						to   = Calendar.getInstance();
+			
+			from.roll(Calendar.MONTH, -1);
+			to  .roll(Calendar.MONTH,  1);
+			from.set(Calendar.DAY_OF_MONTH, 1);
+			to.set(Calendar.DAY_OF_MONTH, to.getActualMaximum(Calendar.DAY_OF_MONTH));
+			
+			meetingsReq = ServerConnection.instance().requestMeetings(this, new UserModel[]{owner}, from, to);
 		}
 	}
 	
