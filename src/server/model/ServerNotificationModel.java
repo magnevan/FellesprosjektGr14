@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import server.DBConnection;
@@ -50,6 +51,27 @@ public class ServerNotificationModel extends NotificationModel implements IDBSto
 	public ServerNotificationModel(BufferedReader reader, 
 			HashMap<String, TransferableModel> modelBuff) throws IOException {
 		super(reader, modelBuff);
+	}
+	
+	/**
+	 * Construct notification from sql result set
+	 * 
+	 * @param rs
+	 * @throws SQLException
+	 */
+	public ServerNotificationModel(ResultSet rs, DBConnection db) throws SQLException {
+		id = rs.getInt("id");
+		time = Calendar.getInstance();
+		time.setTime(rs.getDate("time"));
+		type = NotificationType.valueOf(rs.getString("type"));
+		read = rs.getBoolean("read");
+		given_to = ServerUserModel.findByUsername(rs.getString("given_to"), db);
+		if(rs.getInt("regards_appointment") != 0) {
+			regards_meeting = ServerMeetingModel.findById(rs.getInt("regards_appointment"), db);
+		}
+		if(rs.getString("regards_user") != null) {
+			regards_user = ServerUserModel.findByUsername(rs.getString("regards_user"), db);
+		}
 	}
 	
 	/**

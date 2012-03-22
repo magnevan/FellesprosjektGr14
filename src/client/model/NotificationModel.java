@@ -26,11 +26,11 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 	public final static String READ_PROPERTY = "read";
 	
 	protected int id = -1;
-	private MeetingModel regards_meeting;
-	private NotificationType type;
-	private Calendar time;
-	private UserModel given_to, regards_user;
-	private boolean read;
+	protected MeetingModel regards_meeting;
+	protected NotificationType type;
+	protected Calendar time;
+	protected UserModel given_to, regards_user;
+	protected boolean read;
 	
 	private PropertyChangeSupport changeSupport;
 	

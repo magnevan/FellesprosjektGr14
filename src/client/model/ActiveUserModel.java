@@ -73,7 +73,7 @@ public class ActiveUserModel extends UserModel {
 	@Override
 	public void addSubModels(ModelEnvelope envelope) {
 		super.addSubModels(envelope);
-		for(NotificationModel n : notifications) {
+		for(NotificationModel n : getNotifications()) {
 			envelope.addModel(n);
 		}
 	}

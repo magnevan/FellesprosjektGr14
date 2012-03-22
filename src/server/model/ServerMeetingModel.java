@@ -124,11 +124,7 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 					));
 				}				
 				st.close();				
-			} else {
-				// TODO Update, her må vi finne ut hva som er endret, sende notifications og eventuelt resette invitasjoner
-				System.err.println("Update is not implemented");
-				System.err.println(this.getInvitations().size() + " invitations would have been stored");
-				
+			} else {				
 				// Use old meeting as a reference
 				ServerMeetingModel old = ServerMeetingModel.findById(getId(), db);
 				
@@ -153,7 +149,6 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 						getName(), DBConnection.getFormattedDate(getTimeFrom()), 
 						DBConnection.getFormattedDate(getTimeTo()),	getDescription(), 
 						getOwner().getUsername(), getLocation(), getId()));
-				
 
 				// Reset invitations if needed
 				boolean resetInv = !old.getTimeFrom().equals(getTimeFrom()) 
