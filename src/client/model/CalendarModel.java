@@ -1,83 +1,122 @@
 package client.model;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
-public class CalendarModel {
+import client.IServerConnectionListener;
+import client.IServerResponseListener;
+import client.ServerConnection;
+
+public class CalendarModel implements IServerResponseListener, PropertyChangeListener, IServerConnectionListener{
 	
 	private PropertyChangeSupport pcs;
 
-	protected final Set<MeetingModel> 		meetings;
-	protected final TreeSet<MeetingModel> 	meetingsFrom,
-											meetingsTo;
+	//These essentially hold a buffer of meetings
+	protected final Set<MeetingModel> 						meetings;
+	protected final TreeMap<Calendar, Set<MeetingModel>> 	meetingsFrom,
+															meetingsTo;
 	
 	public final static String	MEETING_ADDED = "MEETING_ADDED";
 	public final static String  MEETING_REMOVED = "MEETING REMOVE";
 	
-	public final UserModel owner;
+	private final UserModel owner;
+	
+	private int meetingsReq;
 	
 	public CalendarModel(UserModel owner) {
 		
 		this.owner = owner;
 		
 		meetings = new HashSet<MeetingModel>();
-		meetingsFrom = new TreeSet<MeetingModel>();
-		meetingsTo = new TreeSet<MeetingModel>();
+		meetingsFrom = new TreeMap<Calendar, Set<MeetingModel>>();
+		meetingsTo = new TreeMap<Calendar, Set<MeetingModel>>();
 		
 		pcs = new PropertyChangeSupport(this);
+		
+		ServerConnection.addServerConnectionListener(this);
 	}
 	
-	public CalendarModel add(MeetingModel meeting) {
+	private CalendarModel add(MeetingModel meeting, boolean silent) {
+		if (meetings.contains(meeting)) return this;
 		
 		meetings.add(meeting);
-		meetingsFrom.add(meeting);
-		meetingsTo.add(meeting);
+		if (!meetingsFrom.containsKey(meeting.getTimeFrom()))
+			meetingsFrom.put(meeting.getTimeFrom(), new HashSet<MeetingModel>());
+		
+		if (!meetingsTo.containsKey(meeting.getTimeTo()))
+			meetingsTo.put(meeting.getTimeTo(), new HashSet<MeetingModel>());
+		
+		meetingsFrom.get(meeting.getTimeFrom()).add(meeting);
+		meetingsTo.get(meeting.getTimeTo()).add(meeting);
+		
+		meeting.addPropertyChangeListener(this);
 
-		pcs.firePropertyChange(MEETING_ADDED, null, meeting);
+		if (!silent) pcs.firePropertyChange(MEETING_ADDED, null, meeting);
 		
 		return this;
 	}
 	
-	public CalendarModel addAll(Collection<MeetingModel> c) {
-		meetings.addAll(c);
-		meetingsFrom.addAll(c);
-		meetingsTo.addAll(c);
-		
+	private CalendarModel addAll(Collection<MeetingModel> c, boolean silent) {
 		for (MeetingModel mm : c)
-			pcs.firePropertyChange(MEETING_ADDED, null, mm);
+			add(mm, silent);
 		
 		return this;
 	}
 	
-	public CalendarModel remove(MeetingModel meeting) {
+	private CalendarModel remove(MeetingModel meeting, boolean silent) {
+		if (!meetings.contains(meeting)) return this;
 		
+		meetingsFrom.get(meeting.getTimeFrom()).remove(meeting);
+		meetingsTo.get(meeting.getTimeTo()).remove(meeting);
 		meetings.remove(meeting);
-		meetingsFrom.remove(meeting);
-		meetingsTo.remove(meeting);
 		
-		pcs.firePropertyChange(MEETING_REMOVED, null, meeting);
+		meeting.removePropertyChangeListener(this);
+		
+		if (!silent) pcs.firePropertyChange(MEETING_REMOVED, null, meeting);
 		
 		return this;
 	}
 	
-	public CalendarModel removeAll(Collection<MeetingModel> c) {
-		meetings.removeAll(c);
-		meetingsFrom.removeAll(c);
-		meetingsTo.removeAll(c);
-		
+	private CalendarModel removeAll(Collection<MeetingModel> c, boolean silent) {
 		for (MeetingModel mm : c)
-			pcs.firePropertyChange(MEETING_REMOVED, null, mm);
+			remove(mm, silent);
 		
 		return this;
 	}
 	
 	public boolean contains(MeetingModel meeting) {
 		return meetings.contains(meeting);
+	}
+	
+	/**
+	 * Returns meetings within a week, from Monday 00:00:00 to Sunday 23:59:59
+	 * @param date a date within the week you wish to get meetings from
+	 * @return
+	 */
+	public Set<MeetingModel> getMeetingsInWeek(Calendar date) {
+		Calendar fromTime = (Calendar)date.clone(),
+				   toTime = (Calendar)date.clone();
+		
+		fromTime.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+		toTime.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+		
+		fromTime.set(Calendar.HOUR_OF_DAY, 0);
+		fromTime.set(Calendar.MINUTE, 0);
+		fromTime.set(Calendar.SECOND, 0);
+		
+		fromTime.set(Calendar.HOUR_OF_DAY, 23);
+		fromTime.set(Calendar.MINUTE, 59);
+		fromTime.set(Calendar.SECOND, 59);
+		
+		return getMeetingInterval(fromTime, toTime,true);
 	}
 	
 	/**
@@ -98,10 +137,16 @@ public class CalendarModel {
 	public Set<MeetingModel> getMeetingInterval(Calendar fromTime, Calendar toTime, boolean tight) {
 		Set<MeetingModel> returnSet;
 		
-		//TODO Uses a sort blank MeetingModel for the comparison. Non-elegant solution but couldn't find anything better
-		Set<MeetingModel> fromSet = meetingsFrom.subSet(new MeetingModel(fromTime, toTime, null), true, new MeetingModel(fromTime, toTime, null), true);
-		Set<MeetingModel> toSet = meetingsTo.subSet(new MeetingModel(fromTime, toTime, null), true, new MeetingModel(fromTime, toTime, null), true);
 		
+		Set<MeetingModel> fromSet = new HashSet<MeetingModel>();
+		for (Map.Entry<Calendar, Set<MeetingModel>> entry : meetingsFrom.subMap(fromTime, true, toTime, true).entrySet()) {
+			fromSet.addAll(entry.getValue());
+		}
+		
+		Set<MeetingModel> toSet = new HashSet<MeetingModel>();
+		for (Map.Entry<Calendar, Set<MeetingModel>> entry : meetingsTo.subMap(fromTime, true, toTime, true).entrySet()) {
+			toSet.addAll(entry.getValue());
+		}
 		
 		if (tight) {
 			//This should represent the set operation returnSet = fromSet (CUT) toSet
@@ -114,6 +159,15 @@ public class CalendarModel {
 			returnSet = fromSet;
 			returnSet.addAll(toSet);
 		}
+		
+		System.out.println("----LIST OF MEETINGS----");
+		for (MeetingModel m : returnSet) {
+			Calendar c = (Calendar)m.getTimeFrom().clone(); //TODO FJERN DETTE, MODIFISERER MØTE PGA BUG ANNEN PLASS
+			c.roll(Calendar.HOUR, 2);
+			m.setTimeTo(c);
+			System.out.println(m);
+		}
+		System.out.println("------------------------");
 		
 		
 		return returnSet;
@@ -129,6 +183,63 @@ public class CalendarModel {
 	
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		pcs.removePropertyChangeListener(listener);
+	}
+
+	@Override
+	public void onServerResponse(int requestId, Object data) {
+		if (requestId == meetingsReq) {
+			List<MeetingModel> models = (List<MeetingModel>) data;
+			
+			System.out.println("----Response from server----");
+			for (MeetingModel m : models)
+				System.out.println(m);
+			System.out.println("----------------------------");
+			
+			this.addAll(models, false);
+		}
+	}
+	
+	@Override
+	public void propertyChange(PropertyChangeEvent e) {
+		
+		//If the time of a meeting is changed, we silently remove and re-add it so that it is placed in the correct position
+		if (	e.getPropertyName() == MeetingModel.TIME_FROM_PROPERTY
+			|| 	e.getPropertyName() == MeetingModel.TIME_TO_PROPERTY) {
+			
+			TreeMap<Calendar, Set<MeetingModel>> moveMap = null;
+			MeetingModel m = (MeetingModel)e.getSource();
+			
+			switch (e.getPropertyName()) {
+			case MeetingModel.TIME_FROM_PROPERTY: moveMap = meetingsFrom; break;
+			case MeetingModel.TIME_TO_PROPERTY:   moveMap = meetingsTo;   break;
+			}
+			
+			//Remove
+			moveMap.get((Calendar)e.getOldValue()).remove(m);
+			//Add
+			if (!moveMap.containsKey((Calendar)e.getNewValue()))
+				moveMap.put((Calendar)e.getNewValue(), new HashSet<MeetingModel>());
+			
+			moveMap.get((Calendar)e.getNewValue()).add(m);
+			
+		}
+	}
+
+	@Override
+	public void serverConnectionChange(String change) {
+		if (change == IServerConnectionListener.LOGIN) {
+			//Requests a chuck of meetings from the server
+			Calendar 	from = Calendar.getInstance(),
+						to   = Calendar.getInstance();
+			
+			from.roll(Calendar.MONTH, -1);
+			to  .roll(Calendar.MONTH,  1);
+			from.set(Calendar.DAY_OF_MONTH, 1);
+			to.set(Calendar.DAY_OF_MONTH, to.getActualMaximum(Calendar.DAY_OF_MONTH));
+			
+			System.out.printf("Request buffer (%s) - (%s)\n", from.getTime().toString(), to.getTime().toString());
+			meetingsReq = ServerConnection.instance().requestMeetings(this, new UserModel[]{owner}, from, to);
+		}
 	}
 	
 }

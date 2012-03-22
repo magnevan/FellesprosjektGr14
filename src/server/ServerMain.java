@@ -12,7 +12,7 @@ public class ServerMain {
 
 	private static Logger LOGGER = Logger.getLogger("Main");	
 	public static String VERSION = "calendar-server-0.0.1";	
-	public static Properties properties;	
+//	public static Properties properties;	
 	public static DBConnection dbConnection;
 	public static ClientConnectionListener ccl;
 	
@@ -22,7 +22,7 @@ public class ServerMain {
 	 * @throws NumberFormatException on badly formatted number in properties
 	 */
 	public ServerMain(Properties p) throws NumberFormatException {	
-		properties = p;
+		Properties properties = p;
 		
 		try {
 			dbConnection = new DBConnection(p);
@@ -43,6 +43,8 @@ public class ServerMain {
 			LOGGER.severe("Port number in use");
 			LOGGER.severe(e.toString());
 		}
+		
+		properties = null;
 		
 	}
 	

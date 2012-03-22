@@ -35,7 +35,9 @@ import client.model.UserModel;
 public class ServerConnection extends AbstractConnection {
 	
 	// Stores listeners interested in server connection changes
-	private static final Set<IServerConnectionListener> serverConnectionListeners = new HashSet<IServerConnectionListener>();
+	private static final Set<IServerConnectionListener> serverConnectionListeners 
+							= Collections.synchronizedSet(new HashSet<IServerConnectionListener>());
+	
 	
 	private static Logger LOGGER = Logger.getLogger("ServerConnection");
 	private static ServerConnection instance = null;	
@@ -469,7 +471,7 @@ public class ServerConnection extends AbstractConnection {
 	 * 
 	 * @param change
 	 */
-	private static void fireServerConnectionChange(String change) {
+	private static  void fireServerConnectionChange(String change) {
 		for (IServerConnectionListener listener : serverConnectionListeners)
 			listener.serverConnectionChange(change);
 	}	
