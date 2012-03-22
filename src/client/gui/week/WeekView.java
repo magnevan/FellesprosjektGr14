@@ -56,6 +56,7 @@ public class WeekView extends JPanel {
 	private ArrayList<AppointmentPanel>  appointments;
 	private JLayeredPane AppointmentLayer;
 	private PropertyChangeSupport pcs;
+	private JPanel northPanel, dayPanelWithPadding;
 	
 	
 	public WeekView() {
@@ -69,10 +70,9 @@ public class WeekView extends JPanel {
 		this.setLayout(new BorderLayout());
 		
 		//North
-		JPanel northPanel = new JPanel(new BorderLayout());
+		northPanel = new JPanel(new BorderLayout());
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		
-		weekLabel = new JLabel("Uke 5",SwingConstants.CENTER);
+		weekLabel = new JLabel("Uke " + date.get(date.WEEK_OF_YEAR),SwingConstants.CENTER);
 		weekLabel.setFont(new Font("Times New Roman", Font.BOLD,20));
 		
 		prevWeekButton = new JButton("<<");
@@ -88,7 +88,7 @@ public class WeekView extends JPanel {
 		northPanel.add(weekLabel, BorderLayout.CENTER);
 		northPanel.add(buttonPanel, BorderLayout.EAST);
 		JPanel testPanel = createDayPanel(date);
-		JPanel dayPanelWithPadding = new JPanel(); //Because of the field on the left side that contains the times, e.g. "13:00", we need some extra padding.
+		dayPanelWithPadding = new JPanel(); //Because of the field on the left side that contains the times, e.g. "13:00", we need some extra padding.
 		dayPanelWithPadding.add(Box.createHorizontalStrut(12));
 		dayPanelWithPadding.add(testPanel);
 		northPanel.add(dayPanelWithPadding, BorderLayout.SOUTH);
@@ -168,6 +168,8 @@ public class WeekView extends JPanel {
 		
 		return p;
 	}
+
+	
 	
 	/**
 	 * Creates a JPanel filled with HourCells and timestamps to the left.
@@ -291,16 +293,31 @@ public class WeekView extends JPanel {
 		appointments.clear();
 	}
 	
+	private void setDateLabels(){
+
+		//Setter datofeltene til riktig verdi
+		dayPanelWithPadding.removeAll();
+		JPanel testPanel = createDayPanel(date);
+		dayPanelWithPadding.add(Box.createHorizontalStrut(12));
+		dayPanelWithPadding.add(testPanel);
+		
+		//Setter uke verdien til riktig verdi
+		weekLabel.setText("Uke " + date.get(date.WEEK_OF_YEAR));
+		
+	}
+	
 	class  nextWeekAction implements ActionListener { 
         public void actionPerformed(ActionEvent e) { 
         	date.add(Calendar.WEEK_OF_YEAR, 1);
+        	setDateLabels();
         	addAllAppointments();
         } 
     }
 	
 	class prewWeekAction implements ActionListener { 
         public void actionPerformed(ActionEvent e) { 
-        	date.roll(Calendar.WEEK_OF_YEAR, 1);
+        	date.add(Calendar.WEEK_OF_YEAR, -1);
+        	setDateLabels();
         	addAllAppointments();
         } 
     }
@@ -308,6 +325,7 @@ public class WeekView extends JPanel {
 	class  todayAction implements ActionListener { 
         public void actionPerformed(ActionEvent e) { 
         	date.setTime(Calendar.getInstance().getTime());
+        	setDateLabels();
         	addAllAppointments();
         } 
     }
