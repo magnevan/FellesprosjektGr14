@@ -6,6 +6,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
 
+import client.ClientMain;
+import client.ServerConnection;
+
 import server.ModelEnvelope;
 
 /**
@@ -181,6 +184,15 @@ public class InvitationModel implements TransferableModel {
 		sb.append(getStatus()+"\r\n");
 		sb.append(getMeeting().getUMID()+"\r\n");
 		sb.append(getUser().getUMID()+"\r\n");
+	}
+	
+	/**
+	 * Delete a invitation
+	 */
+	public void delete() throws IOException {
+		if(!ClientMain.getActiveUser().equals(getUser()))
+			throw new IOException("User does not own invitation");
+		ServerConnection.instance().deleteInvitation(this);
 	}
 	
 }

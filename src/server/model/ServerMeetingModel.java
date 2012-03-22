@@ -13,6 +13,7 @@ import server.DBConnection;
 import server.ServerMain;
 import client.model.InvitationModel;
 import client.model.MeetingModel;
+import client.model.NotificationType;
 import client.model.TransferableModel;
 import client.model.UserModel;
 
@@ -44,10 +45,10 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 		setRoom(ServerMeetingRoomModel.findReservedRoom(id, db));
 		
 		Calendar fromTime = Calendar.getInstance();
-		fromTime.setTime(rs.getDate("start_date"));
+		fromTime.setTime(rs.getTimestamp("start_date"));
 		setTimeFrom(fromTime);
 		Calendar toTime = Calendar.getInstance();
-		toTime.setTime(rs.getDate("start_date"));
+		toTime.setTime(rs.getTimestamp("end_date"));
 		setTimeTo(toTime);
 		
 		// Set invitations to null forcing a re-fetch on next getInvitations()
@@ -173,6 +174,22 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 		// Set all invitaions to INVITED, send a notification to every user
 	}
 	
+	/**
+	 * Delete meeting
+	 */
+	public void delete(DBConnection db) {
+		for(InvitationModel i : getInvitations()) {
+			ServerNotificationModel n = new ServerNotificationModel(
+					NotificationType.A_CANCELED, i.getUser(), this, getOwner());
+			n.store(db);
+		}
+		try {
+			db.preformUpdate(String.format("UPDATE appointment SET active=0 WHERE id=%d", getId()));
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 
 	/**
 	 * Search database for meetings concerning all the given users, within the
@@ -201,8 +218,9 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 			ResultSet rs = db.preformQuery(
 					"SELECT DISTINCT a.* FROM appointment as a " +
 					"LEFT JOIN user_appointment as ap ON a.id = ap.appointment_id " +
-					"WHERE start_date >= '"+DBConnection.getFormattedDate(startDate)+"' " +
-					"AND start_date < '"+DBConnection.getFormattedDate(endDate)+"'" +
+					"WHERE active=1 " +
+					"AND start_date >= '"+DBConnection.getFormattedDate(startDate)+"' " +
+					"AND start_date < '"+DBConnection.getFormattedDate(endDate)+"' " +
 					"AND (a.owner IN (" + userList + ") OR ap.username IN ("+userList+"))");
 			while (rs.next()) {
 				ret.add(new ServerMeetingModel(rs, db));

@@ -54,6 +54,7 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 			this.setResizable(true);
 			contentPane.remove(loginPanel);
 			
+			ClientMain.getActiveUser().getCalendarModel().requestDefaultBuffer();
 			mainPanel = new MainPanel();
 			
 			contentPane.add(mainPanel, BorderLayout.CENTER);

@@ -84,7 +84,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		this.add(tidPanel);
 		
 		//Moterom
-		this.add(new JLabel("Mï¿½terom"));
+		this.add(new JLabel("Møterom"));
 		JPanel moteromPanel = new JPanel();
 		moteromComboBox = new JComboBox();
 		moteromText = new JDefaultTextField("Skriv mï¿½teplass...", 15);
@@ -188,16 +188,17 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	
 	private Calendar getFromTime() {
 		Calendar from = Calendar.getInstance();
-		from.setTime(dateChooser.getDate());
+		from.setTime(dateChooser.getJCalendar().getDate());
 		from.set(Calendar.HOUR_OF_DAY, fromTime.getHour());
 		from.set(Calendar.MINUTE, fromTime.getMinute());
 		from.set(Calendar.SECOND, 0);
+		System.out.printf("Fromtime (%s)\n", from.getTime());
 		return from;
 	}
 	
 	private Calendar getToTime() {
 		Calendar to = Calendar.getInstance();
-		to.setTime(dateChooser.getDate());
+		to.setTime(dateChooser.getJCalendar().getDate());
 		to.set(Calendar.HOUR_OF_DAY, toTime.getHour());
 		to.set(Calendar.MINUTE, toTime.getMinute());
 		to.set(Calendar.SECOND, 0);
@@ -254,7 +255,14 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	}
 	
 	private void deleteMeeting() {
-		throw new UnsupportedOperationException("Delete mï¿½te er ikke laget enda"); //TODO Hva skal denne gjï¿½re dersom mï¿½tet enda ikke er lagret?
+		if(model.getId() != -1) {
+			try {
+				model.delete();
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		//throw new UnsupportedOperationException("Delete mï¿½te er ikke laget enda"); //TODO Hva skal denne gjï¿½re dersom mï¿½tet enda ikke er lagret?
 	}
 	
 	private void addEmployee() {

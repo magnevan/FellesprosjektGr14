@@ -93,7 +93,7 @@ public class MeetingModel implements TransferableModel {
 		return new MeetingModel(timeFrom, timeTo, owner);
 	}
 	
-	/*
+	/**
 	 * Construct MeetingModel from stream
 	 * 
 	 * @param reader
@@ -110,7 +110,7 @@ public class MeetingModel implements TransferableModel {
 			description += l+"\r\n";
 		
 		DateFormat df = DateFormat.getDateTimeInstance();
-		
+
 		timeFrom = Calendar.getInstance();
 		timeTo = Calendar.getInstance();
 		try {
@@ -351,6 +351,7 @@ public class MeetingModel implements TransferableModel {
 	 * @return
 	 */
 	public InvitationModel getInvitation(UserModel user) {
+		// TODO Store invitations in a map indexed by username
 		for(InvitationModel invitation : getInvitations()) {
 			if(invitation.getUser().getUsername().equals(user.getUsername())) {
 				return invitation;
@@ -503,7 +504,8 @@ public class MeetingModel implements TransferableModel {
 		for (PropertyChangeListener listener : changeSupport.getPropertyChangeListeners())
 			changeSupport.removePropertyChangeListener(listener);
 	}
-		
+	
+	
 	/**
 	 * Store the meeting object on server
 	 * 
@@ -524,7 +526,20 @@ public class MeetingModel implements TransferableModel {
 			// Make sure the correct version of the model is cached, and return
 			ModelCacher.free(stored);
 			ModelCacher.cache(this);
+			
+			//Add to current calendar
+			this.owner.getCalendarModel().add(this);
 		}
+	}
+	
+	/**
+	 * Delete meeting
+	 * 
+	 */
+	public void delete() throws IOException {
+		if(!ClientMain.getActiveUser().equals(getOwner()))
+			throw new IOException("User does not own meeting");
+		ServerConnection.instance().deleteMeeting(this);
 	}
 	
 }
