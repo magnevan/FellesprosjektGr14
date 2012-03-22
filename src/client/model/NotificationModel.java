@@ -6,6 +6,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 
@@ -18,7 +19,11 @@ import client.ModelCacher;
  * @author endre
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
+<<<<<<< HEAD
 public class NotificationModel implements TransferableModel, Comparable<NotificationModel>{
+=======
+public class NotificationModel implements TransferableModel, Comparable<NotificationModel> {
+>>>>>>> notifications
 	
 	public final static String REGARDS_MEETING_PROPERTY = "regards_meeting";
 	public final static String TYPE_PROPERTY = "type";
@@ -297,4 +302,16 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 		return -this.getTime().compareTo(e.getTime());
 	}
 	
+	@Override
+	public String toString() {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm");
+		if (regards_meeting != null)
+			return sdf.format(time.getTime()) + " " + regards_meeting.getName() + read;
+		else return sdf.format(time.getTime()) + read;
+	}
+
+	@Override
+	public int compareTo(NotificationModel e) {
+		return -this.getTime().compareTo(e.getTime());
+	}
 }

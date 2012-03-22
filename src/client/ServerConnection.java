@@ -187,7 +187,7 @@ public class ServerConnection extends AbstractConnection {
 						TransferableModel model = models.get(0);
 						
 						if(model instanceof NotificationModel) {
-							System.out.println("Got notification, handle it ! TODO");
+							user.addNotification((NotificationModel)model);
 						}
 						continue;
 					}

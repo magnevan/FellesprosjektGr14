@@ -44,10 +44,11 @@ public class ActiveUserModel extends UserModel {
 	public ActiveUserModel(BufferedReader reader, 
 			HashMap<String, TransferableModel> modelBuff) throws IOException {
 		super(reader, modelBuff);
-		
 		int n = Integer.parseInt(reader.readLine());
-		for( ; n > 0; n-- )
-			notifications.add((NotificationModel) modelBuff.get(reader.readLine())); 
+		for( ; n > 0; n-- ) {
+			TransferableModel notification = modelBuff.get(reader.readLine());	
+			notifications.add((NotificationModel) notification);
+		}
 	}
 
 	/**

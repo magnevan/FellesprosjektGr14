@@ -8,8 +8,10 @@ import java.awt.event.ActionListener;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
+import client.ClientMain;
 import client.gui.week.WeekView;
 import client.model.MeetingModel;
+import client.model.NotificationType;
 
 
 public class MainPanel extends JPanel {
