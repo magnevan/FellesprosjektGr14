@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 
 import javax.swing.*;
@@ -32,10 +33,13 @@ public class VarselPanel extends JPanel implements PropertyChangeListener {
 
 	private JButton newAppointmentButton; //TODO legg denne til grafisk
 	private NotificationList notificationList;
+	private PropertyChangeSupport pcs;
 	
 	public VarselPanel(){
 		super(new VerticalLayout(1, VerticalLayout.LEFT));		
 
+		pcs = new PropertyChangeSupport(this);
+		
 		// Top content, the person label
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
@@ -51,6 +55,7 @@ public class VarselPanel extends JPanel implements PropertyChangeListener {
 		notifications.setAlignmentY(TOP_ALIGNMENT);
 		this.add(notifications);
 		notificationList = new NotificationList();
+		notificationList.addPropertyChangeListener(this);
 		notificationList.setPreferredSize(new Dimension(310, 485));
 		this.add(notificationList);
 		notifications.setLabelFor(notificationList);
@@ -85,11 +90,21 @@ public class VarselPanel extends JPanel implements PropertyChangeListener {
 	public JButton getNewAppointmentButton() {
 		return newAppointmentButton;
 	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
+	
+	public void removePropertyChangeListener(PropertyChangeListener listener) {
+		pcs.removePropertyChangeListener(listener);
+	}
 
 	@Override
-	public void propertyChange(PropertyChangeEvent pce) {
-		if (pce.getPropertyName() == ActiveUserModel.NOTIFICATIONS_PROPERTY) {
-			receiveNotification((NotificationModel)pce.getNewValue());
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt.getPropertyName() == ActiveUserModel.NOTIFICATIONS_PROPERTY) {
+			receiveNotification((NotificationModel)evt.getNewValue());
+		} else if (evt.getPropertyName() == NotificationList.NOTIFICATION_COUNT) {
+			pcs.firePropertyChange(evt);
 		}
 	}
 	

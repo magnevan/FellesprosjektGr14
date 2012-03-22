@@ -29,7 +29,9 @@ public class NotificationList extends JPanel {
 	 */
 	private static final long serialVersionUID = -2045270300264712032L;
 	private static final int MAX_SIZE = 10;
-	private static final String NOTIFICATION_CLICKED = "notification clicked";
+	public static final String
+			NOTIFICATION_CLICKED = "notification clicked",
+			NOTIFICATION_COUNT = "notification count";
 	private JScrollPane scrollPane;
 	private JList list;
 	private DefaultListModel listModel;
@@ -65,6 +67,7 @@ public class NotificationList extends JPanel {
 			if (notificationModel.isRead()) read.add(notificationModel);
 			else unread.add(notificationModel);
 		}
+		pcs.firePropertyChange(NOTIFICATION_COUNT, null, new Integer(unread.size()));
 	}
 	
 	/**
