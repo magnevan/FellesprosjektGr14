@@ -8,4 +8,3 @@ eclipse
 logs
 *~
 *.orig
-src/client/Debug*.java

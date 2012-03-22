@@ -1,6 +1,5 @@
 package client;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,6 +20,7 @@ import java.util.logging.Logger;
 import server.ModelEnvelope;
 import client.gui.exceptions.BadLoginException;
 import client.model.ActiveUserModel;
+import client.model.InvitationModel;
 import client.model.MeetingModel;
 import client.model.NotificationModel;
 import client.model.TransferableModel;
@@ -136,10 +136,12 @@ public class ServerConnection extends AbstractConnection {
 			
 		
 		try {
-			socket = new Socket(address, port);			
-			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			socket = new Socket(address, port);
+			
+			reader = new DebugReader(new InputStreamReader(socket.getInputStream()));
+			//reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-//			writer = new DebugWriter(new OutputStreamWriter(socket.getOutputStream()));
+			//writer = new DebugWriter(new OutputStreamWriter(socket.getOutputStream()));
 			
 			LOGGER.info(reader.readLine()); // Read welcome message
 			
@@ -418,7 +420,29 @@ public class ServerConnection extends AbstractConnection {
 			writeLine(formatCommand(id, "DELETE", "MEETING "+meeting.getId()));			
 		} catch(IOException e) {
 			listeners.remove(id);
-			LOGGER.severe("IOException requestFilteredUserList");
+			LOGGER.severe("IOException deleteMeeting");
+			LOGGER.severe(e.toString());
+			return -1;
+		}
+		return id;
+	}
+	
+	/**
+	 * Delete a invitation
+	 * 
+	 * @param invitation
+	 * @return
+	 */
+	public int deleteInvitation(InvitationModel invitation) {
+		int id = ++nextRequestId;
+		
+		try {
+			writeLine(formatCommand(id, "DELETE", "INVITATION "+invitation.getUser().getUsername()+
+					" "+invitation.getMeeting().getId()));			
+			
+		} catch(IOException e) {
+			listeners.remove(id);
+			LOGGER.severe("IOException deleteInvitations");
 			LOGGER.severe(e.toString());
 			return -1;
 		}
@@ -463,6 +487,27 @@ public class ServerConnection extends AbstractConnection {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");		
+		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
+		
+		Calendar from = Calendar.getInstance();
+		from.set(2012, 1, 1);
+		Calendar to = Calendar.getInstance();
+		to.set(2013, 1, 1);
+		
+		ServerConnection.instance().requestMeetings(new Listener(), from, to);
 	}
+}
+
+
+class Listener implements IServerResponseListener {
+
+	@Override
+	public void onServerResponse(int requestId, Object data) {
+		MeetingModel mm = ((List<MeetingModel>) data).get(0);
+		System.out.println(mm.getName());
+		
+		System.out.println(mm.getInvitation(ClientMain.getActiveUser()));
+		
+	}
+	
 }

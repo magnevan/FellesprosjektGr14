@@ -48,7 +48,7 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 		fromTime.setTime(rs.getTimestamp("start_date"));
 		setTimeFrom(fromTime);
 		Calendar toTime = Calendar.getInstance();
-		toTime.setTime(rs.getTimestamp("start_date"));
+		toTime.setTime(rs.getTimestamp("end_date"));
 		setTimeTo(toTime);
 		
 		// Set invitations to null forcing a re-fetch on next getInvitations()
