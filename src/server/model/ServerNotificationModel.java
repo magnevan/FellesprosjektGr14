@@ -16,7 +16,8 @@ import client.model.NotificationType;
 import client.model.TransferableModel;
 import client.model.UserModel;
 
-public class ServerNotificationModel extends NotificationModel implements IDBStorableModel {
+public class ServerNotificationModel extends NotificationModel 
+	implements IDBStorableModel {
 
 	/**
 	 * Construct a new Notification
@@ -25,7 +26,8 @@ public class ServerNotificationModel extends NotificationModel implements IDBSto
 	 * @param given_to
 	 * @param regards_meeting
 	 */
-	public ServerNotificationModel(NotificationType type, UserModel given_to, MeetingModel regards_meeting) {
+	public ServerNotificationModel(NotificationType type, UserModel given_to, 
+			MeetingModel regards_meeting) {
 		super(type, given_to, regards_meeting);
 	}
 	
@@ -37,7 +39,8 @@ public class ServerNotificationModel extends NotificationModel implements IDBSto
 	 * @param regards_meeting
 	 * @param regards_user
 	 */
-	public ServerNotificationModel(NotificationType type, UserModel given_to, MeetingModel regards_meeting, UserModel regards_user) {
+	public ServerNotificationModel(NotificationType type, UserModel given_to,
+			MeetingModel regards_meeting, UserModel regards_user) {
 		super(type, given_to, regards_meeting, regards_user);
 	}
 	
@@ -102,6 +105,12 @@ public class ServerNotificationModel extends NotificationModel implements IDBSto
 				
 				// Send the notification to the user right away
 				ServerMain.ccl.broadcastModel(this, getGivenTo().getUsername());
+			} else {
+				// Update notification, only read may be changed
+				db.preformUpdate(String.format(
+					"UPDATE notification SET read = %d WHERE id = %d",
+					isRead(), getId()
+				));
 			}
 
 		} catch (SQLException e) {

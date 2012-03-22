@@ -141,6 +141,13 @@ public class MeetingModel implements TransferableModel {
 		}
 	}
 	
+
+	@Override
+	public void copyFrom(TransferableModel source) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	/**
 	 * Get id
 	 * 

@@ -119,6 +119,11 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 	}
 	
 	
+	public void copyFrom(TransferableModel model) {
+		setRead(((NotificationModel)model).isRead());
+	}
+	
+	
 	/**
 	 * Get meeting the Notification regards, this may be null depending on
 	 * notification type

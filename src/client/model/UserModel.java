@@ -78,6 +78,9 @@ public class UserModel implements TransferableModel {
 		this(reader.readLine(), reader.readLine(), reader.readLine());
 	}
 	
+	public void copyFrom(TransferableModel model) {
+		// Cannot happen
+	}
 	
 	/**
 	 * Get username
