@@ -6,7 +6,10 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import client.IServerResponseListener;
@@ -17,9 +20,9 @@ public class CalendarModel implements IServerResponseListener{
 	private PropertyChangeSupport pcs;
 
 	//These essentially hold a buffer of meetings
-	protected final Set<MeetingModel> 		meetings;
-	protected final TreeSet<MeetingModel> 	meetingsFrom,
-											meetingsTo;
+	protected final Set<MeetingModel> 						meetings;
+	protected final TreeMap<Calendar, Set<MeetingModel>> 	meetingsFrom,
+															meetingsTo;
 	
 	public final static String	MEETING_ADDED = "MEETING_ADDED";
 	public final static String  MEETING_REMOVED = "MEETING REMOVE";
@@ -33,8 +36,10 @@ public class CalendarModel implements IServerResponseListener{
 		this.owner = owner;
 		
 		meetings = new HashSet<MeetingModel>();
-		meetingsFrom = new TreeSet<MeetingModel>(MeetingModel.timeFromComparator);
-		meetingsTo = new TreeSet<MeetingModel>(MeetingModel.timeToComparator);
+		meetingsFrom = new TreeMap<Calendar, Set<MeetingModel>>();
+		meetingsTo = new TreeMap<Calendar, Set<MeetingModel>>();
+		
+		
 		
 		pcs = new PropertyChangeSupport(this);
 		
@@ -54,8 +59,14 @@ public class CalendarModel implements IServerResponseListener{
 		if (meetings.contains(meeting)) return this;
 		
 		meetings.add(meeting);
-		meetingsFrom.add(meeting);
-		meetingsTo.add(meeting);
+		if (!meetingsFrom.containsKey(meeting.getTimeFrom()))
+			meetingsFrom.put(meeting.getTimeFrom(), new HashSet<MeetingModel>());
+		
+		if (!meetingsTo.containsKey(meeting.getTimeTo()))
+			meetingsTo.put(meeting.getTimeTo(), new HashSet<MeetingModel>());
+		
+		meetingsFrom.get(meeting.getTimeTo()).add(meeting);
+		meetingsTo.get(meeting.getTimeTo()).add(meeting);
 
 		pcs.firePropertyChange(MEETING_ADDED, null, meeting);
 		
@@ -73,8 +84,8 @@ public class CalendarModel implements IServerResponseListener{
 		if (meetings.contains(meeting)) return this;
 		
 		meetings.remove(meeting);
-		meetingsFrom.remove(meeting);
-		meetingsTo.remove(meeting);
+		meetingsFrom.get(meeting.getTimeFrom()).remove(meeting);
+		meetingsTo.get(meeting.getTimeTo()).remove(meeting);
 		
 		pcs.firePropertyChange(MEETING_REMOVED, null, meeting);
 		
@@ -134,13 +145,16 @@ public class CalendarModel implements IServerResponseListener{
 	public Set<MeetingModel> getMeetingInterval(Calendar fromTime, Calendar toTime, boolean tight) {
 		Set<MeetingModel> returnSet;
 		
-		//TODO Uses a sort blank MeetingModel for the comparison. Non-elegant solution but couldn't find anything better
-		Set<MeetingModel> fromSet = meetingsFrom.subSet(
-					new MeetingModel(fromTime, toTime, null), true,
-					new MeetingModel(fromTime, toTime, null), true
-				);
 		
-		Set<MeetingModel> toSet = meetingsTo.subSet(new MeetingModel(fromTime, toTime, null), true, new MeetingModel(fromTime, toTime, null), true);
+		Set<MeetingModel> fromSet = new HashSet<MeetingModel>();
+		for (Map.Entry<Calendar, Set<MeetingModel>> entry : meetingsFrom.subMap(fromTime, true, toTime, true).entrySet()) {
+			fromSet.addAll(entry.getValue());
+		}
+		
+		Set<MeetingModel> toSet = new HashSet<MeetingModel>();
+		for (Map.Entry<Calendar, Set<MeetingModel>> entry : meetingsTo.subMap(fromTime, true, toTime, true).entrySet()) {
+			fromSet.addAll(entry.getValue());
+		}
 		
 		
 		if (tight) {
