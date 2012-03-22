@@ -95,8 +95,7 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 	 * @param modelBuff
 	 * @throws IOException
 	 */
-	public NotificationModel(BufferedReader reader, 
-			HashMap<String, TransferableModel> modelBuff) throws IOException {
+	public NotificationModel(BufferedReader reader) throws IOException {
 		
 		DateFormat df = DateFormat.getDateTimeInstance();
 		
@@ -110,13 +109,10 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 			throw new IOException(e.toString());
 		}
 		
-		given_to = (UserModel) modelBuff.get(reader.readLine());
+		given_to_umid = reader.readLine();
 		
-		String l;
-		if(!(l = reader.readLine()).equals("")) 
-			regards_meeting = (MeetingModel) modelBuff.get(l);
-		if(!(l = reader.readLine()).equals(""))
-			regards_user = (UserModel) modelBuff.get(l);
+		regards_meeting_umid = reader.readLine();
+		regards_user_umid = reader.readLine();
 	}
 	
 	private String given_to_umid, regards_meeting_umid, regards_user_umid;
