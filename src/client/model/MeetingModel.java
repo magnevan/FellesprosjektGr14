@@ -362,7 +362,11 @@ public class MeetingModel implements TransferableModel {
 	 * @param user
 	 */
 	public void removeAttendee(UserModel user) {
-		invitations.remove(getInvitation(user));
+		if (isInvited(user)) {
+			InvitationModel inv = getInvitation(user);
+			invitations.remove(inv);
+			changeSupport.firePropertyChange(INVITATION_REMOVED, null, inv);
+		}
 	}
 	
 		
@@ -379,7 +383,25 @@ public class MeetingModel implements TransferableModel {
 				changeSupport.firePropertyChange(INVITATION_CREATED,null, invitation);
 			}
 		}		
-	}	
+	}
+	
+	/**
+	 * Changes the status of all invitations from NOT_YET_SAVED to INVITED
+	 */
+	public void commitInvitations() {
+		for (InvitationModel inv : getInvitations())
+			if (inv.getStatus() == InvitationStatus.NOT_YET_SAVED)
+				inv.setStatus(InvitationStatus.INVITED);
+	}
+	
+	/**
+	 * Discards all invitations with a NOT_YET_SAVED status
+	 */
+	public void discardInvitations() {
+		for (InvitationModel inv : getInvitations())
+			if (inv.getStatus() == InvitationStatus.NOT_YET_SAVED)
+				removeAttendee(inv.getUser());
+	}
 	
 	public static final Comparator<MeetingModel> timeFromComparator = 
 			new Comparator<MeetingModel>() {

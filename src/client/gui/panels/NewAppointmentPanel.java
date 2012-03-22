@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 
@@ -29,8 +30,10 @@ import client.gui.VerticalLayout;
 import client.gui.participantstatus.ParticipantStatusList;
 import client.gui.usersearch.FilteredUserList;
 import client.model.FilteredUserListModel;
+import client.model.InvitationModel;
 import client.model.MeetingModel;
 import client.model.MeetingRoomModel;
+import client.model.UserModel;
 
 import com.toedter.calendar.JDateChooser;
 
@@ -149,9 +152,19 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		fromTime.addActionListener(listener);
 		toTime.addActionListener(listener);
 		
-		storeButton.addActionListener(new storeListener());
-		deleteButton.addActionListener(new deleteListener());
+		storeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {storeMeeting();}});
+		deleteButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {deleteMeeting();}});
 		
+		addEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {addEmployee();}});
+		removeEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {removeEmployee();}});
+		
+	}
+	
+	/**
+	 * Prepare for garbage collection
+	 */
+	public void close() {
+		participantList.close();
 	}
 	
 	/**
@@ -176,6 +189,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		from.setTime(dateChooser.getDate());
 		from.set(Calendar.HOUR_OF_DAY, fromTime.getHour());
 		from.set(Calendar.MINUTE, fromTime.getMinute());
+		from.set(Calendar.SECOND, 0);
 		return from;
 	}
 	
@@ -184,6 +198,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		to.setTime(dateChooser.getDate());
 		to.set(Calendar.HOUR_OF_DAY, toTime.getHour());
 		to.set(Calendar.MINUTE, toTime.getMinute());
+		to.set(Calendar.SECOND, 0);
 		return to;
 	}
 	
@@ -197,7 +212,6 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	}
 	
 	private boolean isDataValid() {
-		System.out.println("validcheck");
 		//Name
 		if (tittelText.getText().length() == 0)
 			return false;
@@ -206,7 +220,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 			return false;
 		
 		//Moteplass
-		if (moteromComboBox.getSelectedIndex() != 0 && moteromText.getText() != "")
+		if (moteromComboBox.getSelectedIndex() != -1 && moteromText.getText() != "")
 			return false;
 			
 		return true;
@@ -225,14 +239,31 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		model.setLocation(moteromText.getText());
 		//Beskrivelse
 		model.setDescription(beskrivelseTextArea.getText());
-		//TODO: Invitasjoner
 		
-		ServerConnection.instance().storeModel(model);
+		//Invitasjoner
+		model.commitInvitations();
+		
+		try {
+			model.store();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 	}
 	
 	private void deleteMeeting() {
 		throw new UnsupportedOperationException("Delete møte er ikke laget enda"); //TODO Hva skal denne gjøre dersom møtet enda ikke er lagret?
+	}
+	
+	private void addEmployee() {
+		UserModel[] selUsers = filteredUserList.getSelectedUsers();
+		
+		for (UserModel user : selUsers)
+			model.addAttendee(user);
+	}
+	
+	private void removeEmployee() {
+		throw new UnsupportedOperationException("");
 	}
 	
 	class timeChangedListener implements ActionListener, PropertyChangeListener {
@@ -246,25 +277,10 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 			requestMeetingRooms();
 		}
 	}
-	
-	class storeListener implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			storeMeeting();
-		}
-	}
-	
-	class deleteListener implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			deleteMeeting();
-		}
-	}
 
 	@Override
 	public void onServerResponse(int requestId, Object data) {
 		if (requestId == meetingRoomReqID) {
-			
 			List<MeetingRoomModel> rooms = (List<MeetingRoomModel>) data;
 			
 			MeetingRoomModel selectedRoom = (MeetingRoomModel) moteromComboBox.getSelectedItem();

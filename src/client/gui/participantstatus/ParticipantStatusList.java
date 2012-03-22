@@ -37,6 +37,9 @@ public class ParticipantStatusList extends JPanel implements PropertyChangeListe
 		
 		mmodel.addPropertyChangeListener(this);
 		
+		for (InvitationModel inv : mmodel.getInvitations())
+			inv.addPropertyChangeListener(this);
+		
 		this.setLayout(new BorderLayout());
 		this.add(new JScrollPane(table), BorderLayout.CENTER);
 		
@@ -44,11 +47,21 @@ public class ParticipantStatusList extends JPanel implements PropertyChangeListe
 	
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName() == MeetingModel.INVITATION_CREATED ||
-			evt.getPropertyName() == MeetingModel.INVITATION_REMOVED) {
-			
-			pmodel.fireTableDataChanged();
+		pmodel.fireTableDataChanged();
+		
+		if        (evt.getPropertyName() == MeetingModel.INVITATION_CREATED) {
+			((InvitationModel)evt.getNewValue()).addPropertyChangeListener(this);
+		} else if (evt.getPropertyName() == MeetingModel.INVITATION_REMOVED) {
+			((InvitationModel)evt.getNewValue()).removePropertyChangeListener(this);
 		}
+	}
+	
+	/**
+	 * Prepare for garbage collection
+	 */
+	public void close() {
+		for (InvitationModel inv : mmodel.getInvitations())
+			inv.removePropertyChangeListener(this);
 	}
 	
 	class ParticipantModel extends AbstractTableModel {
