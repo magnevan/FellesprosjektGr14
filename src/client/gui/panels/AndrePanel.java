@@ -15,6 +15,11 @@ import client.gui.usersearch.FilteredUserList;
 import client.model.FilteredUserListModel;
 import client.model.UserModel;
 
+/**
+ * Panel for the "Andre Kalendere" tab
+ * @author Susanne
+ *
+ */
 public class AndrePanel extends JPanel{
 	
 	private final JList employeeList;

@@ -26,7 +26,7 @@ public class MainPanel extends JPanel {
 		VarselPanel vp = new VarselPanel();
 		AndrePanel akp = new AndrePanel();
 		
-		optionTabbedPane.addTab("Hoved", ap); //TODO
+		optionTabbedPane.addTab("Hoved", hp); //TODO
 		optionTabbedPane.addTab("Andre Kalendre", akp); //TODO
 		optionTabbedPane.addTab("Varsler(0)", vp); //TODO
 		

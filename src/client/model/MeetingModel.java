@@ -156,8 +156,8 @@ public class MeetingModel extends TransferableModel {
 	}
 	
 	public String toString() {
-		return getName() + "(" + timeFrom + " - " + timeTo + ")";
-	}
+		return   timeFrom + " - " + timeTo + "  "+ getName();
+	} 
 	
 	public ArrayList<InvitationModel> getInvitations() {
 		return invitations;
@@ -316,6 +316,8 @@ public class MeetingModel extends TransferableModel {
 				invitations.add(new InvitationModel(user, this));
 			}
 		}		
-	}		
+	}	
+	
+	
 			
 }
