@@ -69,9 +69,14 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		
 	}
 	
-	private void OpenNewAppointment() {
-		OpenAppointment(MeetingModel.newDefaultInstance());
+	/**
+	 * Creates and opens a new appointment at the given time
+	 * @param startTime
+	 */
+	private void OpenNewAppointment(Calendar startTime) {
+		OpenAppointment(MeetingModel.newDefaultInstance(startTime));
 	}
+	
 	
 	private void OpenAppointment(MeetingModel meeting) {
 		if (newAppointmentPane == null) {
@@ -85,7 +90,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 	class NewAppointmentListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			OpenNewAppointment();
+			OpenNewAppointment(Calendar.getInstance());
 		}
 	}
 

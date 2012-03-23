@@ -132,6 +132,27 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	}
 	
 	/**
+	 * Returns meetings with a day, from 00:00:00 to 23:59:59
+	 * @param date
+	 * @return set of MeetingModels
+	 */
+	public Set<MeetingModel> getMeetingsInDay(Calendar date) {
+		Calendar fromTime = (Calendar)date.clone(),
+				   toTime = (Calendar)date.clone();
+		
+		fromTime.set(Calendar.HOUR_OF_DAY, 0);
+		fromTime.set(Calendar.MINUTE, 0);
+		fromTime.set(Calendar.SECOND, 0);
+		
+		fromTime.set(Calendar.HOUR_OF_DAY, 23);
+		fromTime.set(Calendar.MINUTE, 59);
+		fromTime.set(Calendar.SECOND, 59);
+		
+		return getMeetingInterval(fromTime, toTime,true);
+	}
+
+	
+	/**
 	 * @param fromTime Calendar object representing the start of the interval
 	 * @param toTime Calendar object representing the end of the interval
 	 * @return
