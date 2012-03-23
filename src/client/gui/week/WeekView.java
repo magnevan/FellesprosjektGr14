@@ -39,7 +39,7 @@ public class WeekView extends JPanel {
 	
 	private static final long serialVersionUID = -8533878088518459485L;
 	
-	public static final String WEEKCLICK = "";
+	public static final String WEEKCLICK = "weekclick";
 	
 	public static final int 
 		HOURHEIGHT = 50,
