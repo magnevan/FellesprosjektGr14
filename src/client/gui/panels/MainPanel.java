@@ -13,6 +13,7 @@ import javax.swing.JTabbedPane;
 
 import client.ClientMain;
 import client.gui.week.WeekView;
+import client.model.CalendarModel;
 import client.model.MeetingModel;
 import client.model.NotificationType;
 
@@ -92,11 +93,11 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 	public void propertyChange(PropertyChangeEvent evt) {
 		System.out.println(evt.getPropertyName());
 		if (evt.getPropertyName() == NotificationList.NOTIFICATION_COUNT) {
-			
 			optionTabbedPane.setTitleAt(2, "Varsel (" + ((Integer)evt.getNewValue()) + ")");
-			
 		} else if (evt.getPropertyName() == NotificationList.NOTIFICATION_CLICKED) {
 			OpenAppointment((MeetingModel)evt.getNewValue());
+		} else if (evt.getPropertyName() == WeekView.WEEKCLICK) {
+			CalendarModel calMod = weekView.getCalendarModel();
 		}
 	}	
 }

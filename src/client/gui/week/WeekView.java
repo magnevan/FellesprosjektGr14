@@ -214,6 +214,10 @@ public class WeekView extends JPanel {
 		pcs.removePropertyChangeListener(listener);
 	}
 	
+	public CalendarModel getCalendarModel() {
+		return calModel;
+	}
+	
 	class MouseClickListener implements MouseListener {
 		long timestamp;
 		boolean secondClick;

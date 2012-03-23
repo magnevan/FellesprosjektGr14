@@ -273,6 +273,5 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		System.out.printf("Request buffer (%s) - (%s)\n", from.getTime().toString(), to.getTime().toString());
 		meetingsReq = ServerConnection.instance().requestMeetings(this, new UserModel[]{owner}, from, to);
 	}
-
 	
 }
