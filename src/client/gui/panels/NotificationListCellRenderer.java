@@ -52,10 +52,13 @@ public class NotificationListCellRenderer implements ListCellRenderer {
 		text.setAlignmentY(Component.TOP_ALIGNMENT);
 		text.setLineWrap(true);
 		text.setWrapStyleWord(true);
-		text.setSize(new Dimension(100,1));
+		
+//		text.setSize(new Dimension(100, text.getSize().height));
 //		text.setText("testing tekst som er veldig veldig veldig veldig veldig veldig veldig veldig lang");
 		text.setText(getNotificationText(model));
 		panel.add(text);
+		panel.setPreferredSize(new Dimension(290, 50));
+
 
 		return panel;
 	}

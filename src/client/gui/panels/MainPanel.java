@@ -24,6 +24,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 	private final JTabbedPane optionTabbedPane;
 	private NewAppointmentPanel newAppointmentPane = null;
 	private int unreadNotifications;
+	private WeekView weekView;
 
 	public MainPanel() {
 		super(new BorderLayout());
@@ -34,6 +35,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		JTabbedPane calendarTabbedPane = new JTabbedPane();
 		
 		HovedPanel hp = new HovedPanel();
+		
 		VarselPanel vp = new VarselPanel();
 
 		AndrePanel akp = new AndrePanel();
@@ -42,7 +44,8 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		optionTabbedPane.addTab("Andre Kalendre", akp); //TODO
 		optionTabbedPane.addTab("Varsler (0)", vp); //TODO
 		
-		calendarTabbedPane.addTab("Uke", new WeekView());
+		weekView = new WeekView();
+		calendarTabbedPane.addTab("Uke", weekView);
 		calendarTabbedPane.addTab("Måned", new JPanel()); //TODO
 		
 		//TODO This should probably be done in a better manner
@@ -60,6 +63,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		akp.getNewAppointmentButton().addActionListener(listener);
 		vp.getNewAppointmentButton().addActionListener(listener);
 		vp.addPropertyChangeListener(this);
+		weekView.addPropertyChangeListener(this);
 		
 		
 	}
