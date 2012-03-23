@@ -9,7 +9,7 @@ import java.util.Calendar;
 import javax.swing.*;
 import client.model.MeetingModel;
 
-public class MeetingModelRenderer extends DefaultListCellRenderer implements ListCellRenderer {
+public class MeetingModelRenderer extends DefaultListCellRenderer {
 	
 	JLabel label3, label2;
 	MeetingModel model;
