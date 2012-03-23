@@ -42,6 +42,8 @@ public class AppointmentPanel extends JButton {
 		
 		color=new Color(0,100,255);
 		setBackground(color);
+		setOpaque(true);
+		
 		
 		setLayout(new GridBagLayout());
     	c = new GridBagConstraints();

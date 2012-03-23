@@ -6,7 +6,10 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.DefaultListModel;
@@ -20,6 +23,8 @@ import javax.swing.JScrollPane;
 import javax.swing.ListModel;
 import javax.swing.SwingConstants;
 
+import client.ClientMain;
+import client.gui.CheckListManager;
 import client.gui.VerticalLayout;
 import client.model.MeetingModel;
 import client.model.UserModel;
@@ -49,10 +54,20 @@ public class HovedPanel extends JPanel{
 		
 		//Center panel
 		JPanel centerPanel = new JPanel(new BorderLayout());
-		DefaultListModel test = new DefaultListModel();
+		final DefaultListModel lol = new DefaultListModel();
 		
-		appointmentList = new JList(test);
-		appointmentList.setCellRenderer(new MeetingModelRenderer());
+		List<MeetingModel> meetings = new ArrayList<MeetingModel>(
+				ClientMain.getActiveUser().getCalendarModel().getMeetingsInDay(Calendar.getInstance())
+				);
+		
+		Collections.sort(meetings, MeetingModel.timeFromComparator);
+		for (MeetingModel m : meetings)
+			lol.addElement(m);
+		
+		appointmentList = new JList(lol);
+		System.out.println("ANTALL M¯TER I DAG " + lol.size());
+		//appointmentList.setCellRenderer(new MeetingModelRenderer());
+		
 		
 		centerPanel.setPreferredSize(new Dimension(310,404));
 		centerPanel.add(appointmentList);
@@ -69,8 +84,8 @@ public class HovedPanel extends JPanel{
 		
 		//Today date
 		JLabel label1 = new JLabel();
-		String lol = now();
-		label1.setText(lol);
+		String lol1 = now();
+		label1.setText(lol1);
 		label1.setFont(new Font("", Font.BOLD, 18));
 		label1.setForeground(Color.BLUE);
 		
@@ -80,27 +95,6 @@ public class HovedPanel extends JPanel{
 		this.add(label1);
 		this.add(centerPanel);
 		this.add(bottomPanel);
-	}
-	
-	public DefaultListModel addMettingModel(){
-		return null;
-	}
-	
-	public static void main(String []args){
-		JFrame frame = new JFrame();
-		
-		frame.setVisible(true);
-		frame.add(new HovedPanel());
-		frame.pack();
-	}
-	
-	public static MeetingModel createMeetingModel(Calendar timeFrom,Calendar timeTo, String name){
-		MeetingModel model = new MeetingModel();
-		
-		model.setName(name);
-		model.setTimeFrom(timeFrom);
-		model.setTimeTo(timeTo);
-		return model;
 	}
 	
 
@@ -114,7 +108,8 @@ public class HovedPanel extends JPanel{
 	public JButton getNewAppointmentButton() {
 		return newAppointmentButton;
 	}
-
+	
+	
 	
 }
 
