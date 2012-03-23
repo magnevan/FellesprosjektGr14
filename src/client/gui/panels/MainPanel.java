@@ -29,7 +29,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 
 	public MainPanel() {
 		super(new BorderLayout());
-
+		
 		unreadNotifications = 0;
 		
 		optionTabbedPane = new JTabbedPane();
@@ -46,6 +46,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		optionTabbedPane.addTab("Varsler (0)", vp); //TODO
 		
 		weekView = new WeekView();
+		weekView.addPropertyChangeListener(this);
 		calendarTabbedPane.addTab("Uke", weekView);
 		calendarTabbedPane.addTab("Måned", new JPanel()); //TODO
 		
@@ -64,7 +65,6 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		akp.getNewAppointmentButton().addActionListener(listener);
 		vp.getNewAppointmentButton().addActionListener(listener);
 		vp.addPropertyChangeListener(this);
-		weekView.addPropertyChangeListener(this);
 		
 		
 	}
@@ -99,5 +99,9 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		} else if (evt.getPropertyName() == WeekView.WEEKCLICK) {
 			CalendarModel calMod = weekView.getCalendarModel();
 		}
-	}	
+	}
+	
+	public boolean calModHasAppointmentAtClickTime(PropertyChangeEvent evt, CalendarModel calMod) {
+		return false;
+	}
 }
