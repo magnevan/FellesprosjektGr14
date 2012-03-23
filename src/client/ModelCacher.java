@@ -1,11 +1,10 @@
 package client;
 
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import server.model.IDBStorableModel;
 import client.model.TransferableModel;
 
 /**
@@ -13,7 +12,11 @@ import client.model.TransferableModel;
  * other code. Upon receiving a model from the server the model cacher
  * will cache the model, making sure that only a single instance of each
  * model representing the same data exists. And thereby keeping all existing
- * instances of a model up to date
+ * instances of a model up to date.
+ * 
+ * The cache uses a weak reference when storing the models it caches,
+ * as a result the cache will not keep the models from GC after all other
+ * code has dropped their references to it.
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
@@ -22,8 +25,9 @@ public abstract class ModelCacher {
 	/**
 	 * Map containing cached models identified by their unique model id string
 	 */
-	private static Map<String, TransferableModel> cache = Collections.synchronizedMap(
-			new HashMap<String, TransferableModel>()
+	private static Map<String, WeakReference<TransferableModel>> cache = 
+			Collections.synchronizedMap(
+					new HashMap<String, WeakReference<TransferableModel>>()
 		);
 	
 	/**
@@ -37,12 +41,12 @@ public abstract class ModelCacher {
 		if(model.getUMID() == null)
 			return model;
 		
-		if(cache.containsKey(model.getUMID())) {
+		if(containsKey(model.getUMID())) {
 			ModelCacher.update(model);
 		} else {
-			cache.put(model.getUMID(), model);
+			put(model.getUMID(), model);
 		}
-		return cache.get(model.getUMID());
+		return get(model.getUMID());
 	}
 	
 	/**
@@ -52,37 +56,53 @@ public abstract class ModelCacher {
 	 * @return
 	 */
 	public static TransferableModel update(TransferableModel model) {
-		if(model instanceof IDBStorableModel) 
-			return model;
-		
-		// @TODO this does nothing yet
-		return model;
+		if(model.getUMID() != null && containsKey(model.getUMID())) {
+			get(model.getUMID()).copyFrom(model);
+			return get(model.getUMID());
+		}
+		return null;
 	}
 	
 	/**
-	 * Free the given model from the cache
+	 * Add a TransferableModel to the map
 	 * 
-	 * Models should be freed upon being dropped in the client code. If not
-	 * dropped the model will remain in cache even if dropped elsewere and we've
-	 * got a memory leak.
-	 * 
+	 * @param umid
 	 * @param model
 	 */
-	public static void free(TransferableModel model) {
-		if(model.getUMID() != null) {
-			cache.remove(model.getUMID());
+	private static void put(String umid, TransferableModel model) {
+		if(!containsKey(umid)) {
+			cache.put(umid, new WeakReference<TransferableModel>(model));
 		}
 	}
 	
 	/**
-	 * Free a list of models {@see free(TransferableModel)}
+	 * Get the model identified by the given umid, or null if we've got none
 	 * 
-	 * @param models
+	 * @param umid
+	 * @return
 	 */
-	public static void free(List<TransferableModel> models) {
-		for(TransferableModel m : models) {
-			free(m);
+	private static TransferableModel get(String umid) {
+		if(containsKey(umid)) {
+			return cache.get(umid).get();
 		}
+		return null;
+	}
+	
+	/**
+	 * Check if the given umid exists, and if it does make sure the object is
+	 * still with us
+	 * 
+	 * @param umid
+	 * @return
+	 */
+	private static boolean containsKey(String umid) {
+		if(cache.containsKey(umid)) {
+			if(cache.get(umid).get() != null) {
+				return true;
+			}
+			cache.remove(umid);
+		}
+		return false;
 	}
 			
 	

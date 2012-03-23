@@ -347,7 +347,6 @@ public class ServerConnection extends AbstractConnection {
 		}
 		
 		if(stored instanceof TransferableModel) {
-			// TODO Have mode copy the contents of stored, free stored and cache model
 			return (TransferableModel) stored;
 		}
 		return null;

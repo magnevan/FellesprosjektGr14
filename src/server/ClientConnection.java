@@ -184,6 +184,9 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 					}
 					writeModels(new TransferableModel[]{model}, id, method, "OK");
 					
+					// Broadcast changed model
+					broadcastModel(model);
+					
 				} else if(method.equals("LOGOUT")) {
 					writeLine(formatCommand(id, "LOGOUT"));
 					disconnect();
