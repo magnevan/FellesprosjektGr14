@@ -133,8 +133,6 @@ public class WeekView extends JPanel {
 		if (hour > (23-SHOWHOURS/2)) hour = (23-SHOWHOURS/2);
 		hour -= SHOWHOURS/2;
 		
-		//System.out.println(hour);
-		
 //		It seems like getMaximum returns only half of the maximum. Dividing by two to compensate
 		vs.setValue(
 				hour * vs.getMaximum() / 2 / SHOWHOURS

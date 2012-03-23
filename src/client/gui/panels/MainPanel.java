@@ -90,7 +90,6 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		System.out.println(evt.getPropertyName());
 		if (evt.getPropertyName() == NotificationList.NOTIFICATION_COUNT) {
 			
 			optionTabbedPane.setTitleAt(2, "Varsel (" + ((Integer)evt.getNewValue()) + ")");

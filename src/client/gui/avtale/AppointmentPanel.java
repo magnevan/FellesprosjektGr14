@@ -132,7 +132,6 @@ public class AppointmentPanel extends JPanel {
 		int minutes = (int)((EMilli-SMilli)/60000);
 		
 		AppointmentLength = (minutes*WeekView.HOURHEIGHT)/60;
-		System.out.println(minutes);
 		//Kjapp test av hvordan justering av avtale kan gjøres
 		if(minutes == 15){
 			showComponents(true, false, false,false, false, 10);

@@ -117,7 +117,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		while (fromTime.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
 			fromTime.add(Calendar.DAY_OF_WEEK, -1);
 		
-		while (toTime.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
+		while (toTime.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY)
 			toTime.add(Calendar.DAY_OF_WEEK, 1);
 			
 		fromTime.set(Calendar.HOUR_OF_DAY, 0);

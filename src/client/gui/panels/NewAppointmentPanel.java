@@ -192,7 +192,6 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		from.set(Calendar.HOUR_OF_DAY, fromTime.getHour());
 		from.set(Calendar.MINUTE, fromTime.getMinute());
 		from.set(Calendar.SECOND, 0);
-		System.out.printf("Fromtime (%s)\n", from.getTime());
 		return from;
 	}
 	
@@ -231,7 +230,6 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	
 	private void storeMeeting() {
 		if (!isDataValid()) return;
-		System.out.println("Store");
 		//Name
 		model.setName(tittelText.getText());
 		//Date+time
