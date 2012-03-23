@@ -110,6 +110,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 			clickTime.set(Calendar.HOUR_OF_DAY, dayAndHour[1]);
 			clickTime.set(Calendar.MINUTE, 0);
 			clickTime.set(Calendar.SECOND, 0);
+			OpenNewAppointment(clickTime);
 		}
 	}
 }

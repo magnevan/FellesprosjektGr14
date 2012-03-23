@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.text.SimpleDateFormat;
@@ -35,7 +36,7 @@ import client.model.UserModel;
 /**
  * @author Magne
  */
-public class WeekView extends JPanel {
+public class WeekView extends JPanel implements PropertyChangeListener {
 	
 	private static final long serialVersionUID = -8533878088518459485L;
 	
@@ -63,6 +64,7 @@ public class WeekView extends JPanel {
 	public WeekView() {
 		
 		calModel = ClientMain.getActiveUser().getCalendarModel();
+		calModel.addPropertyChangeListner(this);
 		
 		appointments = new ArrayList<AppointmentPanel>();
 
@@ -273,7 +275,6 @@ public class WeekView extends JPanel {
 			AppointmentLayer.add(AP,2, 0);
 			AP.setOpaque(true);
 			AP.setBounds(AP.getX(), AP.getY(), AP.getWidth(),AP.getLength());
-			System.out.println("BREDDE:" );
 		}	
 	}
 	
@@ -290,6 +291,18 @@ public class WeekView extends JPanel {
 		}
 		drawAppointments();
 	}
+	
+	private void addAppointment(MeetingModel MM){
+		//Muligens litt tungvint, men hvis år og uke er lik med nåværende date så tegnes avtalen
+		if(MM.getTimeFrom().get(MM.getTimeFrom().YEAR) == date.get(date.YEAR) && MM.getTimeFrom().get(MM.getTimeFrom().WEEK_OF_YEAR) == date.get(date.WEEK_OF_YEAR)){
+			AppointmentPanel avtale = new AppointmentPanel(MM);
+			appointments.add(avtale);
+			AppointmentLayer.add(avtale,2, 0);
+			avtale.setOpaque(true);
+			avtale.setBounds(avtale.getX(), avtale.getY(),avtale.getWidth(),avtale.getLength());
+		}
+	}
+
 	
 	/**
 	 * Fjerner alle avtaler fra Panelet for å så fjerne alle fra arraylist.
@@ -339,38 +352,21 @@ public class WeekView extends JPanel {
         } 
     }
 	
-//	public static void main (String args[]) { 
-//        JFrame frame = new JFrame("");
-//        Calendar from =  Calendar.getInstance();
-//        from.set(2012, 3, 21, 13, 0);
-//        Calendar to = Calendar.getInstance();
-//        to.set(2012, 3, 21, 14, 0);
-//        UserModel testPerson = new UserModel("Olano", "ola@hotmail.com", "Ola Nordmann");
-//        MeetingModel  MM = new MeetingModel(from, to, testPerson);
-//        MM.setName("Viktig avtale");
-//        MM.setLocation("spisesalen");
-//        MM.setActive(true);
-//        
-//        Calendar from2 =  Calendar.getInstance();
-//        from2.set(2012, 3, 23, 13, 0);
-//        Calendar to2 = Calendar.getInstance();
-//        to2.set(2012, 3, 23, 14, 0);
-//        UserModel testPerson2 = new UserModel("Hansern", "hans@hotmail.com", "Hans Hansen");
-//        MeetingModel  MM2 = new MeetingModel(from2, to2, testPerson2);
-//        MM2.setName("Verksted");
-//        MM2.setLocation("Fjordgata 2");
-//        MM2.addAttendee(testPerson);
-//        MM2.setActive(true);
-//        
-//        
-//        
-//        WeekView WV = new WeekView();
-//        WV.setOpaque(true);
-//        WV.addAppointment(MM);
-//        WV.addAppointment(MM2);
-//        frame.getContentPane().add(WV); 
-//        frame.pack();  
-//        frame.setVisible(true);   
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//    }
+	
+
+
+	@Override
+	public void propertyChange(PropertyChangeEvent event) {
+		String PN = event.getPropertyName();
+		
+		if(PN == calModel.MEETING_ADDED){
+			addAppointment((MeetingModel)event.getNewValue());
+			System.out.println("Meeting added recived");
+		}
+		else if(PN == calModel.MEETING_REMOVED){
+			addAllAppointments();
+			System.out.println("Meeting removed recived");
+		}
+	}
+	
 }
