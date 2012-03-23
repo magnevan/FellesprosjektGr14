@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
+
 import client.gui.CheckListManager;
 import client.gui.VerticalLayout;
 import client.model.FilteredUserListModel;
@@ -18,103 +19,79 @@ import client.gui.usersearch.FilteredUserList;
  */
 public class AndrePanel extends JPanel{
 	
-	private final JList activeCalenders;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5571042635925738029L;
+	private final JList activeCalendersList;
 	private final JButton upButton, downButton, newAppointmentButton;
-	final PersonLabel personLabel;
-	final UserModel person;
-	static JCheckBox checkBox;
-	CheckListManager checkListManager; 
-	FilteredUserList search;
+	private final DefaultListModel activeCalendarsListModel;
+	@SuppressWarnings("unused")
+	private final CheckListManager checkListManager; 
+	private final FilteredUserList filteredUserList;
 
 	public AndrePanel(){
 		super(new VerticalLayout(5,SwingConstants.LEFT));
 		
-		// Top content, the person label
+		// Top panel, the users icon, name and the logout button
 		JPanel topPanel = new JPanel();
-		personLabel = new PersonLabel();
+		PersonLabel personLabel = new PersonLabel();
 		personLabel.setPreferredSize(new Dimension(310, 50));
 		topPanel.add(personLabel);
 		
-		// Employees label
-		JLabel ansatte = new JLabel();
-		ansatte.setText("Ansatte");
+		// Center content, a label, the filtered user list, the add/remove-buttons and the list of active calendars
+		JPanel centerContent = new JPanel(new VerticalLayout(5, SwingConstants.LEFT));
+		centerContent.setPreferredSize(new Dimension(310, 503));
+
+		JLabel employeesLabel = new JLabel();
+		employeesLabel.setText("Ansatte");
+		centerContent.add(employeesLabel);
 		
-		
-		
-		//search panel
-		search = new FilteredUserList(new FilteredUserListModel());
-		search.setPreferredSize(new Dimension(310,150));
-		person = new UserModel();
-		
-		//button panel
+		filteredUserList = new FilteredUserList(new FilteredUserListModel());
+		filteredUserList.setPreferredSize(new Dimension(307,150));
+		centerContent.add(filteredUserList);
+				
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
 		buttonPanel.setPreferredSize(new Dimension(310,30));
+		ButtonClickListener buttonClickListener = new ButtonClickListener();
 		upButton = new JButton("Legg til");
+		upButton.addActionListener(buttonClickListener);
 		downButton = new JButton("Fjern");
+		downButton.addActionListener(buttonClickListener);
 		buttonPanel.add(Box.createHorizontalGlue());
 		upButton.setAlignmentX(LEFT_ALIGNMENT);
 		buttonPanel.add(upButton);
 		downButton.setAlignmentX(RIGHT_ALIGNMENT);
 		buttonPanel.add(downButton);
 		buttonPanel.add(Box.createHorizontalGlue());
-		this.add(buttonPanel);
+		centerContent.add(buttonPanel);
 		
-		//active calenders center
-		JLabel aktiveKalendere = new JLabel();
-		aktiveKalendere.setText("Aktive kalendere");
+		JLabel activeCalendarsLabel = new JLabel();
+		activeCalendarsLabel.setText("Aktive kalendere");
+		centerContent.add(activeCalendarsLabel);
 		
-		//bottomPanel
-		final JPanel bottomPanel = new JPanel(new BorderLayout());
+		activeCalendarsListModel = new DefaultListModel();
+		activeCalendersList = new JList(activeCalendarsListModel);
+		checkListManager = new CheckListManager(activeCalendersList);
+		activeCalendersList.setForeground(Color.black);
+		JScrollPane activeCalendarsScrollPane = new JScrollPane(activeCalendersList);
+		activeCalendarsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		centerContent.add(activeCalendarsScrollPane);
 		 
-		final DefaultListModel lol = new DefaultListModel();
-		activeCalenders = new JList(lol);
-		checkListManager = new CheckListManager(activeCalenders);
-		bottomPanel.setPreferredSize(new Dimension(310,100));
-		activeCalenders.setForeground(Color.black);
-		bottomPanel.add(activeCalenders);
-		JScrollPane scroll2 = new JScrollPane(activeCalenders);
-		scroll2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		bottomPanel.add(scroll2);
-		
-		// meetingBox panel
-		JPanel addMeetingPanel = new JPanel(new BorderLayout());
-		addMeetingPanel.setPreferredSize(new Dimension(310,100));
+		// Button at bottom
+		JPanel bottomPanel = new JPanel(new BorderLayout());
+		bottomPanel.setPreferredSize(new Dimension(306, 100));
 		newAppointmentButton = new JButton("Opprett en avtale/m¿te");
 		newAppointmentButton.setOpaque(true);
-		addMeetingPanel.add(newAppointmentButton);
-		
-		upButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
-				for (UserModel model : search.getSelectedUsers())
-					lol.addElement(model);
-			}
-		});
-		
-		downButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
-				lol.removeElement(activeCalenders.getSelectedValue());
- 			}
-		});
-
+		bottomPanel.add(newAppointmentButton);
 		
 		//add elements
 
 		this.add(topPanel);
-		this.add(Box.createVerticalStrut(10));
-		this.add(ansatte);
-		this.add(search);
-		this.add(Box.createVerticalStrut(10));
-		this.add(buttonPanel);
-		this.add(Box.createVerticalStrut(2));
-		this.add(aktiveKalendere);
+		this.add(centerContent);
 		this.add(bottomPanel);
-		this.add(Box.createVerticalStrut(20));
-		this.add(addMeetingPanel);
+
 
 	}
 	
@@ -133,5 +110,18 @@ public class AndrePanel extends JPanel{
 	
 	public JButton getNewAppointmentButton() {
 		return newAppointmentButton;
+	}
+	
+	class ButtonClickListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			if (evt.getSource() == upButton) {
+				for (UserModel model : filteredUserList.getSelectedUsers())
+					activeCalendarsListModel.addElement(model);
+			} else if (evt.getSource() == downButton) {
+				activeCalendarsListModel.removeElement(activeCalendersList.getSelectedValue());
+			}
+		}
+		
 	}
 }
