@@ -91,14 +91,6 @@ public class HovedPanel extends JPanel{
 		return null;
 	}
 	
-//	public static void main(String []args){
-//		JFrame frame = new JFrame();
-//		
-//		frame.setVisible(true);
-//		frame.add(new HovedPanel());
-//		frame.pack();
-//	}
-	
 	public static MeetingModel createMeetingModel(Calendar timeFrom,Calendar timeTo, String name){
 		MeetingModel model = new MeetingModel();
 		
@@ -113,13 +105,11 @@ public class HovedPanel extends JPanel{
 	
 	public static String now() {
 		Calendar cal = Calendar.getInstance();
-	SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
-	return sdf.format(cal.getTime());}
+		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
+		return sdf.format(cal.getTime());
+	}
 
 	public JButton getNewAppointmentButton() {
 		return newAppointmentButton;
-	}
-
-	
+	}	
 }
-
