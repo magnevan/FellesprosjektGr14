@@ -127,6 +127,7 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 	 * 
 	 * @param hour The hour it should focus on, between 0 and 23 inclusive.
 	 */
+	//TODO denne er buggy
 	public void focusOnHour(int hour) {
 		if (hour > 23 || hour < 0) return;
 		
