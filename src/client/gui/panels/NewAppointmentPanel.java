@@ -2,6 +2,7 @@ package client.gui.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -13,6 +14,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -69,10 +71,11 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	
 	public NewAppointmentPanel(MeetingModel meetingModel) {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
+//		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		this.model = meetingModel;
 		this.isOwner = meetingModel.getOwner() == ClientMain.getActiveUser();
-		System.out.println(isOwner);
+		System.out.printf("Opening meeting isOwner=%b\n", isOwner);
 		
 		//Tittel
 		this.add(new JLabel("Tittel:"));
@@ -83,16 +86,17 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		//Tid
 		this.add(new JLabel("Tid"));
 		JPanel tidPanel = new JPanel();
+		tidPanel.setLayout(new BoxLayout(tidPanel, BoxLayout.X_AXIS));
 		dateChooser = new JDateChooser(model.getTimeFrom().getTime(), "dd. MMMM YYYY");
-		dateChooser.setPreferredSize(new Dimension(130,20));
-		tidPanel.add(dateChooser);
 		
 		fromTime = new JTimePicker(model.getTimeFrom());
 		toTime = new JTimePicker(model.getTimeTo());
 		
-		fromTime.setEditable(isOwner);
-		toTime.setEditable(isOwner);
+		if (!isOwner) fromTime.setEditable(false);
+		if (!isOwner) toTime.setEditable(false);
 		
+		tidPanel.add(dateChooser);
+		tidPanel.add(Box.createHorizontalGlue());
 		tidPanel.add(fromTime);
 		tidPanel.add(new JLabel(" - "));
 		tidPanel.add(toTime);
@@ -105,6 +109,10 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		moteromComboBox = new JComboBox();
 		selectedRoom = model.getRoom();
 		moteromComboBox.setSelectedItem(selectedRoom);
+		moteromComboBox.setPreferredSize(new Dimension(
+					100,
+					moteromComboBox.getPreferredSize().height
+				));
 		
 		moteromText = new JDefaultTextField("Skriv møteplass...", 15);
 		moteromText.setText(model.getLocation());

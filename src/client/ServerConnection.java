@@ -500,15 +500,14 @@ public class ServerConnection extends AbstractConnection {
 	}
 }
 
-
 class Listener implements IServerResponseListener {
 
 	@Override
 	public void onServerResponse(int requestId, Object data) {
 		MeetingModel mm = ((List<MeetingModel>) data).get(0);
-		System.out.println(mm.getName());
+//		System.out.println(mm.getName());
 		
-		System.out.println(mm.getInvitation(ClientMain.getActiveUser()));
+//		System.out.println(mm.getInvitation(ClientMain.getActiveUser()));
 		
 	}
 	

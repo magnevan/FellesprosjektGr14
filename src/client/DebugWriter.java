@@ -13,7 +13,7 @@ public class DebugWriter extends BufferedWriter {
 	@Override
 	public void write(String s) throws IOException {
 		super.write(s);
-		System.out.print(">> "+s);
+//		System.out.print(">> "+s);
 	}
 	
 }

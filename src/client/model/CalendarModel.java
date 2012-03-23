@@ -144,9 +144,9 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		fromTime.set(Calendar.MINUTE, 0);
 		fromTime.set(Calendar.SECOND, 0);
 		
-		fromTime.set(Calendar.HOUR_OF_DAY, 23);
-		fromTime.set(Calendar.MINUTE, 59);
-		fromTime.set(Calendar.SECOND, 59);
+		toTime.set(Calendar.HOUR_OF_DAY, 23);
+		toTime.set(Calendar.MINUTE, 59);
+		toTime.set(Calendar.SECOND, 59);
 		
 		return getMeetingInterval(fromTime, toTime,true);
 	}
@@ -276,7 +276,6 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		from.set(Calendar.DAY_OF_MONTH, 1);
 		to.set(Calendar.DAY_OF_MONTH, to.getActualMaximum(Calendar.DAY_OF_MONTH));
 		
-		System.out.printf("Request buffer (%s) - (%s)\n", from.getTime().toString(), to.getTime().toString());
 		meetingsReq = ServerConnection.instance().requestMeetings(this, new UserModel[]{owner}, from, to);
 	}
 	
