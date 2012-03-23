@@ -36,41 +36,49 @@ public class VarselPanel extends JPanel implements PropertyChangeListener {
 	private JButton newAppointmentButton; //TODO legg denne til grafisk
 	private NotificationList notificationList;
 	private PropertyChangeSupport pcs;
+	private final PersonLabel personLabel;
 	
 	public VarselPanel(){
-		super(new VerticalLayout(1, VerticalLayout.LEFT));		
+		super(new VerticalLayout(5,SwingConstants.LEFT));		
 
 		pcs = new PropertyChangeSupport(this);
 		
 		// Top content, the person label
-		PersonLabel personLabel = new PersonLabel();
+		JPanel topPanel = new JPanel();
+		personLabel = new PersonLabel();
 		personLabel.setPreferredSize(new Dimension(310, 50));
-		this.add(personLabel);
-		
+		topPanel.add(personLabel);
+			
 		
 		// Center content, the notification list
 		JLabel notifications = new JLabel("Varsler:");
-		notifications.setAlignmentX(LEFT_ALIGNMENT);
-		notifications.setAlignmentY(TOP_ALIGNMENT);
-		this.add(notifications);
+		//notifications.setAlignmentX(LEFT_ALIGNMENT);
+		//notifications.setAlignmentY(TOP_ALIGNMENT);
+		JPanel centerPanel = new JPanel();
 		notificationList = new NotificationList();
 		notificationList.addPropertyChangeListener(this);
-		notificationList.setPreferredSize(new Dimension(310, 485));
-		this.add(notificationList);
-		notifications.setLabelFor(notificationList);
+		notificationList.setPreferredSize(new Dimension(310, 404));
+		//notifications.setLabelFor(notificationList);
+		JScrollPane scroll = new JScrollPane(notificationList);
+		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		centerPanel.add(scroll);
 	
 		// Create a small space
-		this.add(Box.createVerticalStrut(20));
+		//this.add(Box.createVerticalStrut(20));
 		
 		// Button at bottom
 		JPanel bottomPanel = new JPanel(new BorderLayout());
-		bottomPanel.setPreferredSize(new Dimension(308, 100));
-		newAppointmentButton = new JButton("Opprett en avtale/møte");
+		bottomPanel.setPreferredSize(new Dimension(310, 100));
+		newAppointmentButton = new JButton("Opprett en avtale/m¿te");
 		newAppointmentButton.setOpaque(true);
 		bottomPanel.add(newAppointmentButton);
-		this.add(bottomPanel);
 		
 		ClientMain.client().getActiveUser().addPropertyChangeListener(this);
+		
+		this.add(topPanel);
+		this.add(notifications);
+		this.add(centerPanel);
+		this.add(bottomPanel);
 	}
 	
 	/**

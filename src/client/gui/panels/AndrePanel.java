@@ -43,7 +43,7 @@ public class AndrePanel extends JPanel{
 		
 		//search panel
 		search = new FilteredUserList(new FilteredUserListModel());
-		search.setPreferredSize(new Dimension(270,100));
+		search.setPreferredSize(new Dimension(310,150));
 		person = new UserModel();
 		
 		//button panel
@@ -70,7 +70,7 @@ public class AndrePanel extends JPanel{
 		final DefaultListModel lol = new DefaultListModel();
 		activeCalenders = new JList(lol);
 		checkListManager = new CheckListManager(activeCalenders);
-		bottomPanel.setPreferredSize(new Dimension(270,100));
+		bottomPanel.setPreferredSize(new Dimension(310,100));
 		activeCalenders.setForeground(Color.black);
 		bottomPanel.add(activeCalenders);
 		JScrollPane scroll2 = new JScrollPane(activeCalenders);
@@ -79,8 +79,8 @@ public class AndrePanel extends JPanel{
 		
 		// meetingBox panel
 		JPanel addMeetingPanel = new JPanel(new BorderLayout());
-		addMeetingPanel.setPreferredSize(new Dimension(270,100));
-		newAppointmentButton = new JButton("Opprett en avtale/mï¿½te");
+		addMeetingPanel.setPreferredSize(new Dimension(310,100));
+		newAppointmentButton = new JButton("Opprett en avtale/m¿te");
 		newAppointmentButton.setOpaque(true);
 		addMeetingPanel.add(newAppointmentButton);
 		
@@ -105,7 +105,7 @@ public class AndrePanel extends JPanel{
 		//add elements
 
 		this.add(topPanel);
-		this.add(Box.createVerticalStrut(30));
+		this.add(Box.createVerticalStrut(10));
 		this.add(ansatte);
 		this.add(search);
 		this.add(Box.createVerticalStrut(10));
@@ -113,6 +113,7 @@ public class AndrePanel extends JPanel{
 		this.add(Box.createVerticalStrut(2));
 		this.add(aktiveKalendere);
 		this.add(bottomPanel);
+		this.add(Box.createVerticalStrut(20));
 		this.add(addMeetingPanel);
 
 	}

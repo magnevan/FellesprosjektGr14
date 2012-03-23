@@ -44,6 +44,7 @@ public class HovedPanel extends JPanel{
 		//Top panel
 		JPanel topPanel = new JPanel();
 		PersonLabel personLabel = new PersonLabel();
+		personLabel.setPreferredSize(new Dimension(310, 50));
 		topPanel.add(personLabel);
 		
 		//Center panel
@@ -57,7 +58,7 @@ public class HovedPanel extends JPanel{
 		appointmentList = new JList(test);
 		appointmentList.setCellRenderer(new MeetingModelRenderer());
 		
-		centerPanel.setPreferredSize(new Dimension(270,404));
+		centerPanel.setPreferredSize(new Dimension(310,404));
 		centerPanel.add(appointmentList);
 		JScrollPane scroll = new JScrollPane(appointmentList);
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -65,7 +66,7 @@ public class HovedPanel extends JPanel{
 		
 		//Bottom
 		JPanel bottomPanel = new JPanel(new BorderLayout());
-		bottomPanel.setPreferredSize(new Dimension(270,100));
+		bottomPanel.setPreferredSize(new Dimension(310,100));
 		newAppointmentButton = new JButton("Opprett en avtale/m¿te");
 		newAppointmentButton.setOpaque(true);
 		bottomPanel.add(newAppointmentButton);
