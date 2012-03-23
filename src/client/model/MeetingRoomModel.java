@@ -43,13 +43,21 @@ public class MeetingRoomModel implements TransferableModel {
 	 * @param modelBuff
 	 * @throws IOException
 	 */
-	public MeetingRoomModel(BufferedReader reader, 
-			HashMap<String, TransferableModel> modelBuff) throws IOException {
+	public MeetingRoomModel(BufferedReader reader) throws IOException {
 		
 		this(reader.readLine(), reader.readLine(), 
 				Integer.parseInt(reader.readLine()));
 	}
 
+	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {}
+
+
+	@Override
+	public void copyFrom(TransferableModel source) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	/**
 	 * Get unique model ID
 	 */
@@ -133,4 +141,5 @@ public class MeetingRoomModel implements TransferableModel {
 	public String toString() {
 		return this.name;
 	}
+
 }

@@ -1,9 +1,7 @@
-package client;
+	package client;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 
 import javax.swing.JFrame;
@@ -56,6 +54,7 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 			this.setResizable(true);
 			contentPane.remove(loginPanel);
 			
+			ClientMain.getActiveUser().getCalendarModel().requestDefaultBuffer();
 			mainPanel = new MainPanel();
 			
 			contentPane.add(mainPanel, BorderLayout.CENTER);

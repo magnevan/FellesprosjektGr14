@@ -6,6 +6,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
 
+import client.ClientMain;
+import client.ServerConnection;
+
 import server.ModelEnvelope;
 
 /**
@@ -50,12 +53,28 @@ public class InvitationModel implements TransferableModel {
 	 * @param reader
 	 * @param modelBuff
 	 */
-	public InvitationModel(BufferedReader reader, 
-			HashMap<String, TransferableModel> modelBuff) throws IOException {
+	public InvitationModel(BufferedReader reader) throws IOException {
 		
 		status = InvitationStatus.valueOf(reader.readLine());
-		meeting = (MeetingModel) modelBuff.get(reader.readLine());
-		user = (UserModel) modelBuff.get(reader.readLine());
+		meeting_umid = reader.readLine();
+		user_umid = reader.readLine();
+	}
+	
+	private String meeting_umid;
+	private String user_umid;
+	
+	/**
+	 * Load in sub models
+	 */
+	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
+		meeting = (MeetingModel) modelBuff.get(meeting_umid);
+		user = (UserModel) modelBuff.get(user_umid);
+	}
+
+	@Override
+	public void copyFrom(TransferableModel source) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	/**
@@ -165,6 +184,15 @@ public class InvitationModel implements TransferableModel {
 		sb.append(getStatus()+"\r\n");
 		sb.append(getMeeting().getUMID()+"\r\n");
 		sb.append(getUser().getUMID()+"\r\n");
+	}
+	
+	/**
+	 * Delete a invitation
+	 */
+	public void delete() throws IOException {
+		if(!ClientMain.getActiveUser().equals(getUser()))
+			throw new IOException("User does not own invitation");
+		ServerConnection.instance().deleteInvitation(this);
 	}
 	
 }

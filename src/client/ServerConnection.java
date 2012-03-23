@@ -1,6 +1,5 @@
 package client;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,6 +20,7 @@ import java.util.logging.Logger;
 import server.ModelEnvelope;
 import client.gui.exceptions.BadLoginException;
 import client.model.ActiveUserModel;
+import client.model.InvitationModel;
 import client.model.MeetingModel;
 import client.model.NotificationModel;
 import client.model.TransferableModel;
@@ -34,7 +34,9 @@ import client.model.UserModel;
 public class ServerConnection extends AbstractConnection {
 	
 	// Stores listeners interested in server connection changes
-	private static final Set<IServerConnectionListener> serverConnectionListeners = new HashSet<IServerConnectionListener>();
+	private static final Set<IServerConnectionListener> serverConnectionListeners 
+							= Collections.synchronizedSet(new HashSet<IServerConnectionListener>());
+	
 	
 	private static Logger LOGGER = Logger.getLogger("ServerConnection");
 	private static ServerConnection instance = null;	
@@ -134,9 +136,12 @@ public class ServerConnection extends AbstractConnection {
 			
 		
 		try {
-			socket = new Socket(address, port);			
-			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			socket = new Socket(address, port);
+			
+			reader = new DebugReader(new InputStreamReader(socket.getInputStream()));
+			//reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			//writer = new DebugWriter(new OutputStreamWriter(socket.getOutputStream()));
 			
 			LOGGER.info(reader.readLine()); // Read welcome message
 			
@@ -192,6 +197,10 @@ public class ServerConnection extends AbstractConnection {
 						continue;
 					} 
 					
+					if(method.equals("DELETE")) {
+						continue;
+					}
+					
 					List<TransferableModel> models = readModels();
 					
 					// Broadcasts come with a zero id
@@ -199,7 +208,7 @@ public class ServerConnection extends AbstractConnection {
 						TransferableModel model = models.get(0);
 						
 						if(model instanceof NotificationModel) {
-							user.addNotification((NotificationModel) model);
+							user.addNotification((NotificationModel)model);
 						}
 						continue;
 					}
@@ -319,7 +328,7 @@ public class ServerConnection extends AbstractConnection {
 		try {
 			writeModels(Arrays.asList(model), id, "STORE");
 			
-			long time = System.currentTimeMillis();
+			//long time = System.currentTimeMillis();
 			
 			// Updated model will come in reader thread, halt untill it's there
 			while(!storedModels.containsKey(id) 
@@ -399,6 +408,48 @@ public class ServerConnection extends AbstractConnection {
 	}
 	
 	/**
+	 * Delete a meeting
+	 * 
+	 * @param meeting
+	 * @return
+	 */
+	public int deleteMeeting(MeetingModel meeting) {
+		int id = ++nextRequestId;
+		
+		try {
+			writeLine(formatCommand(id, "DELETE", "MEETING "+meeting.getId()));			
+		} catch(IOException e) {
+			listeners.remove(id);
+			LOGGER.severe("IOException deleteMeeting");
+			LOGGER.severe(e.toString());
+			return -1;
+		}
+		return id;
+	}
+	
+	/**
+	 * Delete a invitation
+	 * 
+	 * @param invitation
+	 * @return
+	 */
+	public int deleteInvitation(InvitationModel invitation) {
+		int id = ++nextRequestId;
+		
+		try {
+			writeLine(formatCommand(id, "DELETE", "INVITATION "+invitation.getUser().getUsername()+
+					" "+invitation.getMeeting().getId()));			
+			
+		} catch(IOException e) {
+			listeners.remove(id);
+			LOGGER.severe("IOException deleteInvitations");
+			LOGGER.severe(e.toString());
+			return -1;
+		}
+		return id;
+	}
+	
+	/**
 	 * Add server connection listener
 	 * 
 	 * @param listener
@@ -421,7 +472,7 @@ public class ServerConnection extends AbstractConnection {
 	 * 
 	 * @param change
 	 */
-	private static void fireServerConnectionChange(String change) {
+	private static  void fireServerConnectionChange(String change) {
 		for (IServerConnectionListener listener : serverConnectionListeners)
 			listener.serverConnectionChange(change);
 	}	
@@ -439,34 +490,23 @@ public class ServerConnection extends AbstractConnection {
 		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
 		
 		Calendar from = Calendar.getInstance();
-		from.add(Calendar.HOUR_OF_DAY, -1);
+		from.set(2012, 1, 1);
 		Calendar to = Calendar.getInstance();
+		to.set(2013, 1, 1);
 		
-		MeetingModel mm = new MeetingModel(from, to, ClientMain.getActiveUser());
-		mm.setName("Test møte");
-		mm.addAttendee(ClientMain.getActiveUser());
-		mm.store();
-		
-		System.out.println("Meeing has been stored with id "+mm.getId());
-		
-		ServerConnection.instance().requestMeeting(new Listener(mm), mm.getId());
-		
+		ServerConnection.instance().requestMeetings(new Listener(), from, to);
 	}
 }
 
+
 class Listener implements IServerResponseListener {
 
-	private MeetingModel mm;
-	public Listener(MeetingModel mm) {
-		this.mm = mm;
-	}
-	
 	@Override
 	public void onServerResponse(int requestId, Object data) {
-		@SuppressWarnings("unchecked")
-		MeetingModel m2 = ((List<MeetingModel>) data).get(0);
+		MeetingModel mm = ((List<MeetingModel>) data).get(0);
+		System.out.println(mm.getName());
 		
-		System.out.println(m2.equals(mm));
+		System.out.println(mm.getInvitation(ClientMain.getActiveUser()));
 		
 	}
 	

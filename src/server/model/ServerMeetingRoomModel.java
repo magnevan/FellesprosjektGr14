@@ -37,9 +37,8 @@ public class ServerMeetingRoomModel extends MeetingRoomModel {
 	 * @param modelBuff
 	 * @throws IOException
 	 */
-	public ServerMeetingRoomModel(BufferedReader reader, 
-			HashMap<String, TransferableModel> modelBuff) throws IOException {		
-		super(reader, modelBuff);
+	public ServerMeetingRoomModel(BufferedReader reader) throws IOException {		
+		super(reader);
 	}
 	
 	/**

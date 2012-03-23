@@ -4,34 +4,44 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Calendar;
 
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
+import client.ClientMain;
 import client.gui.week.WeekView;
 import client.model.MeetingModel;
+import client.model.NotificationType;
 
 
-public class MainPanel extends JPanel {
+public class MainPanel extends JPanel implements PropertyChangeListener {
 
 	private static final long serialVersionUID = -6453034572305492442L;
 
 	private final JTabbedPane optionTabbedPane;
 	private NewAppointmentPanel newAppointmentPane = null;
+	private int unreadNotifications;
 
 	public MainPanel() {
 		super(new BorderLayout());
+		
+		unreadNotifications = 0;
 		
 		optionTabbedPane = new JTabbedPane();
 		JTabbedPane calendarTabbedPane = new JTabbedPane();
 		
 		HovedPanel hp = new HovedPanel();
 		VarselPanel vp = new VarselPanel();
+		vp.addPropertyChangeListener(this);
+
 		AndrePanel akp = new AndrePanel();
 		
 		optionTabbedPane.addTab("Hoved", hp); //TODO
 		optionTabbedPane.addTab("Andre Kalendre", akp); //TODO
-		optionTabbedPane.addTab("Varsler(0)", vp); //TODO
+		optionTabbedPane.addTab("Varsler (0)", vp); //TODO
 		
 		
 		calendarTabbedPane.addTab("Uke", new WeekView());
@@ -42,6 +52,9 @@ public class MainPanel extends JPanel {
 		
 		this.add(optionTabbedPane,BorderLayout.CENTER);
 		this.add(calendarTabbedPane, BorderLayout.EAST);
+
+		// Initialize notifications
+		vp.initializeList(ClientMain.getActiveUser().getNotifications());
 		
 		//Listeners
 		ActionListener listener = new NewAppointmentListener();
@@ -58,11 +71,18 @@ public class MainPanel extends JPanel {
 		optionTabbedPane.setSelectedComponent(newAppointmentPane);
 	}
 	
+	
 	class NewAppointmentListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			OpenNewAppointment();
 		}
 	}
-	
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt.getPropertyName() == NotificationList.NOTIFICATION_COUNT) {
+			optionTabbedPane.setTitleAt(2, "Varsel (" + ((Integer)evt.getNewValue()) + ")");
+		}
+	}	
 }

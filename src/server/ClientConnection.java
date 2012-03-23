@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 
 import server.model.IDBStorableModel;
 import server.model.ServerActiveUserModel;
+import server.model.ServerInvitationModel;
 import server.model.ServerMeetingModel;
 import server.model.ServerMeetingRoomModel;
 import server.model.ServerUserModel;
@@ -186,6 +187,27 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 				} else if(method.equals("LOGOUT")) {
 					writeLine(formatCommand(id, "LOGOUT"));
 					disconnect();
+				
+				} else if(method.equals("DELETE") && parts.length >= 4) {
+					String smethod = parts[2];
+					
+					// Delete meeting
+					if(smethod.equals("MEETING")) {
+						ServerMeetingModel.findById(
+								Integer.parseInt(parts[3]), ServerMain.dbConnection)
+								.delete(ServerMain.dbConnection);
+						
+						writeLine(formatCommand(id, method, smethod+" OK"));
+					} else if(smethod.equals("INVITATION") && parts.length == 5) {
+						String username = parts[3];
+						int mid = Integer.parseInt(parts[4]);
+						ServerInvitationModel i = ServerInvitationModel.findByMeetingAndUser(
+								ServerMeetingModel.findById(mid, db), 
+								ServerUserModel.findByUsername(username, db), db);
+						i.userDelete(db);
+						
+						writeLine(formatCommand(id, method, smethod+" OK"));
+					}
 				}
 				
 				else {

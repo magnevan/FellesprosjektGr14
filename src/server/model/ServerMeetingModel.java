@@ -13,6 +13,7 @@ import server.DBConnection;
 import server.ServerMain;
 import client.model.InvitationModel;
 import client.model.MeetingModel;
+import client.model.NotificationType;
 import client.model.TransferableModel;
 import client.model.UserModel;
 
@@ -44,10 +45,10 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 		setRoom(ServerMeetingRoomModel.findReservedRoom(id, db));
 		
 		Calendar fromTime = Calendar.getInstance();
-		fromTime.setTime(rs.getDate("start_date"));
+		fromTime.setTime(rs.getTimestamp("start_date"));
 		setTimeFrom(fromTime);
 		Calendar toTime = Calendar.getInstance();
-		toTime.setTime(rs.getDate("start_date"));
+		toTime.setTime(rs.getTimestamp("end_date"));
 		setTimeTo(toTime);
 		
 		// Set invitations to null forcing a re-fetch on next getInvitations()
@@ -62,9 +63,8 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 	 * @param modelBuff
 	 * @throws IOException
 	 */
-	public ServerMeetingModel(BufferedReader reader, 
-			HashMap<String, TransferableModel> modelBuff) throws IOException {
-		super(reader, modelBuff);
+	public ServerMeetingModel(BufferedReader reader) throws IOException {
+		super(reader);
 	}
 
 	/**
@@ -106,7 +106,8 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 				st.executeUpdate(String.format(
 						"INSERT INTO appointment(title, start_date, end_date, description, owner, location)"
 						+" VALUES('%s', '%s', '%s', '%s', '%s', '%s')",						
-						getName(), getFormattedDate(getTimeFrom()), getFormattedDate(getTimeTo()),
+						getName(), DBConnection.getFormattedDate(getTimeFrom()), 
+						DBConnection.getFormattedDate(getTimeTo()),
 						getDescription(), getOwner().getUsername(), getLocation()),
 						Statement.RETURN_GENERATED_KEYS);
 				
@@ -122,16 +123,43 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 						"VALUES(%s, %d);", getRoom().getRoomNumber(), getId()
 					));
 				}				
-				st.close();
+				st.close();				
+			} else {				
+				// Use old meeting as a reference
+				ServerMeetingModel old = ServerMeetingModel.findById(getId(), db);
 				
-				// Save all invitations
-				for(InvitationModel i : invitations)
-					((ServerInvitationModel) i).store(db);
+				// Handle invitations, first remove any users that we've removed from a meeting
+				for(InvitationModel i : old.getInvitations()) {
+					if(getInvitation(i.getUser()) == null) {
+						((ServerInvitationModel)i).delete(db);						
+					}
+				}
 				
-			} else {
-				// TODO Update, her må vi finne ut hva som er endret, sende notifications og eventuelt resette invitasjoner
-				System.err.println("Update is not implemented");
-				System.err.println(this.getInvitations().size() + " invitations would have been stored");
+				// Then add all new invitations
+				for(InvitationModel i : invitations) {
+					if(old.getInvitation(i.getUser()) == null) {
+						((ServerInvitationModel)i).store(db);
+					}
+				}
+				
+				// Update the actual meeting model
+				db.preformUpdate(String.format(
+						"UPDATE appointment SET title='%s', start_date='%s', end_date='%s', " +
+						"description='%s', owner='%s', location='%s' WHERE id=%d",			
+						getName(), DBConnection.getFormattedDate(getTimeFrom()), 
+						DBConnection.getFormattedDate(getTimeTo()),	getDescription(), 
+						getOwner().getUsername(), getLocation(), getId()));
+
+				// Reset invitations if needed
+				boolean resetInv = !old.getTimeFrom().equals(getTimeFrom()) 
+						|| !old.getTimeTo().equals(getTimeTo()) 
+						|| !old.getLocation().equals(getLocation())
+						|| ((old.getRoom() != null) && !old.getRoom().equals(getRoom()));
+				
+				if(resetInv) {
+					resetInvitations();
+				}
+				
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -139,18 +167,29 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 	}
 	
 	/**
-	 * Format a Calendar for MySQL's DATETIME field
+	 * Reset all invitaions sent for this meeting
 	 * 
-	 * @param c
-	 * @return
 	 */
-	private static String getFormattedDate(Calendar c) {
-		return String.format(
-				"%d-%d-%d %d:%d:%d", 
-				c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH),
-				c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND)				
-		);
+	private void resetInvitations() {
+		// Set all invitaions to INVITED, send a notification to every user
 	}
+	
+	/**
+	 * Delete meeting
+	 */
+	public void delete(DBConnection db) {
+		for(InvitationModel i : getInvitations()) {
+			ServerNotificationModel n = new ServerNotificationModel(
+					NotificationType.A_CANCELED, i.getUser(), this, getOwner());
+			n.store(db);
+		}
+		try {
+			db.preformUpdate(String.format("UPDATE appointment SET active=0 WHERE id=%d", getId()));
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
 
 	/**
 	 * Search database for meetings concerning all the given users, within the
@@ -179,8 +218,9 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 			ResultSet rs = db.preformQuery(
 					"SELECT DISTINCT a.* FROM appointment as a " +
 					"LEFT JOIN user_appointment as ap ON a.id = ap.appointment_id " +
-					"WHERE start_date >= '"+getFormattedDate(startDate)+"' " +
-					"AND start_date < '"+getFormattedDate(endDate)+"'" +
+					"WHERE active=1 " +
+					"AND start_date >= '"+DBConnection.getFormattedDate(startDate)+"' " +
+					"AND start_date < '"+DBConnection.getFormattedDate(endDate)+"' " +
 					"AND (a.owner IN (" + userList + ") OR ap.username IN ("+userList+"))");
 			while (rs.next()) {
 				ret.add(new ServerMeetingModel(rs, db));

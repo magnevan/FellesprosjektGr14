@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashSet;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -32,7 +33,6 @@ import client.model.UserModel;
  * String[][] = list.getSelectedUsers();
  * </code>
  * 
- * @TODO The model should deal in User object and not String[]
  * @TODO General code cleanup
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
@@ -51,7 +51,7 @@ public class FilteredUserList extends JPanel
 	// Internal and external model
 	private UserListModel userListModel;
 	private IFilteredUserListModel model;
-	
+		
 	/**
 	 * Create a new list of user object with a search box for live search
 	 *  
