@@ -109,7 +109,7 @@ public class VarselPanel extends JPanel implements PropertyChangeListener {
 				notification.setRead(true);
 				if (notification.getType() != NotificationType.A_CANCELED) {
 					MeetingModel meetingModel = notification.getRegardsMeeting();
-					// TODO: fire a property change message to notify MainPanel to open the appointment
+					pcs.firePropertyChange(NotificationList.NOTIFICATION_CLICKED,null, meetingModel);
 				} else {
 					notification.setRead(true);
 				}

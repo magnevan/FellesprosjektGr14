@@ -35,7 +35,6 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		
 		HovedPanel hp = new HovedPanel();
 		VarselPanel vp = new VarselPanel();
-		vp.addPropertyChangeListener(this);
 
 		AndrePanel akp = new AndrePanel();
 		
@@ -61,12 +60,19 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		hp.getNewAppointmentButton().addActionListener(listener);
 		akp.getNewAppointmentButton().addActionListener(listener);
 		vp.getNewAppointmentButton().addActionListener(listener);
+		vp.addPropertyChangeListener(this);
+		
+		
 	}
 	
 	private void OpenNewAppointment() {
+		OpenAppointment(MeetingModel.newDefaultInstance());
+	}
+	
+	private void OpenAppointment(MeetingModel meeting) {
 		if (newAppointmentPane == null) {
-			newAppointmentPane = new NewAppointmentPanel(MeetingModel.newDefaultInstance());
-			optionTabbedPane.addTab("Ny Avtale", newAppointmentPane);
+			newAppointmentPane = new NewAppointmentPanel(meeting);
+			optionTabbedPane.addTab("NAVN?", newAppointmentPane);
 		}
 		optionTabbedPane.setSelectedComponent(newAppointmentPane);
 	}
@@ -81,8 +87,13 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
+		System.out.println(evt.getPropertyName());
 		if (evt.getPropertyName() == NotificationList.NOTIFICATION_COUNT) {
+			
 			optionTabbedPane.setTitleAt(2, "Varsel (" + ((Integer)evt.getNewValue()) + ")");
+			
+		} else if (evt.getPropertyName() == NotificationList.NOTIFICATION_CLICKED) {
+			OpenAppointment((MeetingModel)evt.getNewValue());
 		}
 	}	
 }

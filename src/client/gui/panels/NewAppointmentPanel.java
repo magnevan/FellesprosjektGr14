@@ -87,7 +87,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		this.add(new JLabel("Møterom"));
 		JPanel moteromPanel = new JPanel();
 		moteromComboBox = new JComboBox();
-		moteromText = new JDefaultTextField("Skriv mï¿½teplass...", 15);
+		moteromText = new JDefaultTextField("Skriv møteplass...", 15);
 		moteromPanel.add(moteromComboBox);
 		moteromPanel.add(moteromText);
 		
@@ -237,7 +237,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		//Date+time
 		model.setTimeFrom(this.getFromTime());
 		model.setTimeTo(this.getToTime());
-		//Mï¿½teplass
+		//Møteplass
 		model.setRoom((MeetingRoomModel)moteromComboBox.getSelectedItem());
 		model.setLocation(moteromText.getText());
 		//Beskrivelse

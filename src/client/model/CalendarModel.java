@@ -149,7 +149,11 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	public Set<MeetingModel> getMeetingInterval(Calendar fromTime, Calendar toTime, boolean tight) {
 		Set<MeetingModel> returnSet;
 		
-		System.out.printf("Request interval (%s) - (%s)\n", fromTime.getTime().toString(), toTime.getTime().toString());
+		if (!toTime.after(fromTime))
+			throw new IllegalArgumentException("toTime cannot be before fromTime\n" +
+					"toTime " + toTime.getTime() + "\n" +
+					"fromTime" + fromTime.getTime() + "\n");
+		
 		
 		Set<MeetingModel> fromSet = new HashSet<MeetingModel>();
 		for (Map.Entry<Calendar, Set<MeetingModel>> entry : meetingsFrom.subMap(fromTime, true, toTime, true).entrySet()) {

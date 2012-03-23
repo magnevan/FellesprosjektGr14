@@ -31,7 +31,6 @@ public class JDefaultTextField extends JTextField implements FocusListener {
 	public void focusGained(FocusEvent e) {
 		if (this.getText().equals("")) {
 			this.setText("");
-			this.setForeground(Color.BLACK);
 		}
 	}
 
@@ -39,7 +38,15 @@ public class JDefaultTextField extends JTextField implements FocusListener {
 	public void focusLost(FocusEvent e) {
 		if (this.getText().equals("")) {
 			this.setText(defaultText);
+		}
+	}
+	
+	@Override
+	public void setText(String text) {
+		if (text.equals(defaultText)) {
 			this.setForeground(Color.GRAY);
+		} else {
+			this.setForeground(Color.BLACK);
 		}
 	}
 	
