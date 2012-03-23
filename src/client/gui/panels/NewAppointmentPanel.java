@@ -2,9 +2,10 @@ package client.gui.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -22,7 +23,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 
 import client.ClientMain;
 import client.IServerResponseListener;
@@ -30,7 +30,6 @@ import client.ServerConnection;
 import client.gui.JDefaultTextArea;
 import client.gui.JDefaultTextField;
 import client.gui.JTimePicker;
-import client.gui.VerticalLayout;
 import client.gui.participantstatus.ParticipantStatusList;
 import client.gui.usersearch.FilteredUserList;
 import client.model.FilteredUserListModel;
@@ -42,18 +41,18 @@ import com.toedter.calendar.JDateChooser;
 
 public class NewAppointmentPanel extends JPanel implements IServerResponseListener{
 	
-	private final MeetingModel 			model;
-	private final JTextField 			tittelText;
-	private final JDateChooser 			dateChooser;
-	private final JTimePicker 			fromTime, 
+	private /*final*/ MeetingModel 			model;
+	private /*final*/ JTextField 			tittelText;
+	private /*final*/ JDateChooser 			dateChooser;
+	private /*final*/ JTimePicker 			fromTime, 
 										toTime;
-	private final JComboBox 			moteromComboBox;
-	private final JTextField 			moteromText;
-	private final JTextArea 			beskrivelseTextArea;
+	private /*final*/ JComboBox 			moteromComboBox;
+	private /*final*/ JTextField 			moteromText;
+	private /*final*/ JTextArea 			beskrivelseTextArea;
 	private       FilteredUserList 		filteredUserList;
 	private       JButton 				addEmployeeButton, 
 										removeEmployeeButton;
-	private final ParticipantStatusList participantList;
+	private /*final*/ ParticipantStatusList participantList;
 	private       JButton 				storeButton,
 										deleteButton;
 	private		  JButton				AcceptButton,
@@ -63,30 +62,53 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	
 	private       FilteredUserListModel filteredUserListModel;
 	
-	private final boolean isOwner;
+	private /*final*/ boolean isOwner;
 	
 	private int meetingRoomReqID;
 	
 	private MeetingRoomModel selectedRoom;
 	
+	private GridBagConstraints createConstraints(int gridx, int gridy) {
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = gridx;
+		c.gridy = gridy;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.ipadx = 5;
+		c.ipady = 5;
+		
+		return c;
+	}
+	
 	public NewAppointmentPanel(MeetingModel meetingModel) {
-		super(new VerticalLayout(5,SwingConstants.LEFT));
-//		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+//		super(new VerticalLayout(5,SwingConstants.LEFT));
+		this.setLayout(new GridBagLayout());
+		GridBagConstraints c;
+		int y = 0;
+		this.setBackground(Color.GREEN);
 		
 		this.model = meetingModel;
 		this.isOwner = meetingModel.getOwner() == ClientMain.getActiveUser();
-		System.out.printf("Opening meeting isOwner=%b\n", isOwner);
 		
 		//Tittel
-		this.add(new JLabel("Tittel:"));
+		c = createConstraints(0, y++);
+		JLabel lbl = new JLabel("Tittel:", JLabel.LEFT);
+		this.add(lbl, c);
+		
 		tittelText = new JTextField(model.getName(),26);
 		tittelText.setEditable(isOwner);
-		this.add(tittelText);
+		
+		c = createConstraints(0, y++);
+		c.weightx = 1.0;
+		c.gridwidth = 4;
+		this.add(tittelText, c);
+		
+		
 		
 		//Tid
-		this.add(new JLabel("Tid"));
-		JPanel tidPanel = new JPanel();
-		tidPanel.setLayout(new BoxLayout(tidPanel, BoxLayout.X_AXIS));
+		c = createConstraints(0, y++);
+		this.add(new JLabel("Tid"), c);
+		
 		dateChooser = new JDateChooser(model.getTimeFrom().getTime(), "dd. MMMM YYYY");
 		
 		fromTime = new JTimePicker(model.getTimeFrom());
@@ -95,17 +117,16 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		if (!isOwner) fromTime.setEditable(false);
 		if (!isOwner) toTime.setEditable(false);
 		
-		tidPanel.add(dateChooser);
-		tidPanel.add(Box.createHorizontalGlue());
-		tidPanel.add(fromTime);
-		tidPanel.add(new JLabel(" - "));
-		tidPanel.add(toTime);
+		c = createConstraints(0, y);
+		c.weightx = 1.0;
+		this.add(dateChooser, 			c);
+		this.add(fromTime,				createConstraints(1, y));
+		this.add(new JLabel(" - "),		createConstraints(2, y));
+		this.add(toTime,				createConstraints(3, y++));
 		
-		this.add(tidPanel);
 		
 		//Moterom
-		this.add(new JLabel("Møterom"));
-		JPanel moteromPanel = new JPanel();
+		this.add(new JLabel("Møterom"), createConstraints(0, y++));
 		moteromComboBox = new JComboBox();
 		selectedRoom = model.getRoom();
 		moteromComboBox.setSelectedItem(selectedRoom);
@@ -120,11 +141,14 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		moteromComboBox.setEnabled(isOwner);
 		moteromText.setEditable(isOwner);
 		
-		moteromPanel.add(moteromComboBox);
-		moteromPanel.add(moteromText);
+		c = createConstraints(0, y);
+		this.add(moteromComboBox, c);
+		c = createConstraints(1, y);
+		c.gridwidth = 3;
+		this.add(moteromText,     c);
 		
-		this.add(moteromPanel);
 		
+		/*
 		//Beskrivelse
 		this.add(new JLabel("Beskrivelse:"));
 		beskrivelseTextArea = new JDefaultTextArea("Skriv inn beskrivelse...", 4, 26);
@@ -229,6 +253,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 			//TODO legge til listeners for godkjenn, avslå og slett fra kalender
 		}
 		
+		*/
 	}
 	
 	/**

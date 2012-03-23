@@ -43,12 +43,13 @@ public class JDefaultTextField extends JTextField implements FocusListener {
 	
 	@Override
 	public void setText(String text) {
-		if (text.equals(defaultText)) {
+		if (text.equals("")) {
+			super.setText(defaultText);
 			this.setForeground(Color.GRAY);
 		} else {
+			super.setText(text);
 			this.setForeground(Color.BLACK);
 		}
-		super.setText(text);
 	}
 	
 	@Override

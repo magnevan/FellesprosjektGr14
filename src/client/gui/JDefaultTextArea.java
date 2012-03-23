@@ -41,6 +41,7 @@ public class JDefaultTextArea extends JTextArea implements FocusListener {
 	@Override
 	public void setText(String text) {
 		if (text.equals(defaultText)) {
+			this.setText(defaultText);
 			this.setForeground(Color.GRAY);
 		} else {
 			this.setForeground(Color.BLACK);
