@@ -216,6 +216,10 @@ public class WeekView extends JPanel {
 		return calModel;
 	}
 	
+	public int getWeekNumber() {
+		return date.get(Calendar.WEEK_OF_YEAR);
+	}
+	
 	class MouseClickListener implements MouseListener {
 		long timestamp;
 		boolean secondClick;

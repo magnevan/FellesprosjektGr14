@@ -97,10 +97,14 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 			OpenAppointment((MeetingModel)evt.getNewValue());
 		} else if (evt.getPropertyName() == WeekView.WEEKCLICK) {
 			CalendarModel calMod = weekView.getCalendarModel();
+			int[] dayAndHour = (int[]) evt.getNewValue();
+			int weekNumber = weekView.getWeekNumber();
+			Calendar clickTime = Calendar.getInstance();
+			clickTime.set(Calendar.WEEK_OF_YEAR, weekNumber);
+			clickTime.set(Calendar.DAY_OF_WEEK, dayAndHour[0] + 1);
+			clickTime.set(Calendar.HOUR_OF_DAY, dayAndHour[1]);
+			clickTime.set(Calendar.MINUTE, 0);
+			clickTime.set(Calendar.SECOND, 0);
 		}
-	}
-	
-	public boolean calModHasAppointmentAtClickTime(PropertyChangeEvent evt, CalendarModel calMod) {
-		return false;
 	}
 }
