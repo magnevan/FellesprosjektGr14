@@ -57,6 +57,7 @@ public class WeekView extends JPanel {
 	private JLayeredPane AppointmentLayer;
 	private PropertyChangeSupport pcs;
 	private JPanel northPanel, dayPanelWithPadding;
+
 	
 	
 	public WeekView() {
@@ -272,6 +273,7 @@ public class WeekView extends JPanel {
 			AppointmentLayer.add(AP,2, 0);
 			AP.setOpaque(true);
 			AP.setBounds(AP.getX(), AP.getY(), AP.getWidth(),AP.getLength());
+			System.out.println("BREDDE:" );
 		}	
 	}
 	

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -24,7 +25,7 @@ import client.model.MeetingModel;
 import client.model.MeetingRoomModel;
 import client.model.UserModel;
 
-public class AppointmentPanel extends JPanel {
+public class AppointmentPanel extends JButton {
 
 
 	private GridBagConstraints c;
@@ -89,21 +90,24 @@ public class AppointmentPanel extends JPanel {
 
 	//Denne er bare et foreløpig test får logikken bak dette er helt klar
 	private ImageIcon getIcon(ArrayList<InvitationModel> invitations){
-		ImageIcon typeIcon;
+		ImageIcon typeIcon = new ImageIcon("src/resources/godkjentMini.png");
 		
 		if(invitations.isEmpty()){
 			typeIcon = new ImageIcon("src/resources/avtaleMini.png");
-		}
-		else if(invitations.contains(InvitationStatus.INVITED)){
-			typeIcon = new ImageIcon("src/resources/venterMini.png");
-		}
-		else if(invitations.contains(InvitationStatus.DECLINED)){
-			typeIcon = new ImageIcon("src/resources/avslattMini.png");
-		}
-		else{
-			typeIcon = new ImageIcon("src/resources/godkjentMini.png");
+			return typeIcon;
 		}
 		
+		
+		for(InvitationModel IM : invitations){
+			if(IM.getStatus() == InvitationStatus.DECLINED){
+				typeIcon = new ImageIcon("src/resources/avslattMini.png");
+				return typeIcon;
+			}
+			else if(IM.getStatus() == InvitationStatus.INVITED){
+				typeIcon = new ImageIcon("src/resources/venterMini.png"); 
+			}
+		}
+
 		return typeIcon;
 	}
 
@@ -132,6 +136,7 @@ public class AppointmentPanel extends JPanel {
 		int minutes = (int)((EMilli-SMilli)/60000);
 		
 		AppointmentLength = (minutes*WeekView.HOURHEIGHT)/60;
+
 		//Kjapp test av hvordan justering av avtale kan gjøres
 		if(minutes == 15){
 			showComponents(true, false, false,false, false, 10);
@@ -183,9 +188,9 @@ public class AppointmentPanel extends JPanel {
 	}
 	
 	public int getX(){
-		//Calender.DAY_OF_WEEK hadde torsdag som startdag, lagde derfor dette arrayet
-		int[] dayOfWeek = new int[] {3,4,5,6,0,1,2};
 		int padding = 32;
+		int[] dayOfWeek = new int[] {6,0,1,2,3,4,5};//Calender.DAY_OF_WEEK gir feil verdi
+
 		int day = dayOfWeek[(model.getTimeFrom().get(Calendar.DAY_OF_WEEK)-1)];
 		return padding + ((day)*(WeekView.HOURWIDTH - 1)) + day;
 	}
