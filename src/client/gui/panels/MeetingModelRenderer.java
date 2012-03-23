@@ -22,7 +22,8 @@ public class MeetingModelRenderer extends DefaultListCellRenderer {
 	@Override
 	public Component getListCellRendererComponent(JList list, Object value,
 			int index, boolean isSelected, boolean cellHasFocus) {
-		MeetingModel model = (MeetingModel)value;
+		
+		model = (MeetingModel)value;
 		
 		label2 = (JLabel)super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 		
@@ -37,10 +38,8 @@ public class MeetingModelRenderer extends DefaultListCellRenderer {
 	public void setModel(MeetingModel model){
 		
 		this.model = model;
-		String timeFrom;
-		String timeTo = now();
-		timeFrom = now();
-		label2.setText(timeFrom + " - " + timeTo +"      "+ this.model.getName());
+		
+		label2.setText(this.model.getTimeFrom() + " - " + this.model.getTimeTo() +"      "+ this.model.getName());
 		label2.setPreferredSize(new Dimension(150,30));
 		
 		//label.setBorder(BorderFactory.createEtchedBorder(Color.black, Color.white));

@@ -51,10 +51,6 @@ public class HovedPanel extends JPanel{
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		DefaultListModel test = new DefaultListModel();
 		
-		test.addElement(createMeetingModel(timeFrom, timeTo, "Styrem¿te"));
-		test.addElement(createMeetingModel(timeFrom, timeTo, "Lunsjavtale"));
-		test.addElement(createMeetingModel(timeFrom, timeTo, "Verksted"));
-		
 		appointmentList = new JList(test);
 		appointmentList.setCellRenderer(new MeetingModelRenderer());
 		
