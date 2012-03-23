@@ -2,6 +2,7 @@ package client.gui.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.sql.Date;
@@ -36,7 +37,7 @@ import client.model.UserModel;
  */
 public class HovedPanel extends JPanel{
 	
-	private final JList appointmentList;
+	private JList appointmentList;
 	private final JButton newAppointmentButton;
 	JLabel label = new JLabel();
 	MeetingModel model;
@@ -46,7 +47,7 @@ public class HovedPanel extends JPanel{
 	public HovedPanel() {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
 		 
-		//Top panel
+		// Top panel, the users icon, name and the logout button
 		JPanel topPanel = new JPanel();
 		PersonLabel personLabel = new PersonLabel();
 		personLabel.setPreferredSize(new Dimension(310, 50));
@@ -66,18 +67,30 @@ public class HovedPanel extends JPanel{
 		
 		appointmentList = new JList(lol);
 		System.out.println("ANTALL M¯TER I DAG " + lol.size());
+		appointmentList.setCellRenderer(new MeetingModelRenderer());
+		
+		// Center content, a label, todays date and the list containing todays meetings
+		JPanel centerContent = new JPanel(new VerticalLayout(5, SwingConstants.LEFT));
+		centerContent.setPreferredSize(new Dimension(310, 503));
+		
+		centerContent.add(new JLabel("Dagens aktiviteter "));
+		
+		JLabel todaysDate = new JLabel();
+		String dateString = now();
+		todaysDate.setText(dateString);
+		todaysDate.setFont(new Font("", Font.BOLD, 18));
+		todaysDate.setForeground(Color.BLUE);
+		centerContent.add(todaysDate);
 		//appointmentList.setCellRenderer(new MeetingModelRenderer());
 		
+		JScrollPane appointmentListScrollPane = new JScrollPane(appointmentList);
+		appointmentListScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		appointmentListScrollPane.setPreferredSize(new Dimension(310, 450));
+		centerContent.add(appointmentListScrollPane);
 		
-		centerPanel.setPreferredSize(new Dimension(310,404));
-		centerPanel.add(appointmentList);
-		JScrollPane scroll = new JScrollPane(appointmentList);
-		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		centerPanel.add(scroll);
-		
-		//Bottom
+		// Bottom panel, the button for creating a new meeting
 		JPanel bottomPanel = new JPanel(new BorderLayout());
-		bottomPanel.setPreferredSize(new Dimension(310,100));
+		bottomPanel.setPreferredSize(new Dimension(306,100));
 		newAppointmentButton = new JButton("Opprett en avtale/m¿te");
 		newAppointmentButton.setOpaque(true);
 		bottomPanel.add(newAppointmentButton);
@@ -89,12 +102,18 @@ public class HovedPanel extends JPanel{
 		label1.setFont(new Font("", Font.BOLD, 18));
 		label1.setForeground(Color.BLUE);
 		
-		//adding panels
 		this.add(topPanel);
-		this.add(new JLabel("Dagens aktiviteter "));
-		this.add(label1);
-		this.add(centerPanel);
+		this.add(centerContent);
 		this.add(bottomPanel);
+	}
+	
+	public static MeetingModel createMeetingModel(Calendar timeFrom,Calendar timeTo, String name){
+		MeetingModel model = new MeetingModel();
+		
+		model.setName(name);
+		model.setTimeFrom(timeFrom);
+		model.setTimeTo(timeTo);
+		return model;
 	}
 	
 
@@ -102,14 +121,13 @@ public class HovedPanel extends JPanel{
 	
 	public static String now() {
 		Calendar cal = Calendar.getInstance();
-	SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
-	return sdf.format(cal.getTime());}
+		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
+		return sdf.format(cal.getTime());
+	}
 
 	public JButton getNewAppointmentButton() {
 		return newAppointmentButton;
 	}
 	
 	
-	
 }
-

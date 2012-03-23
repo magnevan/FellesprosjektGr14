@@ -46,6 +46,7 @@ public class ServerConnection extends AbstractConnection {
 	
 	private ActiveUserModel user;
 	private ReaderThread readerThread;	
+	private boolean readerThreadStopFlag = false; //When this is switched, the thread should terminate
 	private int nextRequestId = 1;
 	
 	// Stores listeners while we wait for the server to respond
@@ -89,6 +90,7 @@ public class ServerConnection extends AbstractConnection {
 			} catch(IOException e) {
 				// Ignore
 			} finally {
+				instance.readerThreadStopFlag = true;
 				instance = null;
 			}			
 			return true;
@@ -173,7 +175,7 @@ public class ServerConnection extends AbstractConnection {
 		public void run() {
 			try {
 				String line;
-				while((line = reader.readLine()) != null) {
+				while((line = reader.readLine()) != null && !readerThreadStopFlag) {
 					LOGGER.info(line);
 					
 					String[] parts = line.split("\\s+");

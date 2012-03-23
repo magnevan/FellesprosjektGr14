@@ -10,40 +10,31 @@ import javax.swing.*;
 
 import client.model.CalendarModel;
 import client.model.MeetingModel;
+import client.model.NotificationModel;
 
 public class MeetingModelRenderer extends DefaultListCellRenderer {
 	
-	JLabel label3, label2;
-	private CalendarModel calendarModel;
-	MeetingModel model;
 	
 	public MeetingModelRenderer(){
-		label2 = new JLabel();
-		add(label2);
 	}
 
 	@Override
 	public Component getListCellRendererComponent(JList list, Object value,
 			int index, boolean isSelected, boolean cellHasFocus) {
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+		//SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm");
+		MeetingModel model = (MeetingModel)value;
 		
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+		JLabel timeStamp = new JLabel(sdf.format(model.getTimeFrom().getTime()) + " -  " + sdf.format(model.getTimeTo().getTime())+"     " + model.getName() );
 		
-		label2 = (JLabel)super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+		panel.add(timeStamp);
 		
-		//if(model != null)
-		setModel(calendarModel);
-		setModel((CalendarModel)value);
-		
-		return this;
+		return panel;
 	}
 	
 	public void setModel(CalendarModel calendarModel){
-		this.calendarModel = calendarModel;
-		
-		Calendar fromTime = model.getTimeFrom();
-		Calendar toTime = model.getTimeTo();
-		
-		label2.setText((calendarModel.getMeetingInterval(fromTime , toTime)) + "     " + model.getName());
-		label2.setVisible(true);
 		//label2.setPreferredSize(new Dimension(150,30));
 		
 		//label.setBorder(BorderFactory.createEtchedBorder(Color.black, Color.white));
@@ -51,16 +42,6 @@ public class MeetingModelRenderer extends DefaultListCellRenderer {
 	}
 	
 	//lager og returnerer et stringformat til start og slutt av avtalen
-		private String timeToString(Calendar S, Calendar E){
-			String tempString= "";
-			
-			SimpleDateFormat  sdf = new SimpleDateFormat ("HH:mm");
-			if (S != null && E != null) {
-				tempString = sdf.format(S.getTime()) + " - " + sdf.format(E.getTime());
-			}
-
-			return tempString;
-		}
 }
 
 

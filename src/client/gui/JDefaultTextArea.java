@@ -45,6 +45,7 @@ public class JDefaultTextArea extends JTextArea implements FocusListener {
 		} else {
 			this.setForeground(Color.BLACK);
 		}
+		super.setText(text);
 	}
 	
 	

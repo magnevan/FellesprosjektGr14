@@ -68,6 +68,7 @@ public class ActiveUserModel extends UserModel {
 	 */
 	public void addNotification(NotificationModel notification) {
 		notifications.add(notification);
+		getCalendarModel().add(notification.getRegardsMeeting());
 		pcs.firePropertyChange(NOTIFICATIONS_PROPERTY, null, notification);		
 	}
 

@@ -15,6 +15,7 @@ import client.ClientMain;
 import client.gui.week.WeekView;
 import client.model.CalendarModel;
 import client.model.MeetingModel;
+import client.model.NotificationModel;
 import client.model.NotificationType;
 
 
@@ -56,8 +57,6 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		this.add(optionTabbedPane,BorderLayout.CENTER);
 		this.add(calendarTabbedPane, BorderLayout.EAST);
 
-		// Initialize notifications
-		vp.initializeList(ClientMain.getActiveUser().getNotifications());
 		
 		//Listeners
 		ActionListener listener = new NewAppointmentListener();
@@ -66,7 +65,8 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		vp.getNewAppointmentButton().addActionListener(listener);
 		vp.addPropertyChangeListener(this);
 		
-		
+		// Initialize notifications
+		vp.initializeList(ClientMain.getActiveUser().getNotifications());		
 	}
 	
 	/**
@@ -96,10 +96,10 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName() == NotificationList.NOTIFICATION_COUNT) {
+		if (evt.getPropertyName() == VarselPanel.NOTIFICATION_COUNT_CHANGED) {
 			optionTabbedPane.setTitleAt(2, "Varsel (" + ((Integer)evt.getNewValue()) + ")");
-		} else if (evt.getPropertyName() == NotificationList.NOTIFICATION_CLICKED) {
-			OpenAppointment((MeetingModel)evt.getNewValue());
+		} else if (evt.getPropertyName() == VarselPanel.NOTIFICATION_W_MEETING_CLICKED) {
+			OpenAppointment(((NotificationModel)evt.getNewValue()).getRegardsMeeting());
 		} else if (evt.getPropertyName() == WeekView.WEEKCLICK) {
 			CalendarModel calMod = weekView.getCalendarModel();
 			int[] dayAndHour = (int[]) evt.getNewValue();
@@ -110,6 +110,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 			clickTime.set(Calendar.HOUR_OF_DAY, dayAndHour[1]);
 			clickTime.set(Calendar.MINUTE, 0);
 			clickTime.set(Calendar.SECOND, 0);
+			OpenNewAppointment(clickTime);
 		}
 	}
 }

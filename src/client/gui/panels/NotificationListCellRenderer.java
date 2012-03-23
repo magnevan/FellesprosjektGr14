@@ -59,7 +59,6 @@ public class NotificationListCellRenderer implements ListCellRenderer {
 		panel.add(text);
 		panel.setPreferredSize(new Dimension(290, 50));
 
-
 		return panel;
 	}
 	

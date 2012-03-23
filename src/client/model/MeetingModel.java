@@ -311,11 +311,12 @@ public class MeetingModel implements TransferableModel {
 	public UserModel getOwner() {
 		return owner;
 	}
-	
+	/*
 
 	public String toString() {
 		return   timeFrom + " - " + timeTo + "  "+ getName();
 	} 
+	*/
 
 	public void setOwner(UserModel owner) {
 		this.owner = owner;
