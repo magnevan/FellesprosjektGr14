@@ -15,6 +15,7 @@ import client.gui.usersearch.FilteredUserList;
 /**
  * Panel for the "Andre Kalendere" tab
  * @author Susanne
+ * @author Peter Ringset
  *
  */
 public class AndrePanel extends JPanel{
@@ -48,7 +49,7 @@ public class AndrePanel extends JPanel{
 		centerContent.add(employeesLabel);
 		
 		filteredUserList = new FilteredUserList(new FilteredUserListModel());
-		filteredUserList.setPreferredSize(new Dimension(307,150));
+		filteredUserList.setPreferredSize(new Dimension(307,200));
 		centerContent.add(filteredUserList);
 				
 		JPanel buttonPanel = new JPanel();
@@ -76,6 +77,7 @@ public class AndrePanel extends JPanel{
 		checkListManager = new CheckListManager(activeCalendersList);
 		activeCalendersList.setForeground(Color.black);
 		JScrollPane activeCalendarsScrollPane = new JScrollPane(activeCalendersList);
+		activeCalendarsScrollPane.setPreferredSize(new Dimension(310, 200));
 		activeCalendarsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		centerContent.add(activeCalendarsScrollPane);
 		 

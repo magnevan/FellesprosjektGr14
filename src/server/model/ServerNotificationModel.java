@@ -74,6 +74,7 @@ public class ServerNotificationModel extends NotificationModel
 		if(rs.getString("regards_user") != null) {
 			regards_user = ServerUserModel.findByUsername(rs.getString("regards_user"), db);
 		}
+		System.out.println("PETERTEST på server: " + this.toString());
 	}
 	
 	/**
@@ -106,9 +107,11 @@ public class ServerNotificationModel extends NotificationModel
 				ServerMain.ccl.broadcastModel(this, getGivenTo().getUsername());
 			} else {
 				// Update notification, only read may be changed
-				db.preformUpdate(String.format(
-					"UPDATE notification SET read = %d WHERE id = %d",
-					isRead(), getId()
+//				String queryString = "UPDATE notification SET `read` = " + (isRead() ? "0" : "1") + " WHERE `id` = " + getId() + ";";
+//				db.performUpdate(queryString);
+				db.performUpdate(String.format(
+					"UPDATE notification SET  `read` = %s WHERE `id` = %d",
+					(isRead() ? "0" : "1"), getId()
 				));
 			}
 

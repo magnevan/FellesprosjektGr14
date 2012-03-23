@@ -2,28 +2,21 @@ package client.gui.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import javax.swing.Box;
 import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ListModel;
 import javax.swing.SwingConstants;
 
 import client.gui.VerticalLayout;
 import client.model.MeetingModel;
-import client.model.UserModel;
 
 /**
  * Panel for the "Hoved" tab
@@ -32,6 +25,10 @@ import client.model.UserModel;
  */
 public class HovedPanel extends JPanel{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2391925039508661574L;
 	private final JList appointmentList;
 	private final JButton newAppointmentButton;
 	JLabel label = new JLabel();

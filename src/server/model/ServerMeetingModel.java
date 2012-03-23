@@ -143,7 +143,7 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 				}
 				
 				// Update the actual meeting model
-				db.preformUpdate(String.format(
+				db.performUpdate(String.format(
 						"UPDATE appointment SET title='%s', start_date='%s', end_date='%s', " +
 						"description='%s', owner='%s', location='%s' WHERE id=%d",			
 						getName(), DBConnection.getFormattedDate(getTimeFrom()), 
@@ -184,7 +184,7 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 			n.store(db);
 		}
 		try {
-			db.preformUpdate(String.format("UPDATE appointment SET active=0 WHERE id=%d", getId()));
+			db.performUpdate(String.format("UPDATE appointment SET active=0 WHERE id=%d", getId()));
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
@@ -215,7 +215,7 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 			}
 			String userList = userIn.toString().substring(1);
 			
-			ResultSet rs = db.preformQuery(
+			ResultSet rs = db.performQuery(
 					"SELECT DISTINCT a.* FROM appointment as a " +
 					"LEFT JOIN user_appointment as ap ON a.id = ap.appointment_id " +
 					"WHERE active=1 " +
@@ -242,7 +242,7 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 	 */
 	public static ServerMeetingModel findById(int id, DBConnection db) {
 		try {
-			ResultSet rs = db.preformQuery(
+			ResultSet rs = db.performQuery(
 					"SELECT * FROM appointment AS a " +
 					"LEFT JOIN user_appointment AS ap ON a.id = ap.appointment_id " +
 					"WHERE a.id = " + id + ";");

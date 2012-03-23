@@ -16,8 +16,6 @@ import client.ClientMain;
 import client.ModelCacher;
 import client.ServerConnection;
 
-
-
 /**
  * A model for the meetings in the calendar
  * 

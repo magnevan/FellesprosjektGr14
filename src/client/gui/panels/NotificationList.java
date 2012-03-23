@@ -5,6 +5,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -64,6 +65,7 @@ public class NotificationList extends JPanel {
 	 */
 	public void initializeList(ArrayList<NotificationModel> models) {
 		Collections.sort(models);
+		System.out.println("PETERTEST: " + models);
 		for (NotificationModel notificationModel : models) {
 			listModel.addElement(notificationModel);
 			if (notificationModel.isRead()) read.add(notificationModel);
@@ -128,6 +130,12 @@ public class NotificationList extends JPanel {
 					clickedNotification.setRead(true);
 					read.add(clickedNotification);
 					pcs.firePropertyChange(NOTIFICATION_READ, null, clickedNotification);
+					try {
+						clickedNotification.store();
+					} catch (IOException e) {
+						System.err.println("ERROR: Exception happened while trying to store a notification as read");
+						e.printStackTrace();
+					}
 				} else {
 					pcs.firePropertyChange(NOTIFICATION_OLD_READ, null, clickedNotification);
 				}

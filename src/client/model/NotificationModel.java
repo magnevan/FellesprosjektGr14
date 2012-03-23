@@ -9,6 +9,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 
+import client.ModelCacher;
+import client.ServerConnection;
+
 import server.ModelEnvelope;
 
 /**
@@ -313,7 +316,13 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 	public String toString() {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm");
 		if (regards_meeting != null)
-			return sdf.format(time.getTime()) + " " + regards_meeting.getName() + read;
-		else return sdf.format(time.getTime()) + read;
+			return sdf.format(time.getTime()) + " " + regards_meeting.getName() + " " + read;
+		else return sdf.format(time.getTime()) + " " + read;
+	}
+	
+	public void store()  throws IOException {
+		if(!ServerConnection.isOnline())
+			throw new IOException("Cannot store Meeting, not logged in");
+		ServerConnection.instance().storeModel(this);
 	}
 }
