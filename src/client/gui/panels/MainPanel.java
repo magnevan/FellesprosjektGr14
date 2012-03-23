@@ -13,6 +13,7 @@ import javax.swing.JTabbedPane;
 
 import client.ClientMain;
 import client.gui.week.WeekView;
+import client.model.CalendarModel;
 import client.model.MeetingModel;
 import client.model.NotificationType;
 
@@ -28,7 +29,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 
 	public MainPanel() {
 		super(new BorderLayout());
-
+		
 		unreadNotifications = 0;
 		
 		optionTabbedPane = new JTabbedPane();
@@ -45,6 +46,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		optionTabbedPane.addTab("Varsler (0)", vp); //TODO
 		
 		weekView = new WeekView();
+		weekView.addPropertyChangeListener(this);
 		calendarTabbedPane.addTab("Uke", weekView);
 		calendarTabbedPane.addTab("Måned", new JPanel()); //TODO
 		
@@ -63,7 +65,6 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		akp.getNewAppointmentButton().addActionListener(listener);
 		vp.getNewAppointmentButton().addActionListener(listener);
 		vp.addPropertyChangeListener(this);
-		weekView.addPropertyChangeListener(this);
 		
 		
 	}
@@ -91,11 +92,15 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName() == NotificationList.NOTIFICATION_COUNT) {
-			
 			optionTabbedPane.setTitleAt(2, "Varsel (" + ((Integer)evt.getNewValue()) + ")");
-			
 		} else if (evt.getPropertyName() == NotificationList.NOTIFICATION_CLICKED) {
 			OpenAppointment((MeetingModel)evt.getNewValue());
+		} else if (evt.getPropertyName() == WeekView.WEEKCLICK) {
+			CalendarModel calMod = weekView.getCalendarModel();
 		}
-	}	
+	}
+	
+	public boolean calModHasAppointmentAtClickTime(PropertyChangeEvent evt, CalendarModel calMod) {
+		return false;
+	}
 }
