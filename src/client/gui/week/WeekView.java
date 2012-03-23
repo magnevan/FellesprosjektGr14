@@ -72,7 +72,7 @@ public class WeekView extends JPanel {
 		//North
 		northPanel = new JPanel(new BorderLayout());
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		weekLabel = new JLabel("Uke " + date.get(date.WEEK_OF_YEAR),SwingConstants.CENTER);
+		weekLabel = new JLabel("Uke " + date.get(date.WEEK_OF_YEAR) + ", " + date.get(date.YEAR),SwingConstants.CENTER);
 		weekLabel.setFont(new Font("Times New Roman", Font.BOLD,20));
 		
 		prevWeekButton = new JButton("<<");
@@ -301,8 +301,8 @@ public class WeekView extends JPanel {
 		dayPanelWithPadding.add(Box.createHorizontalStrut(12));
 		dayPanelWithPadding.add(testPanel);
 		
-		//Setter uke verdien til riktig verdi
-		weekLabel.setText("Uke " + date.get(date.WEEK_OF_YEAR));
+		//Setter uke og år
+		weekLabel.setText("Uke " + date.get(date.WEEK_OF_YEAR) + ", " + date.get(date.YEAR));
 		
 	}
 	
