@@ -1,5 +1,6 @@
 package client.gui.panels;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -21,6 +22,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import client.ClientMain;
 import client.IServerResponseListener;
 import client.ServerConnection;
 import client.gui.JDefaultTextArea;
@@ -30,7 +32,6 @@ import client.gui.VerticalLayout;
 import client.gui.participantstatus.ParticipantStatusList;
 import client.gui.usersearch.FilteredUserList;
 import client.model.FilteredUserListModel;
-import client.model.InvitationModel;
 import client.model.MeetingModel;
 import client.model.MeetingRoomModel;
 import client.model.UserModel;
@@ -47,24 +48,36 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	private final JComboBox 			moteromComboBox;
 	private final JTextField 			moteromText;
 	private final JTextArea 			beskrivelseTextArea;
-	private final FilteredUserList 		filteredUserList;
-	private final JButton 				addEmployeeButton, 
+	private       FilteredUserList 		filteredUserList;
+	private       JButton 				addEmployeeButton, 
 										removeEmployeeButton;
 	private final ParticipantStatusList participantList;
-	private final JButton 				storeButton,
+	private       JButton 				storeButton,
 										deleteButton;
-	private final FilteredUserListModel filteredUserListModel;
+	private		  JButton				AcceptButton,
+										DeclineButton,
+										DeleteFromCalendarButton;
+	
+	
+	private       FilteredUserListModel filteredUserListModel;
+	
+	private final boolean isOwner;
 	
 	private int meetingRoomReqID;
+	
+	private MeetingRoomModel selectedRoom;
 	
 	public NewAppointmentPanel(MeetingModel meetingModel) {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
 		
 		this.model = meetingModel;
+		this.isOwner = meetingModel.getOwner() == ClientMain.getActiveUser();
+		System.out.println(isOwner);
 		
 		//Tittel
 		this.add(new JLabel("Tittel:"));
 		tittelText = new JTextField(model.getName(),26);
+		tittelText.setEditable(isOwner);
 		this.add(tittelText);
 		
 		//Tid
@@ -77,6 +90,9 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		fromTime = new JTimePicker(model.getTimeFrom());
 		toTime = new JTimePicker(model.getTimeTo());
 		
+		fromTime.setEditable(isOwner);
+		toTime.setEditable(isOwner);
+		
 		tidPanel.add(fromTime);
 		tidPanel.add(new JLabel(" - "));
 		tidPanel.add(toTime);
@@ -87,7 +103,15 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		this.add(new JLabel("Møterom"));
 		JPanel moteromPanel = new JPanel();
 		moteromComboBox = new JComboBox();
+		selectedRoom = model.getRoom();
+		moteromComboBox.setSelectedItem(selectedRoom);
+		
 		moteromText = new JDefaultTextField("Skriv møteplass...", 15);
+		moteromText.setText(model.getLocation());
+		
+		moteromComboBox.setEnabled(isOwner);
+		moteromText.setEditable(isOwner);
+		
 		moteromPanel.add(moteromComboBox);
 		moteromPanel.add(moteromText);
 		
@@ -98,37 +122,42 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		beskrivelseTextArea = new JDefaultTextArea("Skriv inn beskrivelse...", 4, 26);
 		beskrivelseTextArea.setLineWrap(true);
 		beskrivelseTextArea.setText(model.getDescription());
-		this.add(beskrivelseTextArea);
+//		this.add(beskrivelseTextArea);
 		JScrollPane beskrivelseScroll = new JScrollPane(beskrivelseTextArea);
 		beskrivelseScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		
+		beskrivelseTextArea.setEditable(isOwner);
+		
 		this.add(beskrivelseScroll);
 		
 		//Ansatte
-		this.add(new JLabel("Ansatte:"));
-		filteredUserListModel = new FilteredUserListModel();
-		filteredUserList = new FilteredUserList(filteredUserListModel);
-		filteredUserList.setPreferredSize(new Dimension(
-					this.getPreferredSize().width,
-					150
-				));
-		this.add(filteredUserList);
-		
-		//Legg til fjern knapper
-		addEmployeeButton = new JButton("Legg til");
-		removeEmployeeButton = new JButton("Fjern");
-		
-		JPanel addRemovePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		
-		addRemovePanel.add(addEmployeeButton);
-		addRemovePanel.add(Box.createHorizontalStrut(40));
-		addRemovePanel.add(removeEmployeeButton);
-		
-		addRemovePanel.setPreferredSize(new Dimension(
-					this.getPreferredSize().width,
-					addRemovePanel.getPreferredSize().height
-				));
-		
-		this.add(addRemovePanel);
+		if (isOwner) {
+			this.add(new JLabel("Ansatte:"));
+			filteredUserListModel = new FilteredUserListModel();
+			filteredUserList = new FilteredUserList(filteredUserListModel);
+			filteredUserList.setPreferredSize(new Dimension(
+						this.getPreferredSize().width,
+						150
+					));
+			this.add(filteredUserList);
+			
+			//Legg til fjern knapper
+			addEmployeeButton = new JButton("Legg til");
+			removeEmployeeButton = new JButton("Fjern");
+			
+			JPanel addRemovePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+			
+			addRemovePanel.add(addEmployeeButton);
+			addRemovePanel.add(Box.createHorizontalStrut(40));
+			addRemovePanel.add(removeEmployeeButton);
+			
+			addRemovePanel.setPreferredSize(new Dimension(
+						this.getPreferredSize().width,
+						addRemovePanel.getPreferredSize().height
+					));
+			
+			this.add(addRemovePanel);
+		}
 		
 		//Deltakere
 		participantList = new ParticipantStatusList(meetingModel);
@@ -139,13 +168,41 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		this.add(participantList);
 		
 		//Lagre / Slett
-		JPanel storeDelPane = new JPanel(new FlowLayout(FlowLayout.CENTER,20,0));
-		storeButton = new JButton("Lagre endringer");
-		deleteButton = new JButton("Slett avtale");
-		storeDelPane.add(storeButton);
-		storeDelPane.add(deleteButton);
+		if (isOwner) {
+			JPanel storeDelPane = new JPanel(new FlowLayout(FlowLayout.CENTER,20,0));
+			storeButton = new JButton("Lagre endringer");
+			deleteButton = new JButton("Slett avtale");
+			storeDelPane.add(storeButton);
+			storeDelPane.add(deleteButton);
+			
+			this.add(storeDelPane);
+		}
 		
-		this.add(storeDelPane);
+		//Godkjenn / avslå
+		if (!isOwner) {
+			JPanel buttonPane = new JPanel(new BorderLayout());
+			AcceptButton = new JButton("Godkjenn");
+			DeclineButton = new JButton("Avslå");
+			DeleteFromCalendarButton = new JButton("Slett møte fra min kalender");
+			
+			JPanel AcceptDeclinePane = new JPanel(new BorderLayout());
+			AcceptDeclinePane.add(AcceptButton, BorderLayout.WEST);
+			AcceptDeclinePane.add(DeclineButton, BorderLayout.EAST);
+			DeleteFromCalendarButton.setPreferredSize(new Dimension(
+						AcceptButton.getPreferredSize().width + DeclineButton.getPreferredSize().width,
+						DeleteFromCalendarButton.getPreferredSize().height
+					));
+			
+			buttonPane.add(AcceptDeclinePane, BorderLayout.CENTER);
+			buttonPane.add(DeleteFromCalendarButton, BorderLayout.SOUTH);
+			
+			buttonPane.setPreferredSize(new Dimension(
+						(int)this.getPreferredSize().getWidth(),
+						(int)buttonPane.getPreferredSize().getHeight()
+					));
+			
+			this.add(buttonPane);
+		}
 		
 		
 		//Listeners
@@ -154,11 +211,15 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		fromTime.addActionListener(listener);
 		toTime.addActionListener(listener);
 		
-		storeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {storeMeeting();}});
-		deleteButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {deleteMeeting();}});
+		if (isOwner) {
+			storeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {storeMeeting();}});
+			deleteButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {deleteMeeting();}});
 		
-		addEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {addEmployee();}});
-		removeEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {removeEmployee();}});
+			addEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {addEmployee();}});
+			removeEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {removeEmployee();}});
+		} else {
+			//TODO legge til listeners for godkjenn, avslå og slett fra kalender
+		}
 		
 	}
 	
@@ -293,7 +354,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		if (requestId == meetingRoomReqID) {
 			List<MeetingRoomModel> rooms = (List<MeetingRoomModel>) data;
 			
-			MeetingRoomModel selectedRoom = (MeetingRoomModel) moteromComboBox.getSelectedItem();
+			selectedRoom = (MeetingRoomModel) moteromComboBox.getSelectedItem();
 			
 			moteromComboBox.removeAllItems();
 			

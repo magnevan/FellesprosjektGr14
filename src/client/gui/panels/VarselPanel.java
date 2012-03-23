@@ -33,7 +33,7 @@ public class VarselPanel extends JPanel implements PropertyChangeListener {
 	 */
 	private static final long serialVersionUID = -4184187489458007088L;
 
-	private JButton newAppointmentButton; //TODO legg denne til grafisk
+	private JButton newAppointmentButton;
 	private NotificationList notificationList;
 	private PropertyChangeSupport pcs;
 	private final PersonLabel personLabel;

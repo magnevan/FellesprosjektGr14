@@ -198,16 +198,6 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 			returnSet.addAll(toSet);
 		}
 		
-		System.out.println("----LIST OF MEETINGS----");
-		for (MeetingModel m : returnSet) {
-//			Calendar c = (Calendar)m.getTimeFrom().clone(); //TODO FJERN DETTE, MODIFISERER MØTE PGA BUG ANNEN PLASS
-//			c.roll(Calendar.HOUR, 2);
-//			m.setTimeTo(c);
-			System.out.println(m);
-		}
-		System.out.println("------------------------");
-		
-		
 		return returnSet;
 	}
 	
@@ -227,11 +217,6 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	public void onServerResponse(int requestId, Object data) {
 		if (requestId == meetingsReq) {
 			List<MeetingModel> models = (List<MeetingModel>) data;
-			
-			System.out.println("----Response from server----");
-			for (MeetingModel m : models)
-				System.out.println(m);
-			System.out.println("----------------------------");
 			
 			this.addAll(models);
 		}
