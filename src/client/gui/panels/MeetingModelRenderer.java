@@ -22,26 +22,17 @@ public class MeetingModelRenderer extends DefaultListCellRenderer {
 	public Component getListCellRendererComponent(JList list, Object value,
 			int index, boolean isSelected, boolean cellHasFocus) {
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-		//SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm");
 		MeetingModel model = (MeetingModel)value;
 		
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-		JLabel timeStamp = new JLabel(sdf.format(model.getTimeFrom().getTime()) + " -  " + sdf.format(model.getTimeTo().getTime())+"     " + model.getName() );
-		
+		JLabel timeStamp = new JLabel(sdf.format(model.getTimeFrom().getTime()) + " - " + sdf.format(model.getTimeTo().getTime())+"     " + model.getName() );
+		timeStamp.setPreferredSize(new Dimension(100,60));
 		panel.add(timeStamp);
-		
+		panel.setBackground(Color.white);
 		return panel;
 	}
 	
-	public void setModel(CalendarModel calendarModel){
-		//label2.setPreferredSize(new Dimension(150,30));
-		
-		//label.setBorder(BorderFactory.createEtchedBorder(Color.black, Color.white));
-		//label2.setBorder(BorderFactory.createLineBorder(Color.black));
-	}
-	
-	//lager og returnerer et stringformat til start og slutt av avtalen
 }
 
 
