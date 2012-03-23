@@ -48,6 +48,7 @@ public class JDefaultTextField extends JTextField implements FocusListener {
 		} else {
 			this.setForeground(Color.BLACK);
 		}
+		super.setText(text);
 	}
 	
 	@Override
