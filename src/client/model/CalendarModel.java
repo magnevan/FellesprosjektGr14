@@ -114,9 +114,12 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		Calendar fromTime = (Calendar)date.clone(),
 				   toTime = (Calendar)date.clone();
 		
-		fromTime.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-		toTime.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+		while (fromTime.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
+			fromTime.add(Calendar.DAY_OF_WEEK, -1);
 		
+		while (toTime.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
+			toTime.add(Calendar.DAY_OF_WEEK, 1);
+			
 		fromTime.set(Calendar.HOUR_OF_DAY, 0);
 		fromTime.set(Calendar.MINUTE, 0);
 		fromTime.set(Calendar.SECOND, 0);
@@ -145,6 +148,8 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	 */
 	public Set<MeetingModel> getMeetingInterval(Calendar fromTime, Calendar toTime, boolean tight) {
 		Set<MeetingModel> returnSet;
+		
+		System.out.printf("Request interval (%s) - (%s)\n", fromTime.getTime().toString(), toTime.getTime().toString());
 		
 		Set<MeetingModel> fromSet = new HashSet<MeetingModel>();
 		for (Map.Entry<Calendar, Set<MeetingModel>> entry : meetingsFrom.subMap(fromTime, true, toTime, true).entrySet()) {
