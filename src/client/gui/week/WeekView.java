@@ -114,7 +114,7 @@ public class WeekView extends JPanel {
 		weekScroll.setPreferredSize(new Dimension(HOURWIDTH*7 + 50,HOURHEIGHT*SHOWHOURS));
 		this.add(weekScroll, BorderLayout.CENTER);
 		
-		//addAllAppointments();
+		addAllAppointments();
 		
 		pcs = new PropertyChangeSupport(this);
 	}
@@ -291,6 +291,7 @@ public class WeekView extends JPanel {
 			AppointmentLayer.remove(AP);
 		}
 		appointments.clear();
+		AppointmentLayer.repaint();
 	}
 	
 	private void setDateLabels(){
