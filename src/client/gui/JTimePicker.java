@@ -33,7 +33,7 @@ public class JTimePicker extends JComboBox implements Comparable<JTimePicker>{
 	}
 	
 	public JTimePicker(Calendar time) {
-		this(format(time.get(Calendar.HOUR)) + ":" + format(time.get(Calendar.MINUTE)));
+		this(format(time.get(Calendar.HOUR_OF_DAY)) + ":" + format(time.get(Calendar.MINUTE)));
 	}
 	
 

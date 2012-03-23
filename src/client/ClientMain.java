@@ -1,4 +1,5 @@
-	package client;
+
+package client;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -53,7 +54,8 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 		if (change == IServerConnectionListener.LOGIN) {
 			this.setResizable(true);
 			contentPane.remove(loginPanel);
-
+			
+			ClientMain.getActiveUser().getCalendarModel().requestDefaultBuffer();
 			mainPanel = new MainPanel();
 			
 			contentPane.add(mainPanel, BorderLayout.CENTER);

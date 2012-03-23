@@ -5,11 +5,14 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import javax.swing.Box;
@@ -22,7 +25,9 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 
+import client.ClientMain;
 import client.gui.avtale.AppointmentPanel;
+import client.model.CalendarModel;
 import client.model.MeetingModel;
 import client.model.UserModel;
 
@@ -42,30 +47,40 @@ public class WeekView extends JPanel {
 		SHOWHOURS = 12;
 	
 	
+	private final CalendarModel calModel;
+	
 	private final Calendar date;
-	private final JScrollPane weekScroll, scrollTest;
+	private final JScrollPane weekScroll;
 	private final JLabel weekLabel;
 	private final JButton prevWeekButton, todayButton, nextWeekButton;
+	private ArrayList<AppointmentPanel>  appointments;
 	private JLayeredPane AppointmentLayer;
 	private PropertyChangeSupport pcs;
+	private JPanel northPanel, dayPanelWithPadding;
 	
 	
 	public WeekView() {
+		
+		calModel = ClientMain.getActiveUser().getCalendarModel();
+		
+		appointments = new ArrayList<AppointmentPanel>();
 
 		date = Calendar.getInstance(); //Sets the default week to view as the current week
 		
 		this.setLayout(new BorderLayout());
 		
 		//North
-		JPanel northPanel = new JPanel(new BorderLayout());
+		northPanel = new JPanel(new BorderLayout());
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		
-		weekLabel = new JLabel("Uke 5",SwingConstants.CENTER);
+		weekLabel = new JLabel("Uke " + date.get(date.WEEK_OF_YEAR) + ", " + date.get(date.YEAR),SwingConstants.CENTER);
 		weekLabel.setFont(new Font("Times New Roman", Font.BOLD,20));
 		
 		prevWeekButton = new JButton("<<");
+		prevWeekButton.addActionListener(new prewWeekAction());
 		nextWeekButton = new JButton(">>");
+		nextWeekButton.addActionListener(new nextWeekAction());
 		todayButton = new JButton("I dag");
+		todayButton.addActionListener(new todayAction());
 		buttonPanel.add(prevWeekButton);
 		buttonPanel.add(todayButton);
 		buttonPanel.add(nextWeekButton);
@@ -73,32 +88,17 @@ public class WeekView extends JPanel {
 		northPanel.add(weekLabel, BorderLayout.CENTER);
 		northPanel.add(buttonPanel, BorderLayout.EAST);
 		JPanel testPanel = createDayPanel(date);
-		JPanel dayPanelWithPadding = new JPanel(); //Because of the field on the left side that contains the times, e.g. "13:00", we need some extra padding.
+		dayPanelWithPadding = new JPanel(); //Because of the field on the left side that contains the times, e.g. "13:00", we need some extra padding.
 		dayPanelWithPadding.add(Box.createHorizontalStrut(12));
 		dayPanelWithPadding.add(testPanel);
 		northPanel.add(dayPanelWithPadding, BorderLayout.SOUTH);
 		
 		//Center
 		JPanel centerPanel = new JPanel(new BorderLayout());
-		
-//		JPanel dayPanel = createDayPanel(date);
-//		JPanel dayPanelWithPadding = new JPanel(); //Because of the field on the left side that contains the times, e.g. "13:00", we need some extra padding.
-//		dayPanelWithPadding.add(Box.createHorizontalStrut(12));
-//		dayPanelWithPadding.add(dayPanel);
 		JPanel wvi = createWeekViewInternal();
-		
-		//centerPanel.add(dayPanelWithPadding, BorderLayout.NORTH);
-		centerPanel.add(wvi, BorderLayout.CENTER);
-		
-		weekScroll = new JScrollPane(wvi);
-		weekScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		weekScroll.setPreferredSize(new Dimension(HOURWIDTH*7 + 55,HOURHEIGHT*SHOWHOURS));
-		//centerPanel.add(weekScroll);
-		
-		
+		centerPanel.add(wvi, BorderLayout.CENTER);		
 		centerPanel.add(wvi);
 	
-		
 		this.add(northPanel, BorderLayout.NORTH);
 
 		
@@ -109,11 +109,12 @@ public class WeekView extends JPanel {
 		AppointmentLayer.add(centerPanel, 1, 0);
 		centerPanel.setBounds(0,0,HOURWIDTH*7+50,HOURHEIGHT*25);
 		
-		scrollTest = new JScrollPane(AppointmentLayer);
-		scrollTest.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollTest.setPreferredSize(new Dimension(HOURWIDTH*7 + 50,HOURHEIGHT*SHOWHOURS));
-		this.add(scrollTest, BorderLayout.CENTER);
+		weekScroll = new JScrollPane(AppointmentLayer);
+		weekScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		weekScroll.setPreferredSize(new Dimension(HOURWIDTH*7 + 50,HOURHEIGHT*SHOWHOURS));
+		this.add(weekScroll, BorderLayout.CENTER);
 		
+		addAllAppointments();
 		
 		pcs = new PropertyChangeSupport(this);
 	}
@@ -167,6 +168,8 @@ public class WeekView extends JPanel {
 		
 		return p;
 	}
+
+	
 	
 	/**
 	 * Creates a JPanel filled with HourCells and timestamps to the left.
@@ -254,20 +257,84 @@ public class WeekView extends JPanel {
 		public void mouseReleased(MouseEvent arg0) {}
 	}
 	
-	private void addAppointment(MeetingModel MM) {
-		AppointmentPanel avtale = new AppointmentPanel(MM);
-		//Legger til en avtale på 2.layer
-		AppointmentLayer.add(avtale,2, 0);
-		avtale.setOpaque(true);
-		avtale.setBounds(avtale.getX(), avtale.getY(), avtale.getWidth(),avtale.getLength());
+	
+	/**
+	 * Tegner alle avtaler som ligger i appointments arraylist
+	 */
+	private void drawAppointments() {	
+		for (AppointmentPanel AP : appointments){
+			AppointmentLayer.add(AP,2, 0);
+			AP.setOpaque(true);
+			AP.setBounds(AP.getX(), AP.getY(), AP.getWidth(),AP.getLength());
+		}	
+	}
+	
+	/**
+	 * Fjerner Alle avtaler fra panelet og arraylist med removeAllAppointments()
+	 * Legger til alle avtaler for denne uken
+	 * Tegner alle disse avtalene med drawAppintments
+	 */
+	private void addAllAppointments(){
+		removeAllAppointments();
+		for (MeetingModel MM : calModel.getMeetingsInWeek(date)){
+			AppointmentPanel avtale = new AppointmentPanel(MM);
+			appointments.add(avtale);
+		}
+		drawAppointments();
+	}
+	
+	/**
+	 * Fjerner alle avtaler fra Panelet for å så fjerne alle fra arraylist.
+	 */
+	private void removeAllAppointments(){
+		for (AppointmentPanel AP : appointments){
+			AppointmentLayer.remove(AP);
+		}
+		appointments.clear();
+		AppointmentLayer.repaint();
+	}
+	
+	private void setDateLabels(){
+
+		//Setter datofeltene til riktig verdi
+		dayPanelWithPadding.removeAll();
+		JPanel testPanel = createDayPanel(date);
+		dayPanelWithPadding.add(Box.createHorizontalStrut(12));
+		dayPanelWithPadding.add(testPanel);
 		
+		//Setter uke og år
+		weekLabel.setText("Uke " + date.get(date.WEEK_OF_YEAR) + ", " + date.get(date.YEAR));
 		
 	}
+	
+	class  nextWeekAction implements ActionListener { 
+        public void actionPerformed(ActionEvent e) { 
+        	date.add(Calendar.WEEK_OF_YEAR, 1);
+        	setDateLabels();
+        	addAllAppointments();
+        } 
+    }
+	
+	class prewWeekAction implements ActionListener { 
+        public void actionPerformed(ActionEvent e) { 
+        	date.add(Calendar.WEEK_OF_YEAR, -1);
+        	setDateLabels();
+        	addAllAppointments();
+        } 
+    }
+	
+	class  todayAction implements ActionListener { 
+        public void actionPerformed(ActionEvent e) { 
+        	date.setTime(Calendar.getInstance().getTime());
+        	setDateLabels();
+        	addAllAppointments();
+        } 
+    }
 	
 //	public static void main (String args[]) { 
 //        JFrame frame = new JFrame("");
 //        Calendar from =  Calendar.getInstance();
-//        from.set(2012, 3, 21, 0, 0);
+//        from.set(2012, 3, 21, 13, 0);
 //        Calendar to = Calendar.getInstance();
 //        to.set(2012, 3, 21, 14, 0);
 //        UserModel testPerson = new UserModel("Olano", "ola@hotmail.com", "Ola Nordmann");
