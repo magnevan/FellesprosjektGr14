@@ -39,7 +39,7 @@ public class WeekView extends JPanel {
 	
 	private static final long serialVersionUID = -8533878088518459485L;
 	
-	public static final String WEEKCLICK = "";
+	public static final String WEEKCLICK = "weekclick";
 	
 	public static final int 
 		HOURHEIGHT = 50,
@@ -134,8 +134,6 @@ public class WeekView extends JPanel {
 		if (hour > (23-SHOWHOURS/2)) hour = (23-SHOWHOURS/2);
 		hour -= SHOWHOURS/2;
 		
-		//System.out.println(hour);
-		
 //		It seems like getMaximum returns only half of the maximum. Dividing by two to compensate
 		vs.setValue(
 				hour * vs.getMaximum() / 2 / SHOWHOURS
@@ -213,6 +211,14 @@ public class WeekView extends JPanel {
 	
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		pcs.removePropertyChangeListener(listener);
+	}
+	
+	public CalendarModel getCalendarModel() {
+		return calModel;
+	}
+	
+	public int getWeekNumber() {
+		return date.get(Calendar.WEEK_OF_YEAR);
 	}
 	
 	class MouseClickListener implements MouseListener {

@@ -62,7 +62,7 @@ public class FilteredUserList extends JPanel
 		this.model = model;
 		model.addPropertyChangeListener(this);
 		
-		setLayout(new BorderLayout());		
+		setLayout(new BorderLayout());		 
 		searchField = new JTextField();		
 		searchField.addKeyListener(this);
 		add(searchField, BorderLayout.NORTH);

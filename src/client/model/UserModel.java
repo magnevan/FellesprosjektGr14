@@ -31,24 +31,23 @@ public class UserModel implements TransferableModel {
 	
 	//These variables control which colors are given to new user calendars.
 	private static final Color[] availiableColors = new Color[]{
-		new Color(0xE78649),
-		new Color(0x5E72AC),
-		new Color(0x646BD0),
-		new Color(0x223AF8),
-		new Color(0x3C57FA),
-		new Color(0x3775FF),
-		new Color(0x46ADFF),
-		new Color(0x92D642),
-		new Color(0x65A716),
-		new Color(0x48D17B),
-		new Color(0x6CDCB3),
-		new Color(0x83E9FB),
-		new Color(0x65D1FA),
-		new Color(0xC0E192),
-		new Color(0xE7E19F),
-		new Color(0xE7C69F),
-		new Color(0xFF9C9A),
-		new Color(0xFF9AB9)
+		new Color(0x46ADFF), //lyseblå
+		new Color(0xE78649), //orange
+		new Color(0x92D642), //grønn
+		new Color(0xf7c000), //gul
+		new Color(0x522e5f), //mørkelilla
+		new Color(0x6CDCB3), // turkis
+		new Color(0xb557b2), //mørkerosa
+		new Color(0x3775FF), //blå
+		new Color(0xE7E19F), //lysegul
+		new Color(0xE7C69F), //lyseorange 
+		new Color(0x223AF8), //mørkeblå
+		new Color(0x65A716), //grønn
+		new Color(0xFF9C9A), //lyserosa
+		new Color(0xC0E192), //lysegrønn
+		new Color(0x5E72AC), //lyselilla
+		new Color(0x65D1FA)  //litt mørkere lyseblå
+		
 	};
 	private static int nextColor = 0;
 	
@@ -73,6 +72,9 @@ public class UserModel implements TransferableModel {
 	 * @param reader
 	 * @param modelBuff
 	 */
+
+	public UserModel() {this.color = UserModel.getNextColor();}
+
 	public UserModel(BufferedReader reader) throws IOException {
 		this(reader.readLine(), reader.readLine(), reader.readLine());
 	}
@@ -85,6 +87,7 @@ public class UserModel implements TransferableModel {
 	public void copyFrom(TransferableModel model) {
 		// Cannot happen
 	}
+
 	
 	/**
 	 * Get username

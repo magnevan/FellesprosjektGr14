@@ -307,13 +307,15 @@ public class MeetingModel implements TransferableModel {
 		return owner;
 	}
 	
+
+	public String toString() {
+		return   timeFrom + " - " + timeTo + "  "+ getName();
+	} 
+
 	public void setOwner(UserModel owner) {
 		this.owner = owner;
 	}
-	
-	public String toString() {
-		return getName() + " (" + timeFrom.getTime() + " - " + timeTo.getTime() + ")";
-	}
+
 	
 	/**
 	 * Get all invitations for the meeting
@@ -397,7 +399,10 @@ public class MeetingModel implements TransferableModel {
 				changeSupport.firePropertyChange(INVITATION_CREATED,null, invitation);
 			}
 		}		
-	}
+
+	}	
+	
+	
 	
 	/**
 	 * Changes the status of all invitations from NOT_YET_SAVED to INVITED
@@ -422,14 +427,6 @@ public class MeetingModel implements TransferableModel {
 				@Override
 				public int compare(MeetingModel A, MeetingModel B) {					
 					return A.getTimeFrom().compareTo(B.getTimeFrom());
-				}
-			};
-			
-	public static final Comparator<MeetingModel> timeToComparator = 
-			new Comparator<MeetingModel>() {
-				@Override
-				public int compare(MeetingModel A, MeetingModel B) {					
-					return A.getTimeTo().compareTo(B.getTimeTo());
 				}
 			};
 

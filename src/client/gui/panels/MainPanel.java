@@ -13,6 +13,7 @@ import javax.swing.JTabbedPane;
 
 import client.ClientMain;
 import client.gui.week.WeekView;
+import client.model.CalendarModel;
 import client.model.MeetingModel;
 import client.model.NotificationType;
 
@@ -24,6 +25,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 	private final JTabbedPane optionTabbedPane;
 	private NewAppointmentPanel newAppointmentPane = null;
 	private int unreadNotifications;
+	private WeekView weekView;
 
 	public MainPanel() {
 		super(new BorderLayout());
@@ -34,8 +36,8 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		JTabbedPane calendarTabbedPane = new JTabbedPane();
 		
 		HovedPanel hp = new HovedPanel();
+		
 		VarselPanel vp = new VarselPanel();
-		vp.addPropertyChangeListener(this);
 
 		AndrePanel akp = new AndrePanel();
 		
@@ -43,8 +45,9 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		optionTabbedPane.addTab("Andre Kalendre", akp); //TODO
 		optionTabbedPane.addTab("Varsler (0)", vp); //TODO
 		
-		
-		calendarTabbedPane.addTab("Uke", new WeekView());
+		weekView = new WeekView();
+		weekView.addPropertyChangeListener(this);
+		calendarTabbedPane.addTab("Uke", weekView);
 		calendarTabbedPane.addTab("Måned", new JPanel()); //TODO
 		
 		//TODO This should probably be done in a better manner
@@ -61,12 +64,19 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		hp.getNewAppointmentButton().addActionListener(listener);
 		akp.getNewAppointmentButton().addActionListener(listener);
 		vp.getNewAppointmentButton().addActionListener(listener);
+		vp.addPropertyChangeListener(this);
+		
+		
 	}
 	
 	private void OpenNewAppointment() {
+		OpenAppointment(MeetingModel.newDefaultInstance());
+	}
+	
+	private void OpenAppointment(MeetingModel meeting) {
 		if (newAppointmentPane == null) {
-			newAppointmentPane = new NewAppointmentPanel(MeetingModel.newDefaultInstance());
-			optionTabbedPane.addTab("Ny Avtale", newAppointmentPane);
+			newAppointmentPane = new NewAppointmentPanel(meeting);
+			optionTabbedPane.addTab("NAVN?", newAppointmentPane);
 		}
 		optionTabbedPane.setSelectedComponent(newAppointmentPane);
 	}
@@ -83,6 +93,18 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName() == NotificationList.NOTIFICATION_COUNT) {
 			optionTabbedPane.setTitleAt(2, "Varsel (" + ((Integer)evt.getNewValue()) + ")");
+		} else if (evt.getPropertyName() == NotificationList.NOTIFICATION_CLICKED) {
+			OpenAppointment((MeetingModel)evt.getNewValue());
+		} else if (evt.getPropertyName() == WeekView.WEEKCLICK) {
+			CalendarModel calMod = weekView.getCalendarModel();
+			int[] dayAndHour = (int[]) evt.getNewValue();
+			int weekNumber = weekView.getWeekNumber();
+			Calendar clickTime = Calendar.getInstance();
+			clickTime.set(Calendar.WEEK_OF_YEAR, weekNumber);
+			clickTime.set(Calendar.DAY_OF_WEEK, dayAndHour[0] + 1);
+			clickTime.set(Calendar.HOUR_OF_DAY, dayAndHour[1]);
+			clickTime.set(Calendar.MINUTE, 0);
+			clickTime.set(Calendar.SECOND, 0);
 		}
-	}	
+	}
 }

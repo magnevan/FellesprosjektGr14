@@ -87,7 +87,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		this.add(new JLabel("Møterom"));
 		JPanel moteromPanel = new JPanel();
 		moteromComboBox = new JComboBox();
-		moteromText = new JDefaultTextField("Skriv mï¿½teplass...", 15);
+		moteromText = new JDefaultTextField("Skriv møteplass...", 15);
 		moteromPanel.add(moteromComboBox);
 		moteromPanel.add(moteromText);
 		
@@ -192,7 +192,6 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		from.set(Calendar.HOUR_OF_DAY, fromTime.getHour());
 		from.set(Calendar.MINUTE, fromTime.getMinute());
 		from.set(Calendar.SECOND, 0);
-		System.out.printf("Fromtime (%s)\n", from.getTime());
 		return from;
 	}
 	
@@ -231,13 +230,12 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	
 	private void storeMeeting() {
 		if (!isDataValid()) return;
-		System.out.println("Store");
 		//Name
 		model.setName(tittelText.getText());
 		//Date+time
 		model.setTimeFrom(this.getFromTime());
 		model.setTimeTo(this.getToTime());
-		//Mï¿½teplass
+		//Møteplass
 		model.setRoom((MeetingRoomModel)moteromComboBox.getSelectedItem());
 		model.setLocation(moteromText.getText());
 		//Beskrivelse

@@ -114,9 +114,12 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		Calendar fromTime = (Calendar)date.clone(),
 				   toTime = (Calendar)date.clone();
 		
-		fromTime.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-		toTime.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+		while (fromTime.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
+			fromTime.add(Calendar.DAY_OF_WEEK, -1);
 		
+		while (toTime.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY)
+			toTime.add(Calendar.DAY_OF_WEEK, 1);
+			
 		fromTime.set(Calendar.HOUR_OF_DAY, 0);
 		fromTime.set(Calendar.MINUTE, 0);
 		fromTime.set(Calendar.SECOND, 0);
@@ -145,6 +148,12 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	 */
 	public Set<MeetingModel> getMeetingInterval(Calendar fromTime, Calendar toTime, boolean tight) {
 		Set<MeetingModel> returnSet;
+		
+		if (!toTime.after(fromTime))
+			throw new IllegalArgumentException("toTime cannot be before fromTime\n" +
+					"toTime " + toTime.getTime() + "\n" +
+					"fromTime" + fromTime.getTime() + "\n");
+		
 		
 		Set<MeetingModel> fromSet = new HashSet<MeetingModel>();
 		for (Map.Entry<Calendar, Set<MeetingModel>> entry : meetingsFrom.subMap(fromTime, true, toTime, true).entrySet()) {
@@ -264,6 +273,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		System.out.printf("Request buffer (%s) - (%s)\n", from.getTime().toString(), to.getTime().toString());
 		meetingsReq = ServerConnection.instance().requestMeetings(this, new UserModel[]{owner}, from, to);
 	}
-
+	
+	
 	
 }
