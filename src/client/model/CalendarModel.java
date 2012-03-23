@@ -295,4 +295,6 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		meetingsReq = ServerConnection.instance().requestMeetings(this, new UserModel[]{owner}, from, to);
 	}
 	
+	
+	
 }
