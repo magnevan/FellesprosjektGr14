@@ -13,6 +13,7 @@ import javax.swing.JTabbedPane;
 
 import client.ClientMain;
 import client.gui.week.WeekView;
+import client.model.CalendarModel;
 import client.model.MeetingModel;
 import client.model.NotificationType;
 
@@ -28,7 +29,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 
 	public MainPanel() {
 		super(new BorderLayout());
-
+		
 		unreadNotifications = 0;
 		
 		optionTabbedPane = new JTabbedPane();
@@ -45,6 +46,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		optionTabbedPane.addTab("Varsler (0)", vp); //TODO
 		
 		weekView = new WeekView();
+		weekView.addPropertyChangeListener(this);
 		calendarTabbedPane.addTab("Uke", weekView);
 		calendarTabbedPane.addTab("Måned", new JPanel()); //TODO
 		
@@ -63,14 +65,18 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		akp.getNewAppointmentButton().addActionListener(listener);
 		vp.getNewAppointmentButton().addActionListener(listener);
 		vp.addPropertyChangeListener(this);
-		weekView.addPropertyChangeListener(this);
 		
 		
 	}
 	
-	private void OpenNewAppointment() {
-		OpenAppointment(MeetingModel.newDefaultInstance());
+	/**
+	 * Creates and opens a new appointment at the given time
+	 * @param startTime
+	 */
+	private void OpenNewAppointment(Calendar startTime) {
+		OpenAppointment(MeetingModel.newDefaultInstance(startTime));
 	}
+	
 	
 	private void OpenAppointment(MeetingModel meeting) {
 		if (newAppointmentPane == null) {
@@ -84,19 +90,26 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 	class NewAppointmentListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			OpenNewAppointment();
+			OpenNewAppointment(Calendar.getInstance());
 		}
 	}
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		System.out.println(evt.getPropertyName());
 		if (evt.getPropertyName() == NotificationList.NOTIFICATION_COUNT) {
-			
 			optionTabbedPane.setTitleAt(2, "Varsel (" + ((Integer)evt.getNewValue()) + ")");
-			
 		} else if (evt.getPropertyName() == NotificationList.NOTIFICATION_CLICKED) {
 			OpenAppointment((MeetingModel)evt.getNewValue());
+		} else if (evt.getPropertyName() == WeekView.WEEKCLICK) {
+			CalendarModel calMod = weekView.getCalendarModel();
+			int[] dayAndHour = (int[]) evt.getNewValue();
+			int weekNumber = weekView.getWeekNumber();
+			Calendar clickTime = Calendar.getInstance();
+			clickTime.set(Calendar.WEEK_OF_YEAR, weekNumber);
+			clickTime.set(Calendar.DAY_OF_WEEK, dayAndHour[0] + 1);
+			clickTime.set(Calendar.HOUR_OF_DAY, dayAndHour[1]);
+			clickTime.set(Calendar.MINUTE, 0);
+			clickTime.set(Calendar.SECOND, 0);
 		}
-	}	
+	}
 }

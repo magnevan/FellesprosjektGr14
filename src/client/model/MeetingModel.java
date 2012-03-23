@@ -79,14 +79,19 @@ public class MeetingModel implements TransferableModel {
 	/**
 	 * Creates a default meeting model
 	 */
-	public static MeetingModel newDefaultInstance() {
-		Calendar timeFrom = Calendar.getInstance(), 
-				 timeTo   = Calendar.getInstance();
+	public static MeetingModel newDefaultInstance(Calendar startTime) {
+		Calendar timeFrom = (Calendar)startTime.clone(),
+				 timeTo   = (Calendar)startTime.clone();
 		
-		timeFrom.set(Calendar.HOUR_OF_DAY, 8);
-		timeFrom.set(Calendar.MINUTE, 0);
-		timeTo.set(Calendar.HOUR_OF_DAY, 9);
-		timeTo.set(Calendar.MINUTE, 0);
+		timeFrom.set(Calendar.SECOND, 0);
+		timeFrom.set(Calendar.SECOND, 0);
+		
+		if (timeFrom.get(Calendar.HOUR_OF_DAY) < 23)
+			timeTo.set(Calendar.HOUR_OF_DAY, timeFrom.get(Calendar.HOUR_OF_DAY) + 1);
+		else {
+			timeTo.set(Calendar.HOUR_OF_DAY, 23);
+			timeTo.set(Calendar.MINUTE, 59);
+		}
 		
 		UserModel owner = ClientMain.getActiveUser();
 		

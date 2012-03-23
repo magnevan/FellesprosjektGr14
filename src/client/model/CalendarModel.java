@@ -117,7 +117,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		while (fromTime.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
 			fromTime.add(Calendar.DAY_OF_WEEK, -1);
 		
-		while (toTime.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
+		while (toTime.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY)
 			toTime.add(Calendar.DAY_OF_WEEK, 1);
 			
 		fromTime.set(Calendar.HOUR_OF_DAY, 0);
@@ -130,6 +130,27 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		
 		return getMeetingInterval(fromTime, toTime,true);
 	}
+	
+	/**
+	 * Returns meetings with a day, from 00:00:00 to 23:59:59
+	 * @param date
+	 * @return set of MeetingModels
+	 */
+	public Set<MeetingModel> getMeetingsInDay(Calendar date) {
+		Calendar fromTime = (Calendar)date.clone(),
+				   toTime = (Calendar)date.clone();
+		
+		fromTime.set(Calendar.HOUR_OF_DAY, 0);
+		fromTime.set(Calendar.MINUTE, 0);
+		fromTime.set(Calendar.SECOND, 0);
+		
+		fromTime.set(Calendar.HOUR_OF_DAY, 23);
+		fromTime.set(Calendar.MINUTE, 59);
+		fromTime.set(Calendar.SECOND, 59);
+		
+		return getMeetingInterval(fromTime, toTime,true);
+	}
+
 	
 	/**
 	 * @param fromTime Calendar object representing the start of the interval
@@ -273,6 +294,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		System.out.printf("Request buffer (%s) - (%s)\n", from.getTime().toString(), to.getTime().toString());
 		meetingsReq = ServerConnection.instance().requestMeetings(this, new UserModel[]{owner}, from, to);
 	}
-
+	
+	
 	
 }

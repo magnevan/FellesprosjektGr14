@@ -57,6 +57,7 @@ public class WeekView extends JPanel {
 	private JLayeredPane AppointmentLayer;
 	private PropertyChangeSupport pcs;
 	private JPanel northPanel, dayPanelWithPadding;
+
 	
 	
 	public WeekView() {
@@ -132,8 +133,6 @@ public class WeekView extends JPanel {
 		if (hour < SHOWHOURS/2) hour = SHOWHOURS/2;
 		if (hour > (23-SHOWHOURS/2)) hour = (23-SHOWHOURS/2);
 		hour -= SHOWHOURS/2;
-		
-		//System.out.println(hour);
 		
 //		It seems like getMaximum returns only half of the maximum. Dividing by two to compensate
 		vs.setValue(
@@ -214,6 +213,14 @@ public class WeekView extends JPanel {
 		pcs.removePropertyChangeListener(listener);
 	}
 	
+	public CalendarModel getCalendarModel() {
+		return calModel;
+	}
+	
+	public int getWeekNumber() {
+		return date.get(Calendar.WEEK_OF_YEAR);
+	}
+	
 	class MouseClickListener implements MouseListener {
 		long timestamp;
 		boolean secondClick;
@@ -266,6 +273,7 @@ public class WeekView extends JPanel {
 			AppointmentLayer.add(AP,2, 0);
 			AP.setOpaque(true);
 			AP.setBounds(AP.getX(), AP.getY(), AP.getWidth(),AP.getLength());
+			System.out.println("BREDDE:" );
 		}	
 	}
 	
