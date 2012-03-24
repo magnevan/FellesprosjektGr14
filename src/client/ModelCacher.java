@@ -42,7 +42,7 @@ public abstract class ModelCacher {
 			return model;
 		
 		if(containsKey(model.getUMID())) {
-			ModelCacher.update(model);
+			update(model);
 		} else {
 			put(model.getUMID(), model);
 		}
@@ -61,6 +61,17 @@ public abstract class ModelCacher {
 			return get(model.getUMID());
 		}
 		return null;
+	}
+	
+	/**
+	 * Force free a model, this is required in a few special cases
+	 * 
+	 * @param model
+	 */
+	public static void free(TransferableModel model) {
+		if(model.getUMID() != null && containsKey(model.getUMID())) {
+			cache.remove(model.getUMID());
+		}
 	}
 	
 	/**

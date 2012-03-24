@@ -151,14 +151,14 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 						getOwner().getUsername(), getLocation(), getId()));
 
 				// Reset invitations if needed
-				boolean resetInv = !old.getTimeFrom().equals(getTimeFrom()) 
+				/*boolean resetInv = !old.getTimeFrom().equals(getTimeFrom()) 
 						|| !old.getTimeTo().equals(getTimeTo()) 
 						|| !old.getLocation().equals(getLocation())
 						|| ((old.getRoom() != null) && !old.getRoom().equals(getRoom()));
 				
 				if(resetInv) {
 					resetInvitations();
-				}
+				}*/
 				
 			}
 		} catch (SQLException e) {

@@ -1,5 +1,6 @@
 package client;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -58,7 +59,7 @@ public class ServerConnection extends AbstractConnection {
 	/**
 	 * Attempt to login
 	 * 
-	 * If successfull a ServerConnection instance will be accessible from
+	 * If successful a ServerConnection instance will be accessible from
 	 * instance();
 	 * 
 	 * @param address
@@ -138,10 +139,11 @@ public class ServerConnection extends AbstractConnection {
 		try {
 			socket = new Socket(address, port);
 			
-			reader = new DebugReader(new InputStreamReader(socket.getInputStream()));
-			//reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			//reader = new DebugReader(new InputStreamReader(socket.getInputStream()));
+			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			//writer = new DebugWriter(new OutputStreamWriter(socket.getOutputStream()));
+			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			
 			
 			LOGGER.info(reader.readLine()); // Read welcome message
 			
@@ -168,12 +170,16 @@ public class ServerConnection extends AbstractConnection {
 	 * Private reader thread
 	 *
 	 */
-	class ReaderThread extends Thread {		
+	class ReaderThread extends Thread {
+		
+		private boolean running;
+		
 		@Override
 		public void run() {
+			running = true;
 			try {
 				String line;
-				while((line = reader.readLine()) != null) {
+				while(running && (line = reader.readLine()) != null) {
 					LOGGER.info(line);
 					
 					String[] parts = line.split("\\s+");
@@ -185,8 +191,21 @@ public class ServerConnection extends AbstractConnection {
 					}
 					
 					int id = Integer.parseInt(parts[0]);
-					String method = parts[1];
+					String method = parts[1];					
 					
+					// Server confirms logout, so we leave
+					if(method.equals("LOGOUT")) {
+						running = false;
+						continue;
+					}
+					
+					// TODO Handle deleted objects
+					if(method.equals("DELETE")) {
+						continue;
+					}
+					
+					// All responses below this line transmits a model
+					List<TransferableModel> models = readModels();
 					
 					// Stored models are saved
 					if(method.equals("STORE") && parts.length > 2) {
@@ -196,12 +215,6 @@ public class ServerConnection extends AbstractConnection {
 							storedModels.put(id, readModels().get(0));							
 						continue;
 					} 
-					
-					if(method.equals("DELETE")) {
-						continue;
-					}
-					
-					List<TransferableModel> models = readModels();
 					
 					// Broadcasts come with a zero id
 					if(id == 0 && method.equals("BROADCAST")) {
@@ -483,30 +496,6 @@ public class ServerConnection extends AbstractConnection {
 	protected List<TransferableModel> readModels() throws IOException {
 		ModelEnvelope envelope = new ModelEnvelope(reader, false);
 		return envelope.getModels();
-	}
-	
-	public static void main(String[] args) throws Exception {
-		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
-		
-		Calendar from = Calendar.getInstance();
-		from.set(2012, 1, 1);
-		Calendar to = Calendar.getInstance();
-		to.set(2013, 1, 1);
-		
-		ServerConnection.instance().requestMeetings(new Listener(), from, to);
-	}
-}
-
-
-class Listener implements IServerResponseListener {
-
-	@Override
-	public void onServerResponse(int requestId, Object data) {
-		MeetingModel mm = ((List<MeetingModel>) data).get(0);
-		System.out.println(mm.getName());
-		
-		System.out.println(mm.getInvitation(ClientMain.getActiveUser()));
-		
 	}
 	
 }

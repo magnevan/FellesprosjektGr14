@@ -148,7 +148,18 @@ public class MeetingModel implements TransferableModel {
 
 	@Override
 	public void copyFrom(TransferableModel source) {
-		// TODO Auto-generated method stub
+		MeetingModel n = (MeetingModel) source;
+		
+		System.out.println("IN change block");
+		setName(n.getName());
+		setTimeFrom(n.getTimeFrom());
+		setTimeTo(n.getTimeTo());
+		setLocation(n.getLocation());
+		setRoom(n.getRoom());
+		setDescription(n.getDescription());
+		setOwner(n.getOwner());
+		invitations = n.getInvitations();
+		
 		
 	}
 	
