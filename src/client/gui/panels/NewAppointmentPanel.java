@@ -375,11 +375,10 @@ public class NewAppointmentPanel extends JPanel
 	 * Accept meeting invitation
 	 */
 	private void acceptMeetingInvitation() {
-		InvitationModel i ;
-		if((i = model.getInvitation(ClientMain.getActiveUser())) != null) {
-			i.setStatus(InvitationStatus.ACCEPTED);
+		if(invitation != null) {
+			invitation.setStatus(InvitationStatus.ACCEPTED);
 			try {
-				i.store();
+				invitation.store();
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
@@ -387,11 +386,10 @@ public class NewAppointmentPanel extends JPanel
 	}
 	
 	private void declineMeetingInvitation() {
-		InvitationModel i ;
-		if((i = model.getInvitation(ClientMain.getActiveUser())) != null) {
-			i.setStatus(InvitationStatus.DECLINED);
+		if(invitation != null) {
+			invitation.setStatus(InvitationStatus.DECLINED);
 			try {
-				i.store();
+				invitation.store();
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
