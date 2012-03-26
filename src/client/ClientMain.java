@@ -32,8 +32,6 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 		super("Kalender");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
-
-		
 		contentPane = new JPanel(new BorderLayout());
 		this.setContentPane(contentPane);
 		

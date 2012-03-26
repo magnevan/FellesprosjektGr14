@@ -244,7 +244,7 @@ public class AppointmentPanel extends JButton implements PropertyChangeListener{
 		String PN = evt.getPropertyName();
 		
 		if(PN == MeetingModel.TIME_FROM_PROPERTY || PN == MeetingModel.TIME_TO_PROPERTY || PN == MeetingModel.LOCATION_PROPERTY
-				|| PN == MeetingModel.NAME_PROPERTY || PN == MeetingModel.ROOM_PROPERTY){
+				|| PN == MeetingModel.NAME_PROPERTY || PN == MeetingModel.ROOM_PROPERTY || PN == MeetingModel.INVITATION_UPDATED){
 			System.out.println("TIME FROM OR TIME TO RECIVED!");
 			pcs.firePropertyChange(APPOINTMENT_CHANGED_PROPERTY, null, model);
 		}

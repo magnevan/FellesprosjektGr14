@@ -74,11 +74,12 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 	
 	
 	private void OpenAppointment(MeetingModel meeting) {
-		if (newAppointmentPane == null) {
-			newAppointmentPane = new NewAppointmentPanel(meeting);
-			optionTabbedPane.addTab("NAVN?", newAppointmentPane); //TODO navn?
-			newAppointmentPane.addPropertyChangeListener(this);
-		}
+		if (newAppointmentPane != null)
+			CloseAppointment();
+		
+		newAppointmentPane = new NewAppointmentPanel(meeting);
+		optionTabbedPane.addTab("Avtale", newAppointmentPane); //TODO navn?
+		newAppointmentPane.addPropertyChangeListener(this);
 		optionTabbedPane.setSelectedComponent(newAppointmentPane);
 	}
 	
@@ -101,11 +102,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		if (evt.getPropertyName() == VarselPanel.NOTIFICATION_COUNT_CHANGED) {
 			optionTabbedPane.setTitleAt(2, "Varsel (" + ((Integer)evt.getNewValue()) + ")");
 		} else if (evt.getPropertyName() == VarselPanel.NOTIFICATION_W_MEETING_CLICKED) {
-			MeetingModel m = ((NotificationModel)evt.getNewValue()).getRegardsMeeting();
-			if(m.getOwner().equals(ClientMain.getActiveUser()) 
-					|| m.isInvited(ClientMain.getActiveUser())) {
-				OpenAppointment(m);
-			}
+			OpenAppointment(((NotificationModel)evt.getNewValue()).getRegardsMeeting());
 		} else if (evt.getPropertyName() == WeekView.WEEKCLICK) {
 			int[] dayAndHour = (int[]) evt.getNewValue();
 			int weekNumber = weekView.getWeekNumber();
