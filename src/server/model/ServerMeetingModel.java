@@ -12,6 +12,7 @@ import java.util.HashMap;
 import server.DBConnection;
 import server.ServerMain;
 import client.model.InvitationModel;
+import client.model.InvitationStatus;
 import client.model.MeetingModel;
 import client.model.NotificationType;
 import client.model.TransferableModel;
@@ -142,6 +143,19 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 					}
 				}
 				
+				// Handle room reservations
+				if(old.getRoom() != null && !old.getRoom().equals(getRoom())) {
+					db.performUpdate(String.format("DELETE FROM meeting_room_booking" +
+							" WHERE meeting_room_number = %d AND appointment_id = %d",
+							old.getRoom().getRoomNumber(), getId()));
+					
+					if(getRoom() != null)
+						db.performUpdate(String.format(
+								"INSERT INTO meeting_room_booking (meeting_room_number, appointment_id)" +
+								"VALUES(%s, %d);", getRoom().getRoomNumber(), getId()
+							));
+				}
+				
 				// Update the actual meeting model
 				db.performUpdate(String.format(
 						"UPDATE appointment SET title='%s', start_date='%s', end_date='%s', " +
@@ -150,15 +164,16 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 						DBConnection.getFormattedDate(getTimeTo()),	getDescription(), 
 						getOwner().getUsername(), getLocation(), getId()));
 
+				
 				// Reset invitations if needed
-				/*boolean resetInv = !old.getTimeFrom().equals(getTimeFrom()) 
+				boolean resetInv = !old.getTimeFrom().equals(getTimeFrom()) 
 						|| !old.getTimeTo().equals(getTimeTo()) 
-						|| !old.getLocation().equals(getLocation())
+						|| ((old.getLocation() != null) && !old.getLocation().equals(getLocation()))
 						|| ((old.getRoom() != null) && !old.getRoom().equals(getRoom()));
 				
 				if(resetInv) {
-					resetInvitations();
-				}*/
+					resetInvitations(db);
+				}
 				
 			}
 		} catch (SQLException e) {
@@ -170,8 +185,14 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 	 * Reset all invitations sent for this meeting
 	 * 
 	 */
-	private void resetInvitations() {
-		// Set all invitaions to INVITED, send a notification to every user
+	private void resetInvitations(DBConnection db) throws SQLException {
+		db.performUpdate("UPDATE user_appointment SET status=INVITED WHERE appointment_id="+getId());
+		
+		for(InvitationModel i : getInvitations()) {
+			i.setStatus(InvitationStatus.INVITED);
+			new ServerNotificationModel(NotificationType.A_EDITED, i.getUser(), i.getMeeting(),
+					i.getMeeting().getOwner()).store(db);
+		}
 	}
 	
 	/**
