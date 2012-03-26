@@ -76,8 +76,8 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 	 * @param smethod
 	 * @throws IOException
 	 */
-	private void writeModels(TransferableModel[] models, int id, String method)
-			throws IOException {
+	@SuppressWarnings("unused")
+	private void writeModels(TransferableModel[] models, int id, String method) throws IOException {
 		writeModels(Arrays.asList(models), id, method, "");
 	}
 

@@ -3,7 +3,6 @@ package client.gui.participantstatus;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Arrays;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -22,9 +21,13 @@ import client.model.UserModel;
  * @author Magne
  *
  */
-@SuppressWarnings("serial")
 public class ParticipantStatusList extends JPanel implements PropertyChangeListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4473084764548566328L;
+
 	private static final String[] HEADERS = new String[]{"Navn", "Status"};
 	
 	private final MeetingModel mmodel;
@@ -83,6 +86,11 @@ public class ParticipantStatusList extends JPanel implements PropertyChangeListe
 	}
 	
 	class ParticipantModel extends AbstractTableModel {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 4164972929676997268L;
 
 		@Override
 		public String getColumnName(int i) {

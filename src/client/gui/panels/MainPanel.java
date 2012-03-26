@@ -12,12 +12,9 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import client.ClientMain;
-import client.gui.avtale.AppointmentPanel;
 import client.gui.week.WeekView;
-import client.model.CalendarModel;
 import client.model.MeetingModel;
 import client.model.NotificationModel;
-import client.model.NotificationType;
 
 
 public class MainPanel extends JPanel implements PropertyChangeListener {
@@ -26,14 +23,11 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 
 	private final JTabbedPane optionTabbedPane;
 	private NewAppointmentPanel newAppointmentPane = null;
-	private int unreadNotifications;
 	private WeekView weekView;
 
 	public MainPanel() {
 		super(new BorderLayout());
-		
-		unreadNotifications = 0;
-		
+				
 		optionTabbedPane = new JTabbedPane();
 		JTabbedPane calendarTabbedPane = new JTabbedPane();
 		

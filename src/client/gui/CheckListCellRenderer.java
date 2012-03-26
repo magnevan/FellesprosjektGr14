@@ -9,7 +9,11 @@ import javax.swing.*;
 import client.model.UserModel;
 
 public class CheckListCellRenderer extends JPanel implements ListCellRenderer{ 
-    private ListCellRenderer delegate; 
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -226231049907500676L;
+	private ListCellRenderer delegate; 
     private ListSelectionModel selectionModel; 
     private JCheckBox checkBox = new JCheckBox();
     Color lol;
