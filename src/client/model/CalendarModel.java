@@ -245,7 +245,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 			
 			if (e.getPropertyName() == MeetingModel.TIME_FROM_PROPERTY) {
 				moveMap = meetingsFrom;
-			} else if (e.getPropertyName() == MeetingModel.TIME_FROM_PROPERTY) {
+			} else if (e.getPropertyName() == MeetingModel.TIME_TO_PROPERTY) {
 				moveMap = meetingsTo;
 			}
 			
