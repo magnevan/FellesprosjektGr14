@@ -55,8 +55,19 @@ public class ServerInvitationModel extends InvitationModel
 	 * @param mid
 	 * @return
 	 */
-	public ServerInvitationModel findInvitation(DBConnection db, String username, int mid) {
-		
+	public ServerInvitationModel findInvitation(DBConnection db, UserModel user, MeetingModel meeting) {
+		try {
+			ResultSet rs = db.performQuery(
+					"SELECT * FROM user_appointment " +
+					"WHERE username='"+user.getUsername()+"' AND appointment_id=" + meeting.getId());
+			
+			if(rs.next()) {
+				return new ServerInvitationModel(rs, user, meeting);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 	
@@ -65,7 +76,7 @@ public class ServerInvitationModel extends InvitationModel
 	 */
 	@Override
 	public void store(DBConnection db) {
-		ServerInvitationModel old = findInvitation(db, getUser().getUsername(), getMeeting().getId());
+		ServerInvitationModel old = findInvitation(db, getUser(), getMeeting());
 		
 		try {
 			// New invitation

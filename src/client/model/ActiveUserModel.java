@@ -55,8 +55,10 @@ public class ActiveUserModel extends UserModel {
 	 */
 	@Override
 	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
-		for(int i = notificationsUMIDs.length-1; i >= 0; i--) {
-			notifications.add((NotificationModel) modelBuff.get(notificationsUMIDs[i]));
+		if(notificationsUMIDs != null) {
+			for(int i = notificationsUMIDs.length-1; i >= 0; i--) {
+				notifications.add((NotificationModel) modelBuff.get(notificationsUMIDs[i]));
+			}
 		}
 		notificationsUMIDs = null;
 	}

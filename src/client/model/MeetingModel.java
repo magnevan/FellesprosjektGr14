@@ -160,9 +160,7 @@ public class MeetingModel implements TransferableModel {
 		setRoom(n.getRoom());
 		setDescription(n.getDescription());
 		setOwner(n.getOwner());
-		invitations = n.getInvitations();
-		
-		
+		invitations = n.getInvitations();		
 	}
 	
 	/**
