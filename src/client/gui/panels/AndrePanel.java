@@ -48,6 +48,7 @@ public class AndrePanel extends JPanel{
 		employeesLabel.setText("Ansatte");
 		centerContent.add(employeesLabel);
 		
+		
 		filteredUserList = new FilteredUserList(new FilteredUserListModel());
 		filteredUserList.setPreferredSize(new Dimension(307,200));
 		centerContent.add(filteredUserList);

@@ -84,6 +84,7 @@ public class NotificationList extends JPanel {
 	 * 			is newer than that of all existing notifications 
 	 */
 	public void addElement(NotificationModel newNotification) {
+		if (read.contains(newNotification) || unread.contains(newNotification)) return;
 		if (unread.size() + read.size() >= MAX_SIZE && read.size() > 0) {
 			for (int i = listModel.size() - 1; i >= 0; i--) {
 				NotificationModel extract;

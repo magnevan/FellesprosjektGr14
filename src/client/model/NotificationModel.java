@@ -116,6 +116,8 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 		
 		regards_meeting_umid = reader.readLine();
 		regards_user_umid = reader.readLine();
+		
+		read = reader.readLine().equals("TRUE");
 	}
 	
 	private String given_to_umid, regards_meeting_umid, regards_user_umid;
@@ -304,7 +306,8 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 			
 		if(getRegardsUser() != null)
 			sb.append(getRegardsUser().getUMID());
-		sb.append("\r\n");		
+		sb.append("\r\n");	
+		sb.append((read ? "TRUE" : "FALSE") + "\r\n");
 	}
 
 	@Override
