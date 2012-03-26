@@ -116,6 +116,7 @@ public class FilteredUserListModel
 	 * @param requestId id of the request that caused this response
 	 * @param data actual data returned
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onServerResponse(int requestId, Object data) {
 		// We're only interested in the newest responses, throw out old ones

@@ -38,7 +38,7 @@ import client.model.UserModel;
 /**
  * @author Magne
  */
-public class WeekView extends JPanel implements PropertyChangeListener {
+public class WeekView extends JPanel implements PropertyChangeListener{
 	
 	private static final long serialVersionUID = -8533878088518459485L;
 	
@@ -77,7 +77,7 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		//North
 		northPanel = new JPanel(new BorderLayout());
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		weekLabel = new JLabel("Uke " + date.get(date.WEEK_OF_YEAR) + ", " + date.get(date.YEAR),SwingConstants.CENTER);
+		weekLabel = new JLabel("Uke " + date.get(Calendar.WEEK_OF_YEAR) + ", " + date.get(Calendar.YEAR),SwingConstants.CENTER);
 		weekLabel.setFont(new Font("Times New Roman", Font.BOLD,20));
 		
 		prevWeekButton = new JButton("<<");
@@ -305,7 +305,7 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 	private void addAppointment(MeetingModel MM){
 		if (meetings.contains(MM)) return;
 		//Muligens litt tungvint, men hvis �r og uke er lik med n�v�rende date s� tegnes avtalen
-		if(MM.getTimeFrom().get(MM.getTimeFrom().YEAR) == date.get(date.YEAR) && MM.getTimeFrom().get(MM.getTimeFrom().WEEK_OF_YEAR) == date.get(date.WEEK_OF_YEAR)){
+		if(MM.getTimeFrom().get(Calendar.YEAR) == date.get(Calendar.YEAR) && MM.getTimeFrom().get(Calendar.WEEK_OF_YEAR) == date.get(Calendar.WEEK_OF_YEAR)){
 			AppointmentPanel avtale = new AppointmentPanel(MM);
 			avtale.addPCL(this);
 			appointments.add(avtale);
@@ -327,7 +327,9 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		}
 		meetings.clear();
 		appointments.clear();
-		AppointmentLayer.repaint();
+		
+		this.revalidate();
+		this.repaint();
 	}
 	
 	private void setDateLabels(){
@@ -339,7 +341,7 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		dayPanelWithPadding.add(testPanel);
 		
 		//Setter uke og �r
-		weekLabel.setText("Uke " + date.get(date.WEEK_OF_YEAR) + ", " + date.get(date.YEAR));
+		weekLabel.setText("Uke " + date.get(Calendar.WEEK_OF_YEAR) + ", " + date.get(Calendar.YEAR));
 		
 	}
 	
@@ -383,6 +385,11 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		else if(PN == CalendarModel.MEETING_REMOVED){
 			addAllAppointments();
 			System.out.println(" 'Meeting_removed' recived");
+		}
+		else if(PN == AppointmentPanel.TIME_CHANGED_PROPERTY){
+			addAllAppointments();
+			System.out.println(" 'time_changed' recived");
+			
 		}
 		else if(PN == AppointmentPanel.APPOINTMENT_PRESSED_PROPERTY){
 			pcs.firePropertyChange(APPOINTMENTCLICEKD, null, (MeetingModel)event.getNewValue());

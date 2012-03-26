@@ -1,16 +1,22 @@
 package client.gui.panels;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import javax.swing.*;
+
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JLabel;
+import javax.swing.JList;
+
 import client.model.MeetingModel;
 
 public class MeetingModelRenderer extends DefaultListCellRenderer {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4621134349596522797L;
 	JLabel label3, label2;
 	MeetingModel model;
 	

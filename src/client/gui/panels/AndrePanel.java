@@ -51,7 +51,7 @@ public class AndrePanel extends JPanel{
 		centerContent.add(employeesLabel);
 		
 		filteredUserListModel = new FilteredUserListModel();
-		filteredUserListModel.addUsersToBlacklist(new UserModel[]{ClientMain.client().getActiveUser()});
+		filteredUserListModel.addUsersToBlacklist(new UserModel[]{ClientMain.getActiveUser()});
 		filteredUserList = new FilteredUserList(filteredUserListModel);
 		filteredUserList.setPreferredSize(new Dimension(307,200));
 		centerContent.add(filteredUserList);
