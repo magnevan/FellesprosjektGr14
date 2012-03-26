@@ -288,21 +288,13 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		
 		ClientMain.getActiveUser().getCalendar().addPropertyChangeListner(this);
 		for (MeetingModel MM : ClientMain.getActiveUser().getCalendar().getMeetingsInWeek(date)){
-			if (meetings.contains(MM)) continue;
-			AppointmentPanel avtale = new AppointmentPanel(MM);
-			avtale.addPCL(this);
-			appointments.add(avtale);
-			meetings.add(MM);
+			addAppointment(MM);
 		}
 		
 		for (UserModel victim : ClientMain.getActiveUser().getStalkingList()) {
 			victim.getCalendar().addPropertyChangeListner(this);
 			for (MeetingModel MM : victim.getCalendar().getMeetingsInWeek(date)){
-				if (meetings.contains(MM)) continue;
-				AppointmentPanel avtale = new AppointmentPanel(MM);
-				avtale.addPCL(this);
-				appointments.add(avtale);
-				meetings.add(MM);
+				addAppointment(MM);
 			}
 		}
 		
