@@ -235,9 +235,11 @@ public class ServerConnection extends AbstractConnection {
 						if(model instanceof NotificationModel) {
 							user.addNotification((NotificationModel)model);
 						} else if(model instanceof MeetingModel) {
-							// Newly added meeting
 							if(envelope.isNewModel(0)) {
-								// TODO Register this newly added meeting in the calendar model
+								// Add newly added meeting, assumes that the calendar
+								// model figures out if it needes the given meeting
+								ClientMain.getActiveUser().getCalendarModel()
+									.add((MeetingModel) model);
 							}
 						}
 						continue;
