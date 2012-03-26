@@ -236,6 +236,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 
 			}
 		} catch (ParseException e) {
+			e.printStackTrace();
 			LOGGER.info(String.format(
 					"Client %s (%s) dropped due to malformed time formats",
 					socket.getInetAddress().toString(), user));

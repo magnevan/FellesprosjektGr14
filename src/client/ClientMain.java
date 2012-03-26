@@ -4,6 +4,7 @@ package client;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.util.Date;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
