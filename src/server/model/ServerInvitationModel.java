@@ -5,14 +5,12 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import server.DBConnection;
 import client.model.InvitationModel;
 import client.model.InvitationStatus;
 import client.model.MeetingModel;
 import client.model.NotificationType;
-import client.model.TransferableModel;
 import client.model.UserModel;
 
 /**
@@ -115,16 +113,6 @@ public class ServerInvitationModel extends InvitationModel
 	 * @param db
 	 */
 	public void delete(DBConnection db) {
-		delete(db, false);
-	}
-	
-	/**
-	 * Delete invitation, if notify is set to true the owner of the meeting will
-	 * be notified, else this will pass silently
-	 * 
-	 * @param db
-	 */
-	public void delete(DBConnection db, boolean notify) {
 		try {
 			db.performUpdate(String.format("DELETE FROM user_appointment " +
 					"WHERE appointment_id=%d AND username='%s'",
@@ -132,11 +120,27 @@ public class ServerInvitationModel extends InvitationModel
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Delete invitation, and send a notification either to the meeting owner
+	 * its the user that deleted. Or the user if the meeting owner deletes it.
+	 * 
+	 * @param db
+	 * @param isMeetingOwner
+	 */
+	public void delete(DBConnection db, boolean isMeetingOwner) {
+		delete(db);
 		
-		if(notify) {
+		if(!isMeetingOwner) {
 			new ServerNotificationModel(
 					NotificationType.A_USER_DENIED, getMeeting().getOwner(),
 					getMeeting(), getUser()
+			).store(db);
+		} else {
+			new ServerNotificationModel(
+					NotificationType.A_CANCELED, getUser(), getMeeting(), 
+					getMeeting().getOwner()
 			).store(db);
 		}
 	}

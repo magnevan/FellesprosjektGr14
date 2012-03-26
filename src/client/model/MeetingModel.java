@@ -9,7 +9,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
-import java.util.HashMap;
 
 import server.ModelEnvelope;
 import client.ClientMain;
@@ -138,13 +137,14 @@ public class MeetingModel implements TransferableModel {
 	private String room_umid;
 	private String[] invitation_umids;
 	
-	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
-		owner = (UserModel) modelBuff.get(owner_umid);
+	@Override
+	public void registerSubModels(ModelEnvelope envelope) {
+		owner = (UserModel) envelope.getFromBuffer(owner_umid);
 		if(!room_umid.equals("")) {
-			room = (MeetingRoomModel) modelBuff.get(room_umid);
+			room = (MeetingRoomModel) envelope.getFromBuffer(room_umid);
 		}
 		for(String s : invitation_umids) {
-			invitations.add((InvitationModel) modelBuff.get(s));
+			invitations.add((InvitationModel) envelope.getFromBuffer(s));
 		}
 	}
 	
@@ -393,8 +393,25 @@ public class MeetingModel implements TransferableModel {
 		if (isInvited(user)) {
 			InvitationModel inv = getInvitation(user);
 			invitations.remove(inv);
+			if(inv.getStatus() != InvitationStatus.NOT_YET_SAVED) {
+				try {
+					inv.delete();
+				} catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
 			changeSupport.firePropertyChange(INVITATION_REMOVED, null, inv);
 		}
+	}
+	
+	/**
+	 * Remove a set of attendees
+	 * 
+	 * @param users
+	 */
+	public void removeAttendees(UserModel[] users) {
+		for(UserModel u : users)
+			removeAttendee(u);
 	}
 	
 		

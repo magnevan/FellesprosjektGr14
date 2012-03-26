@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import server.DBConnection;
-import client.model.TransferableModel;
 import client.model.UserModel;
 
 /**
@@ -156,7 +154,7 @@ public class ServerUserModel extends UserModel  {
 	public static ArrayList<ServerUserModel> searchByUsernameAndEmail(String usr, String em, DBConnection db) {
 		ArrayList<ServerUserModel> ret = new ArrayList<ServerUserModel>();
 		try {
-			ResultSet rs = db.performQuery("SELECT * FROM user WHERE username LIKE '%" + usr + "%' AND email LIKE '%" + em + "%';");
+			ResultSet rs = db.performQuery("SELECT * FROM user WHERE username LIKE '%" + usr + "%' OR email LIKE '%" + em + "%';");
 			while (rs.next()) {
 				ret.add(new ServerUserModel(rs));
 			}

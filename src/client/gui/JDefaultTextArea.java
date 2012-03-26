@@ -18,7 +18,6 @@ public class JDefaultTextArea extends JTextArea implements FocusListener {
 		
 		this.defaultText = defaultText;
 		this.setText(defaultText);
-		this.setForeground(Color.GRAY);
 		
 		this.addFocusListener(this);
 	}
@@ -26,7 +25,8 @@ public class JDefaultTextArea extends JTextArea implements FocusListener {
 	@Override
 	public void focusGained(FocusEvent e) {
 		if (this.getText().equals("")) {
-			this.setText("");
+			super.setText("");
+			this.setForeground(Color.BLACK);
 		}
 	}
 
@@ -34,20 +34,19 @@ public class JDefaultTextArea extends JTextArea implements FocusListener {
 	public void focusLost(FocusEvent e) {
 		if (this.getText().equals("")) {
 			this.setText(defaultText);
-			
 		}
 	}
 	
 	@Override
 	public void setText(String text) {
-		if (text.equals(defaultText)) {
+		if (text.equals(defaultText) || text.equals("")) {
 			this.setForeground(Color.GRAY);
+			super.setText(defaultText);
 		} else {
 			this.setForeground(Color.BLACK);
+			super.setText(text);
 		}
-		super.setText(text);
 	}
-	
 	
 	@Override
 	public String getText() {

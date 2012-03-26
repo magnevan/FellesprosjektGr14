@@ -8,4 +8,5 @@ eclipse
 logs
 *~
 *.orig
-.DS_Store
+*.local
+*.DS_Store

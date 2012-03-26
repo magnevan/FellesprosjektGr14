@@ -25,7 +25,7 @@ public class FilteredUserListModel
 	private UserModel[] filtered;
 	private String lastFilter = null;	
 	private HashSet<UserModel> userBlacklist;
-	private List<UserModel> serverList;
+	private List<UserModel> serverList = new ArrayList<UserModel>();
 	
 	/**
 	 * Setup a new FilteredUserListModel
@@ -86,6 +86,11 @@ public class FilteredUserListModel
 	 */
 	public void removeUsersFromBlacklist(UserModel[] users) {
 		userBlacklist.removeAll(Arrays.asList(users));
+		rebuildFilteredList();
+	}
+	
+	public void removeUserFromBlacklist(UserModel user) {
+		userBlacklist.remove(user);
 		rebuildFilteredList();
 	}
 	

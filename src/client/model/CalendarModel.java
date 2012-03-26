@@ -3,6 +3,7 @@ package client.model;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
@@ -27,9 +28,12 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	public final static String	MEETING_ADDED = "MEETING_ADDED";
 	public final static String  MEETING_REMOVED = "MEETING REMOVE";
 	
+	private Calendar bufferStart, bufferEnd;
+	
 	private final UserModel owner;
 	
 	private int meetingsReq;
+	
 	
 	public CalendarModel(UserModel owner) {
 		
@@ -40,6 +44,8 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		meetingsTo = new TreeMap<Calendar, Set<MeetingModel>>();
 		
 		pcs = new PropertyChangeSupport(this);
+		
+		bufferStart = bufferEnd = Calendar.getInstance();
 		
 	}
 	
@@ -122,11 +128,11 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 			
 		fromTime.set(Calendar.HOUR_OF_DAY, 0);
 		fromTime.set(Calendar.MINUTE, 0);
-		fromTime.set(Calendar.SECOND, 0);
+		fromTime.set(Calendar.SECOND, 1);
 		
-		fromTime.set(Calendar.HOUR_OF_DAY, 23);
-		fromTime.set(Calendar.MINUTE, 59);
-		fromTime.set(Calendar.SECOND, 59);
+		toTime.set(Calendar.HOUR_OF_DAY, 23);
+		toTime.set(Calendar.MINUTE, 59);
+		toTime.set(Calendar.SECOND, 59);
 		
 		return getMeetingInterval(fromTime, toTime,true);
 	}
@@ -175,6 +181,10 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 					"toTime " + toTime.getTime() + "\n" +
 					"fromTime" + fromTime.getTime() + "\n");
 		
+		if (fromTime.before(bufferStart) || toTime.after(bufferEnd)) {
+			requestBuffer(fromTime, toTime);
+		}
+		
 		
 		Set<MeetingModel> fromSet = new HashSet<MeetingModel>();
 		for (Map.Entry<Calendar, Set<MeetingModel>> entry : meetingsFrom.subMap(fromTime, true, toTime, true).entrySet()) {
@@ -197,6 +207,16 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 			returnSet = fromSet;
 			returnSet.addAll(toSet);
 		}
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy kk:mm");
+		
+		System.out.printf(	"Request for set of meetings from Calendar model\n" +
+				"Interval is (%s) - (%s)\n" +
+				"Number of meetings: %d\n", sdf.format(fromTime.getTime()), sdf.format(toTime.getTime()), returnSet.size());
+		
+		for (MeetingModel m : returnSet)
+			System.out.printf("\t%s\n", m.getName());
+		
 		
 		return returnSet;
 	}
@@ -234,7 +254,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 			
 			if (e.getPropertyName() == MeetingModel.TIME_FROM_PROPERTY) {
 				moveMap = meetingsFrom;
-			} else if (e.getPropertyName() == MeetingModel.TIME_FROM_PROPERTY) {
+			} else if (e.getPropertyName() == MeetingModel.TIME_TO_PROPERTY) {
 				moveMap = meetingsTo;
 			}
 			
@@ -256,7 +276,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	 */
 	public void requestDefaultBuffer() {
 		if (ServerConnection.isOnline()) {
-			sendRequestForBuffer();
+			sendRequestForDefaultBuffer();
 		} else {
 			ServerConnection.addServerConnectionListener(this);
 		}
@@ -264,11 +284,11 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	
 	@Override
 	public void serverConnectionChange(String change) {
-		sendRequestForBuffer();
+		sendRequestForDefaultBuffer();
 		ServerConnection.removeServerConnectionListener(this);
 	}
 	
-	private void sendRequestForBuffer() {
+	private void sendRequestForDefaultBuffer() {
 		//Requests a chuck of meetings from the server
 		Calendar 	from = Calendar.getInstance(),
 					to   = Calendar.getInstance();
@@ -278,7 +298,24 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		from.set(Calendar.DAY_OF_MONTH, 1);
 		to.set(Calendar.DAY_OF_MONTH, to.getActualMaximum(Calendar.DAY_OF_MONTH));
 		
-		System.out.printf("Request buffer (%s) - (%s)\n", from.getTime().toString(), to.getTime().toString());
+		requestBuffer(from, to);
+	}
+	
+	private void requestBuffer(Calendar from, Calendar to) {
+		from.set(Calendar.HOUR, 0);
+		from.set(Calendar.MINUTE, 0);
+		from.set(Calendar.SECOND, 0);
+		
+		to.set(Calendar.HOUR, 23);
+		to.set(Calendar.MINUTE, 59);
+		to.set(Calendar.SECOND, 59);
+		
+		if (from.before(bufferStart)) 
+			bufferStart = from;
+		
+		if (to.after(bufferEnd))
+			bufferEnd = to;
+		
 		meetingsReq = ServerConnection.instance().requestMeetings(this, new UserModel[]{owner}, from, to);
 	}
 	

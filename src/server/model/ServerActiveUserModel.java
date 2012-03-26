@@ -5,12 +5,10 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import server.ServerMain;
 import client.model.ActiveUserModel;
 import client.model.NotificationModel;
-import client.model.TransferableModel;
 
 public class ServerActiveUserModel extends ActiveUserModel {
 

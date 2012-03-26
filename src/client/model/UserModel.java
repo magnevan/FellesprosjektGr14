@@ -5,7 +5,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.HashMap;
 
 import server.ModelEnvelope;
 
@@ -31,22 +30,22 @@ public class UserModel implements TransferableModel {
 	
 	//These variables control which colors are given to new user calendars.
 	private static final Color[] availiableColors = new Color[]{
-		new Color(0x46ADFF), //lyseblŒ
+		new Color(0x46ADFF), //lyseblï¿½
 		new Color(0xE78649), //orange
-		new Color(0x92D642), //gr¿nn
+		new Color(0x92D642), //grï¿½nn
 		new Color(0xf7c000), //gul
-		new Color(0x522e5f), //m¿rkelilla
+		new Color(0x522e5f), //mï¿½rkelilla
 		new Color(0x6CDCB3), // turkis
-		new Color(0xb557b2), //m¿rkerosa
-		new Color(0x3775FF), //blŒ
+		new Color(0xb557b2), //mï¿½rkerosa
+		new Color(0x3775FF), //blï¿½
 		new Color(0xE7E19F), //lysegul
 		new Color(0xE7C69F), //lyseorange 
-		new Color(0x223AF8), //m¿rkeblŒ
-		new Color(0x65A716), //gr¿nn
+		new Color(0x223AF8), //mï¿½rkeblï¿½
+		new Color(0x65A716), //grï¿½nn
 		new Color(0xFF9C9A), //lyserosa
-		new Color(0xC0E192), //lysegr¿nn
+		new Color(0xC0E192), //lysegrï¿½nn
 		new Color(0x5E72AC), //lyselilla
-		new Color(0x65D1FA)  //litt m¿rkere lyseblŒ
+		new Color(0x65D1FA)  //litt mï¿½rkere lyseblï¿½
 		
 	};
 	private static int nextColor = 0;
@@ -80,7 +79,7 @@ public class UserModel implements TransferableModel {
 	}
 	
 	@Override
-	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
+	public void registerSubModels(ModelEnvelope envelope) {
 		
 	}
 	
@@ -89,6 +88,10 @@ public class UserModel implements TransferableModel {
 	}
 
 	
+	public CalendarModel getCalendar() {
+		return calendar;
+	}
+
 	/**
 	 * Get username
 	 * 

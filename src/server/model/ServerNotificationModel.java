@@ -6,14 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Calendar;
-import java.util.HashMap;
 
 import server.DBConnection;
 import server.ServerMain;
 import client.model.MeetingModel;
 import client.model.NotificationModel;
 import client.model.NotificationType;
-import client.model.TransferableModel;
 import client.model.UserModel;
 
 public class ServerNotificationModel extends NotificationModel 

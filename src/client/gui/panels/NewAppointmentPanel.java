@@ -2,6 +2,7 @@ package client.gui.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
@@ -14,6 +15,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -47,6 +49,7 @@ public class NewAppointmentPanel extends JPanel
 	private final MeetingModel 			model;
 	private final InvitationModel 		invitation;
 	private final JTextField 			tittelText;
+	private final JButton				closeButton;
 	private final JDateChooser 			dateChooser;
 	private final JTimePicker 			fromTime, 
 										toTime;
@@ -61,7 +64,7 @@ public class NewAppointmentPanel extends JPanel
 										deleteButton;
 	private		  JButton				AcceptButton,
 										DeclineButton,
-										DeleteFromCalendarButton;
+										deleteFromCalendarButton;
 	
 	
 	private       FilteredUserListModel filteredUserListModel;
@@ -72,33 +75,42 @@ public class NewAppointmentPanel extends JPanel
 	
 	private MeetingRoomModel selectedRoom;
 	
+	public final static String CLOSE = "close";
+	
 	public NewAppointmentPanel(MeetingModel meetingModel) {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
+//		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		model = meetingModel;
-		model.addPropertyChangeListener(this);
 		
 		isOwner = meetingModel.getOwner().equals(ClientMain.getActiveUser());
-		System.out.println(isOwner);
 		
 		// Find invitation if we're not the owner
 		if(!isOwner) {
 			invitation = model.getInvitation(ClientMain.getActiveUser());
-			invitation.addPropertyChangeListener(this);
 		} else {
 			invitation = null;
 		}
 		
 		//Tittel
 		this.add(new JLabel("Tittel:"));
+		
+		JPanel tittelPanel = new JPanel(new BorderLayout());
 		tittelText = new JTextField(model.getName(),26);
 		tittelText.setEditable(isOwner);
-		this.add(tittelText);
+		
+		closeButton = new JButton("Close");
+		
+		tittelPanel.add(tittelText, BorderLayout.CENTER);
+		tittelPanel.add(closeButton, BorderLayout.EAST);
+		this.add(tittelPanel);
 		
 		//Tid
 		this.add(new JLabel("Tid"));
 		JPanel tidPanel = new JPanel();
+		tidPanel.setLayout(new BoxLayout(tidPanel, BoxLayout.X_AXIS));
 		dateChooser = new JDateChooser(model.getTimeFrom().getTime(), "dd. MMMM YYYY");
+		
 		dateChooser.setPreferredSize(new Dimension(130,20));
 		dateChooser.setEnabled(isOwner);
 		tidPanel.add(dateChooser);
@@ -106,9 +118,11 @@ public class NewAppointmentPanel extends JPanel
 		fromTime = new JTimePicker(model.getTimeFrom());
 		toTime = new JTimePicker(model.getTimeTo());
 		
-		fromTime.setEditable(isOwner);
-		toTime.setEditable(isOwner);
+		if (!isOwner) fromTime.setEnabled(false);
+		if (!isOwner) toTime.setEnabled(false);
 		
+		tidPanel.add(dateChooser);
+		tidPanel.add(Box.createHorizontalGlue());
 		tidPanel.add(fromTime);
 		tidPanel.add(new JLabel(" - "));
 		tidPanel.add(toTime);
@@ -121,6 +135,10 @@ public class NewAppointmentPanel extends JPanel
 		moteromComboBox = new JComboBox();
 		selectedRoom = model.getRoom();
 		moteromComboBox.setSelectedItem(selectedRoom);
+		moteromComboBox.setPreferredSize(new Dimension(
+					100,
+					moteromComboBox.getPreferredSize().height
+				));
 		
 		moteromText = new JDefaultTextField("Skriv m�teplass...", 15);
 		moteromText.setText(model.getLocation());
@@ -151,6 +169,7 @@ public class NewAppointmentPanel extends JPanel
 		if (isOwner) {
 			this.add(new JLabel("Ansatte:"));
 			filteredUserListModel = new FilteredUserListModel();
+			filteredUserListModel.addUsersToBlacklist(new UserModel[]{ClientMain.getActiveUser()});
 			filteredUserList = new FilteredUserList(filteredUserListModel);
 			filteredUserList.setPreferredSize(new Dimension(
 						this.getPreferredSize().width,
@@ -199,7 +218,7 @@ public class NewAppointmentPanel extends JPanel
 			JPanel buttonPane = new JPanel(new BorderLayout());
 			AcceptButton = new JButton("Godkjenn");
 			DeclineButton = new JButton("Avslå");
-			DeleteFromCalendarButton = new JButton("Slett møte fra min kalender");
+			deleteFromCalendarButton = new JButton("Slett møte fra min kalender");
 			
 			if(invitation.getStatus() == InvitationStatus.ACCEPTED) {
 				AcceptButton.setEnabled(false);
@@ -211,13 +230,13 @@ public class NewAppointmentPanel extends JPanel
 			JPanel AcceptDeclinePane = new JPanel(new BorderLayout());
 			AcceptDeclinePane.add(AcceptButton, BorderLayout.WEST);
 			AcceptDeclinePane.add(DeclineButton, BorderLayout.EAST);
-			DeleteFromCalendarButton.setPreferredSize(new Dimension(
+			deleteFromCalendarButton.setPreferredSize(new Dimension(
 						AcceptButton.getPreferredSize().width + DeclineButton.getPreferredSize().width,
-						DeleteFromCalendarButton.getPreferredSize().height
+						deleteFromCalendarButton.getPreferredSize().height
 					));
 			
 			buttonPane.add(AcceptDeclinePane, BorderLayout.CENTER);
-			buttonPane.add(DeleteFromCalendarButton, BorderLayout.SOUTH);
+			buttonPane.add(deleteFromCalendarButton, BorderLayout.SOUTH);
 			
 			buttonPane.setPreferredSize(new Dimension(
 						(int)this.getPreferredSize().getWidth(),
@@ -229,6 +248,10 @@ public class NewAppointmentPanel extends JPanel
 		
 		
 		//Listeners
+		model.addPropertyChangeListener(this);
+		if (invitation != null) invitation.addPropertyChangeListener(this);
+		
+		closeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {close();}});
 		timeChangedListener listener = new timeChangedListener();
 		dateChooser.addPropertyChangeListener(listener);
 		fromTime.addActionListener(listener);
@@ -241,10 +264,23 @@ public class NewAppointmentPanel extends JPanel
 			addEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {addEmployee();}});
 			removeEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {removeEmployee();}});
 		} else {
-			AcceptButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {acceptMeetingInvitation();}});
-			DeclineButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {declineMeetingInvitation();}});
+			AcceptButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {changeInvitationStatus(InvitationStatus.ACCEPTED);}});
+			DeclineButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {changeInvitationStatus(InvitationStatus.DECLINED);}});
+			deleteFromCalendarButton.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) {deleteInvitation();}});
 		}
 		
+	}
+
+	/**
+	 * Delete an invitation
+	 */
+	private void deleteInvitation(){
+		try {
+			invitation.removePropertyChangeListener(this);
+			invitation.delete();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -252,6 +288,10 @@ public class NewAppointmentPanel extends JPanel
 	 */
 	public void close() {
 		participantList.close();
+		model.removePropertyChangeListener(this);
+		if (invitation != null) invitation.removePropertyChangeListener(this);
+		
+		this.firePropertyChange(CLOSE, null, null);
 	}
 	
 	/**
@@ -303,17 +343,20 @@ public class NewAppointmentPanel extends JPanel
 		//Name
 		if (tittelText.getText().length() == 0) {
 			Toolkit.getDefaultToolkit().beep();
+			System.out.println("Invalid title");
 			return false;
 		}
 		//Time
 		if (!isTimeValid()) {
 			Toolkit.getDefaultToolkit().beep();
+			System.out.println("Invalid time");
 			return false;
 		}
 		
 		//Moteplass
-		if (moteromComboBox.getSelectedIndex() == -1 && moteromText.getText() != "") {
+		if (moteromComboBox.getSelectedItem() != null && !moteromText.getText().equals("")) {
 			Toolkit.getDefaultToolkit().beep();
+			System.out.printf("Only use a single meeting room field, text is '%s'\n", moteromText.getText());
 			return false;
 		}
 			
@@ -337,6 +380,7 @@ public class NewAppointmentPanel extends JPanel
 		//Invitasjoner
 		model.commitInvitations();
 		
+		System.out.println("Store!");
 		try {
 			model.store();
 		} catch (IOException e) {
@@ -345,6 +389,9 @@ public class NewAppointmentPanel extends JPanel
 		
 	}
 	
+	/**
+	 * Delete a meeting
+	 */
 	private void deleteMeeting() {
 		if(model.getId() != -1) {
 			try {
@@ -352,37 +399,29 @@ public class NewAppointmentPanel extends JPanel
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
+		} else {
+			model.setActive(false);
 		}
-		//throw new UnsupportedOperationException("Delete m�te er ikke laget enda"); //TODO Hva skal denne gj�re dersom m�tet enda ikke er lagret?
 	}
 	
 	/**
 	 * Accept meeting invitation
 	 */
-	private void acceptMeetingInvitation() {
-		InvitationModel i ;
-		if((i = model.getInvitation(ClientMain.getActiveUser())) != null) {
-			i.setStatus(InvitationStatus.ACCEPTED);
+	private void changeInvitationStatus(InvitationStatus status) {
+		if(invitation != null) {
+			invitation.setStatus(status);
 			try {
-				i.store();
+				invitation.store();
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 	
-	private void declineMeetingInvitation() {
-		InvitationModel i ;
-		if((i = model.getInvitation(ClientMain.getActiveUser())) != null) {
-			i.setStatus(InvitationStatus.DECLINED);
-			try {
-				i.store();
-			} catch(IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
+	/**
+	 * Add employees to invitation list
+	 * 
+	 */
 	private void addEmployee() {
 		UserModel[] selUsers = filteredUserList.getSelectedUsers();
 		filteredUserListModel.addUsersToBlacklist(selUsers);
@@ -392,8 +431,9 @@ public class NewAppointmentPanel extends JPanel
 	}
 	
 	private void removeEmployee() {
-		// filteredUserListModel.removeUsersFromBlacklist()
-		throw new UnsupportedOperationException("");
+		UserModel[] users = participantList.getSelectedUsers();		
+		filteredUserListModel.removeUsersFromBlacklist(users);
+		model.removeAttendees(users);
 	}
 	
 	class timeChangedListener implements ActionListener, PropertyChangeListener {
