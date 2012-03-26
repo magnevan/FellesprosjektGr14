@@ -11,6 +11,7 @@ import javax.swing.table.AbstractTableModel;
 
 import client.model.InvitationModel;
 import client.model.MeetingModel;
+import client.model.UserModel;
 
 /**
  * ParticipantStatusList widget
@@ -54,6 +55,22 @@ public class ParticipantStatusList extends JPanel implements PropertyChangeListe
 		} else if (evt.getPropertyName() == MeetingModel.INVITATION_REMOVED) {
 			((InvitationModel)evt.getNewValue()).removePropertyChangeListener(this);
 		}
+	}
+	
+	/**
+	 * Return the currently selected user objects within the filtered user list
+	 * 
+	 * @return 
+	 */
+	public UserModel[] getSelectedUsers() {
+		int[] rows = table.getSelectedRows();
+		UserModel[] selection = new UserModel[rows.length];
+		
+		for(int i = 0; i < rows.length; i++) {
+			selection[i] = mmodel.getInvitations().get(rows[i]).getUser();
+		}
+		
+		return selection;
 	}
 	
 	/**
