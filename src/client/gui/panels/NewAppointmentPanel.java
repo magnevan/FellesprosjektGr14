@@ -95,13 +95,14 @@ public class NewAppointmentPanel extends JPanel
 		//Tittel
 		this.add(new JLabel("Tittel:"));
 		
-		JPanel tittelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel tittelPanel = new JPanel(new BorderLayout());
 		tittelText = new JTextField(model.getName(),26);
 		tittelText.setEditable(isOwner);
 		
 		closeButton = new JButton("Close");
 		
-		tittelPanel.add(tittelText);
+		tittelPanel.add(tittelText, BorderLayout.CENTER);
+		tittelPanel.add(closeButton, BorderLayout.EAST);
 		this.add(tittelPanel);
 		
 		//Tid
