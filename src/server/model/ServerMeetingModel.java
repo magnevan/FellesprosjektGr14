@@ -82,7 +82,7 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 	}
 	
 	/**
-	 * Get meeting attenddes
+	 * Get meeting attendees
 	 * 
 	 * Server side this may not yet be loaded, do JIT loading
 	 */
@@ -146,7 +146,7 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 				// Handle room reservations
 				if(old.getRoom() != null && !old.getRoom().equals(getRoom())) {
 					db.performUpdate(String.format("DELETE FROM meeting_room_booking" +
-							" WHERE meeting_room_number = %d AND appointment_id = %d",
+							" WHERE meeting_room_number = %s AND appointment_id = %d",
 							old.getRoom().getRoomNumber(), getId()));
 					
 					if(getRoom() != null)

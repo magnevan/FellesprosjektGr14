@@ -100,13 +100,13 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		this.add(tidPanel);
 		
 		//Moterom
-		this.add(new JLabel("Møterom"));
+		this.add(new JLabel("Mï¿½terom"));
 		JPanel moteromPanel = new JPanel();
 		moteromComboBox = new JComboBox();
 		selectedRoom = model.getRoom();
 		moteromComboBox.setSelectedItem(selectedRoom);
 		
-		moteromText = new JDefaultTextField("Skriv møteplass...", 15);
+		moteromText = new JDefaultTextField("Skriv mï¿½teplass...", 15);
 		moteromText.setText(model.getLocation());
 		
 		moteromComboBox.setEnabled(isOwner);
@@ -178,12 +178,12 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 			this.add(storeDelPane);
 		}
 		
-		//Godkjenn / avslå
+		//Godkjenn / avslï¿½
 		if (!isOwner) {
 			JPanel buttonPane = new JPanel(new BorderLayout());
 			AcceptButton = new JButton("Godkjenn");
-			DeclineButton = new JButton("Avslå");
-			DeleteFromCalendarButton = new JButton("Slett møte fra min kalender");
+			DeclineButton = new JButton("Avslï¿½");
+			DeleteFromCalendarButton = new JButton("Slett mï¿½te fra min kalender");
 			
 			JPanel AcceptDeclinePane = new JPanel(new BorderLayout());
 			AcceptDeclinePane.add(AcceptButton, BorderLayout.WEST);
@@ -218,7 +218,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 			addEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {addEmployee();}});
 			removeEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {removeEmployee();}});
 		} else {
-			//TODO legge til listeners for godkjenn, avslå og slett fra kalender
+			//TODO legge til listeners for godkjenn, avslï¿½ og slett fra kalender
 		}
 		
 	}
@@ -291,12 +291,13 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	
 	private void storeMeeting() {
 		if (!isDataValid()) return;
+
 		//Name
 		model.setName(tittelText.getText());
 		//Date+time
 		model.setTimeFrom(this.getFromTime());
 		model.setTimeTo(this.getToTime());
-		//Møteplass
+		//Mï¿½teplass
 		model.setRoom((MeetingRoomModel)moteromComboBox.getSelectedItem());
 		model.setLocation(moteromText.getText());
 		//Beskrivelse

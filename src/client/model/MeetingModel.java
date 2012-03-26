@@ -153,7 +153,6 @@ public class MeetingModel implements TransferableModel {
 	public void copyFrom(TransferableModel source) {
 		MeetingModel n = (MeetingModel) source;
 		
-		System.out.println("IN change block");
 		setName(n.getName());
 		setTimeFrom(n.getTimeFrom());
 		setTimeTo(n.getTimeTo());
