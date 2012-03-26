@@ -9,7 +9,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
 import java.util.logging.Logger;
 
 import server.model.IDBStorableModel;
@@ -19,6 +18,7 @@ import server.model.ServerMeetingModel;
 import server.model.ServerMeetingRoomModel;
 import server.model.ServerUserModel;
 import client.AbstractConnection;
+import client.model.NotificationModel;
 import client.model.TransferableModel;
 
 /**
@@ -194,8 +194,9 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 					writeModels(new TransferableModel[] { model }, id, method,
 							"OK");
 
-					// Broadcast changed model
-					ServerMain.ccl.broadcastModel(model);
+					// Broadcast changed model (All but changed notifications)
+					if(!(model instanceof NotificationModel))
+						ServerMain.ccl.broadcastModel(model);
 
 				} else if (method.equals("LOGOUT")) {
 					writeLine(formatCommand(id, "LOGOUT"));
