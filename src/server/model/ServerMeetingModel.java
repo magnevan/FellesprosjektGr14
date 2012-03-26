@@ -167,7 +167,7 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 	}
 	
 	/**
-	 * Reset all invitaions sent for this meeting
+	 * Reset all invitations sent for this meeting
 	 * 
 	 */
 	private void resetInvitations() {

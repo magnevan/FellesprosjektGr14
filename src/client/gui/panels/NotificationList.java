@@ -65,7 +65,6 @@ public class NotificationList extends JPanel {
 	 */
 	public void initializeList(ArrayList<NotificationModel> models) {
 		Collections.sort(models);
-		System.out.println("PETERTEST: " + models);
 		for (NotificationModel notificationModel : models) {
 			listModel.addElement(notificationModel);
 			if (notificationModel.isRead()) read.add(notificationModel);

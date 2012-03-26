@@ -208,8 +208,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 					if (smethod.equals("MEETING")) {
 						ServerMeetingModel meeting = ServerMeetingModel.findById(Integer.parseInt(parts[3]),
 								ServerMain.dbConnection);
-						meeting.setActive(false);
-						meeting.store();
+						meeting.delete(ServerMain.dbConnection);
 
 						writeLine(formatCommand(id, method, meeting.getUMID()));
 					} else if (smethod.equals("INVITATION")

@@ -74,7 +74,6 @@ public class ServerNotificationModel extends NotificationModel
 		if(rs.getString("regards_user") != null) {
 			regards_user = ServerUserModel.findByUsername(rs.getString("regards_user"), db);
 		}
-		System.out.println("PETERTEST på server: " + this.toString());
 	}
 	
 	/**
