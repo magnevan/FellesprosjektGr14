@@ -97,21 +97,16 @@ public class AndrePanel extends JPanel{
 		this.add(topPanel);
 		this.add(centerContent);
 		this.add(bottomPanel);
-
-
 	}
 	
 	public static UserModel createUser(String userName, String email){
-		
 		UserModel person = new UserModel();
 		return person;
 	}
 		
 	public static UserModel createUser(String userName, String email, String fullName){
-		
 		UserModel person = new UserModel(userName, email, fullName);
 		return person;
-		
 	}
 	
 	public JButton getNewAppointmentButton() {
@@ -126,12 +121,14 @@ public class AndrePanel extends JPanel{
 				filteredUserListModel.addUsersToBlacklist(selectedUsers);
 				for (UserModel model : selectedUsers) {
 					activeCalendarsListModel.addElement(model);
+					ClientMain.getActiveUser().addToStalkingList(model);
 				}
 			} else if (evt.getSource() == downButton) {		
 				int[] selectedIndices = activeCalendarsList.getSelectedIndices();
 				for (int k = selectedIndices.length - 1; k >= 0; k--) {
 					UserModel selectedUser = (UserModel) activeCalendarsListModel.remove(k);
 					filteredUserListModel.removeUserFromBlacklist(selectedUser);
+					ClientMain.getActiveUser().removeFromStalkingList(selectedUser);
 				}
 			}
 		}
