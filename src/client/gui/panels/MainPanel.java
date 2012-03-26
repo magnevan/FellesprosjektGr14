@@ -86,7 +86,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 	private void CloseAppointment() {
 		newAppointmentPane.removePropertyChangeListener(this);
 		newAppointmentPane = null;
-		optionTabbedPane.removeTabAt(optionTabbedPane.indexOfTab("NAVN?"));
+		optionTabbedPane.removeTabAt(optionTabbedPane.indexOfTab("Avtale"));
 	}
 	
 	
