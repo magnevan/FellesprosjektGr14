@@ -264,8 +264,8 @@ public class NewAppointmentPanel extends JPanel
 			addEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {addEmployee();}});
 			removeEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {removeEmployee();}});
 		} else {
-			AcceptButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {acceptMeetingInvitation();}});
-			DeclineButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {declineMeetingInvitation();}});
+			AcceptButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {changeInvitationStatus(InvitationStatus.ACCEPTED);}});
+			DeclineButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {changeInvitationStatus(InvitationStatus.DECLINED);}});
 		}
 		
 	}
@@ -376,6 +376,9 @@ public class NewAppointmentPanel extends JPanel
 		
 	}
 	
+	/**
+	 * Delete a meeting
+	 */
 	private void deleteMeeting() {
 		if(model.getId() != -1) {
 			try {
@@ -383,16 +386,17 @@ public class NewAppointmentPanel extends JPanel
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
+		} else {
+			model.setActive(false);
 		}
-		//throw new UnsupportedOperationException("Delete m�te er ikke laget enda"); //TODO Hva skal denne gj�re dersom m�tet enda ikke er lagret?
 	}
 	
 	/**
 	 * Accept meeting invitation
 	 */
-	private void acceptMeetingInvitation() {
+	private void changeInvitationStatus(InvitationStatus status) {
 		if(invitation != null) {
-			invitation.setStatus(InvitationStatus.ACCEPTED);
+			invitation.setStatus(status);
 			try {
 				invitation.store();
 			} catch(IOException e) {
@@ -401,17 +405,10 @@ public class NewAppointmentPanel extends JPanel
 		}
 	}
 	
-	private void declineMeetingInvitation() {
-		if(invitation != null) {
-			invitation.setStatus(InvitationStatus.DECLINED);
-			try {
-				invitation.store();
-			} catch(IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
+	/**
+	 * Add employees to invitation list
+	 * 
+	 */
 	private void addEmployee() {
 		UserModel[] selUsers = filteredUserList.getSelectedUsers();
 		filteredUserListModel.addUsersToBlacklist(selUsers);
@@ -421,8 +418,9 @@ public class NewAppointmentPanel extends JPanel
 	}
 	
 	private void removeEmployee() {
-//		filteredUserListModel.removeUsersFromBlacklist(participantList.getSelectedUsers());
-		throw new UnsupportedOperationException("");
+		UserModel[] users = participantList.getSelectedUsers();		
+		filteredUserListModel.removeUsersFromBlacklist(users);
+		model.removeAttendees(users);
 	}
 	
 	class timeChangedListener implements ActionListener, PropertyChangeListener {

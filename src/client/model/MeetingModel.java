@@ -393,8 +393,25 @@ public class MeetingModel implements TransferableModel {
 		if (isInvited(user)) {
 			InvitationModel inv = getInvitation(user);
 			invitations.remove(inv);
+			if(inv.getStatus() != InvitationStatus.NOT_YET_SAVED) {
+				try {
+					inv.delete();
+				} catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
 			changeSupport.firePropertyChange(INVITATION_REMOVED, null, inv);
 		}
+	}
+	
+	/**
+	 * Remove a set of attendees
+	 * 
+	 * @param users
+	 */
+	public void removeAttendees(UserModel[] users) {
+		for(UserModel u : users)
+			removeAttendee(u);
 	}
 	
 		

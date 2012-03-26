@@ -205,7 +205,8 @@ public class InvitationModel implements TransferableModel {
 	 * Delete a invitation
 	 */
 	public void delete() throws IOException {
-		if(!ClientMain.getActiveUser().equals(getUser()))
+		if(!ClientMain.getActiveUser().equals(getUser()) 
+				&& !ClientMain.getActiveUser().equals(getMeeting().getOwner()))
 			throw new IOException("User does not own invitation");
 		ServerConnection.instance().deleteInvitation(this);
 	}
