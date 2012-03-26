@@ -16,6 +16,8 @@ import server.ModelEnvelope;
 public class ActiveUserModel extends UserModel {
 
 	public final static String NOTIFICATIONS_PROPERTY = "notifications";
+	public final static String NEW_STALKEE = "new stalked";
+	public final static String REMOVED_STALKEE = "removed stalked";
 	private ArrayList<UserModel> stalkingList;
 	
 	protected ArrayList<NotificationModel> notifications;
@@ -114,6 +116,7 @@ public class ActiveUserModel extends UserModel {
 	 */
 	public void addToStalkingList(UserModel stalkee) {
 		stalkingList.add(stalkee);
+		pcs.firePropertyChange(NEW_STALKEE, null, stalkee);
 	}
 	
 	/**
@@ -130,5 +133,6 @@ public class ActiveUserModel extends UserModel {
 	 */
 	public void removeFromStalkingList(UserModel stalkee) {
 		stalkingList.remove(stalkee);
+		pcs.firePropertyChange(REMOVED_STALKEE, null, stalkee);
 	}
 }
