@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -239,6 +240,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		if (toTime.compareTo(fromTime) != 1) {
 			fromTime.setForeground(Color.RED);
 			toTime.setForeground(Color.RED);
+			Toolkit.getDefaultToolkit().beep();
 			return false;
 		} else {
 			fromTime.setForeground(Color.BLACK);
@@ -276,15 +278,21 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	
 	private boolean isDataValid() {
 		//Name
-		if (tittelText.getText().length() == 0)
+		if (tittelText.getText().length() == 0) {
+			Toolkit.getDefaultToolkit().beep();
 			return false;
+		}
 		//Time
-		if (!isTimeValid())
+		if (!isTimeValid()) {
+			Toolkit.getDefaultToolkit().beep();
 			return false;
+		}
 		
 		//Moteplass
-		if (moteromComboBox.getSelectedIndex() != -1 && moteromText.getText() != "")
+		if (moteromComboBox.getSelectedIndex() != -1 && moteromText.getText() != "") {
+			Toolkit.getDefaultToolkit().beep();
 			return false;
+		}
 			
 		return true;
 	}
