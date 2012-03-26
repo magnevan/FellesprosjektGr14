@@ -33,15 +33,19 @@ import client.gui.VerticalLayout;
 import client.gui.participantstatus.ParticipantStatusList;
 import client.gui.usersearch.FilteredUserList;
 import client.model.FilteredUserListModel;
+import client.model.InvitationModel;
+import client.model.InvitationStatus;
 import client.model.MeetingModel;
 import client.model.MeetingRoomModel;
 import client.model.UserModel;
 
 import com.toedter.calendar.JDateChooser;
 
-public class NewAppointmentPanel extends JPanel implements IServerResponseListener{
+public class NewAppointmentPanel extends JPanel 
+	implements IServerResponseListener, PropertyChangeListener {
 	
 	private final MeetingModel 			model;
+	private final InvitationModel 		invitation;
 	private final JTextField 			tittelText;
 	private final JDateChooser 			dateChooser;
 	private final JTimePicker 			fromTime, 
@@ -71,9 +75,19 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 	public NewAppointmentPanel(MeetingModel meetingModel) {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
 		
-		this.model = meetingModel;
-		this.isOwner = meetingModel.getOwner() == ClientMain.getActiveUser();
+		model = meetingModel;
+		model.addPropertyChangeListener(this);
+		
+		isOwner = meetingModel.getOwner().equals(ClientMain.getActiveUser());
 		System.out.println(isOwner);
+		
+		// Find invitation if we're not the owner
+		if(!isOwner) {
+			invitation = model.getInvitation(ClientMain.getActiveUser());
+			invitation.addPropertyChangeListener(this);
+		} else {
+			invitation = null;
+		}
 		
 		//Tittel
 		this.add(new JLabel("Tittel:"));
@@ -86,13 +100,14 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		JPanel tidPanel = new JPanel();
 		dateChooser = new JDateChooser(model.getTimeFrom().getTime(), "dd. MMMM YYYY");
 		dateChooser.setPreferredSize(new Dimension(130,20));
+		dateChooser.setEnabled(isOwner);
 		tidPanel.add(dateChooser);
 		
 		fromTime = new JTimePicker(model.getTimeFrom());
 		toTime = new JTimePicker(model.getTimeTo());
 		
-		fromTime.setEditable(isOwner);
-		toTime.setEditable(isOwner);
+		fromTime.setEnabled(isOwner);
+		toTime.setEnabled(isOwner);
 		
 		tidPanel.add(fromTime);
 		tidPanel.add(new JLabel(" - "));
@@ -111,7 +126,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		moteromText.setText(model.getLocation());
 		
 		moteromComboBox.setEnabled(isOwner);
-		moteromText.setEditable(isOwner);
+		moteromText.setEnabled(isOwner);
 		
 		moteromPanel.add(moteromComboBox);
 		moteromPanel.add(moteromText);
@@ -127,7 +142,8 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		JScrollPane beskrivelseScroll = new JScrollPane(beskrivelseTextArea);
 		beskrivelseScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		
-		beskrivelseTextArea.setEditable(isOwner);
+		//beskrivelseTextArea.setEditable(isOwner);
+		beskrivelseTextArea.setEnabled(isOwner);
 		
 		this.add(beskrivelseScroll);
 		
@@ -177,14 +193,20 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 			storeDelPane.add(deleteButton);
 			
 			this.add(storeDelPane);
-		}
-		
-		//Godkjenn / avsl�
-		if (!isOwner) {
+		} else {
+			// Accept/Decline
+			
 			JPanel buttonPane = new JPanel(new BorderLayout());
 			AcceptButton = new JButton("Godkjenn");
-			DeclineButton = new JButton("Avsl�");
-			DeleteFromCalendarButton = new JButton("Slett m�te fra min kalender");
+			DeclineButton = new JButton("Avslå");
+			DeleteFromCalendarButton = new JButton("Slett møte fra min kalender");
+			
+			if(invitation.getStatus() == InvitationStatus.ACCEPTED) {
+				AcceptButton.setEnabled(false);
+			}
+			if(invitation.getStatus() == InvitationStatus.DECLINED) {
+				DeclineButton.setEnabled(false);
+			}
 			
 			JPanel AcceptDeclinePane = new JPanel(new BorderLayout());
 			AcceptDeclinePane.add(AcceptButton, BorderLayout.WEST);
@@ -219,7 +241,8 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 			addEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {addEmployee();}});
 			removeEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {removeEmployee();}});
 		} else {
-			//TODO legge til listeners for godkjenn, avsl� og slett fra kalender
+			AcceptButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {acceptMeetingInvitation();}});
+			DeclineButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {declineMeetingInvitation();}});
 		}
 		
 	}
@@ -333,6 +356,33 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		//throw new UnsupportedOperationException("Delete m�te er ikke laget enda"); //TODO Hva skal denne gj�re dersom m�tet enda ikke er lagret?
 	}
 	
+	/**
+	 * Accept meeting invitation
+	 */
+	private void acceptMeetingInvitation() {
+		InvitationModel i ;
+		if((i = model.getInvitation(ClientMain.getActiveUser())) != null) {
+			i.setStatus(InvitationStatus.ACCEPTED);
+			try {
+				i.store();
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void declineMeetingInvitation() {
+		InvitationModel i ;
+		if((i = model.getInvitation(ClientMain.getActiveUser())) != null) {
+			i.setStatus(InvitationStatus.DECLINED);
+			try {
+				i.store();
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	private void addEmployee() {
 		UserModel[] selUsers = filteredUserList.getSelectedUsers();
 		filteredUserListModel.addUsersToBlacklist(selUsers);
@@ -383,6 +433,19 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 			}
 				
 		}
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent e) {
+		if(e.getPropertyName() == InvitationModel.STATUS_CHANGED) {
+			if(invitation.getStatus() == InvitationStatus.ACCEPTED) {
+				AcceptButton.setEnabled(false);
+			}
+			if(invitation.getStatus() == InvitationStatus.DECLINED) {
+				DeclineButton.setEnabled(false);
+			}
+		}
+		
 	}
 
 }
