@@ -3,7 +3,6 @@ package client.model;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import server.ModelEnvelope;
 
@@ -16,6 +15,9 @@ import server.ModelEnvelope;
 public class ActiveUserModel extends UserModel {
 
 	public final static String NOTIFICATIONS_PROPERTY = "notifications";
+	public final static String NEW_STALKEE = "new stalked";
+	public final static String REMOVED_STALKEE = "removed stalked";
+	private ArrayList<UserModel> stalkingList;
 	
 	protected ArrayList<NotificationModel> notifications;
 	
@@ -29,6 +31,7 @@ public class ActiveUserModel extends UserModel {
 	public ActiveUserModel(String username, String email, String fullName) {
 		super(username, email, fullName);
 		notifications = new ArrayList<NotificationModel>();
+		stalkingList = new ArrayList<UserModel>();
 	}
 		
 	/**
@@ -46,6 +49,7 @@ public class ActiveUserModel extends UserModel {
 		for( ; n > 0; n-- ) {
 			notificationsUMIDs[n-1] = reader.readLine();
 		}
+		stalkingList = new ArrayList<UserModel>();
 	}
 
 	private String[] notificationsUMIDs;
@@ -54,10 +58,10 @@ public class ActiveUserModel extends UserModel {
 	 * Pull in sub models
 	 */
 	@Override
-	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
+	public void registerSubModels(ModelEnvelope envelope) {
 		if(notificationsUMIDs != null) {
 			for(int i = notificationsUMIDs.length-1; i >= 0; i--) {
-				notifications.add((NotificationModel) modelBuff.get(notificationsUMIDs[i]));
+				notifications.add((NotificationModel) envelope.getFromBuffer(notificationsUMIDs[i]));
 			}
 		}
 		notificationsUMIDs = null;
@@ -104,5 +108,30 @@ public class ActiveUserModel extends UserModel {
 		for(NotificationModel n : notifications)
 			sb.append(n.getUMID() + "\r\n");
 	}
-
+	
+	/**
+	 * Add a user to be stalked
+	 * @param stalkee the user you want to stalk
+	 */
+	public void addToStalkingList(UserModel stalkee) {
+		stalkingList.add(stalkee);
+		pcs.firePropertyChange(NEW_STALKEE, null, stalkee);
+	}
+	
+	/**
+	 * Get a list of all the users you stalk
+	 * @return ArrayList<UserModel> containing all the users you stalk
+	 */
+	public ArrayList<UserModel> getStalkingList() {
+		return stalkingList;
+	}
+	
+	/**
+	 * Quit stalking a user
+	 * @param stalkee the user you do not want to stalk anymore
+	 */
+	public void removeFromStalkingList(UserModel stalkee) {
+		stalkingList.remove(stalkee);
+		pcs.firePropertyChange(REMOVED_STALKEE, null, stalkee);
+	}
 }

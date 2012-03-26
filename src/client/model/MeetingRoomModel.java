@@ -3,7 +3,6 @@ package client.model;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.HashMap;
 
 import server.ModelEnvelope;
 
@@ -49,7 +48,8 @@ public class MeetingRoomModel implements TransferableModel {
 				Integer.parseInt(reader.readLine()));
 	}
 
-	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {}
+	@Override
+	public void registerSubModels(ModelEnvelope envelope) {}
 
 
 	@Override

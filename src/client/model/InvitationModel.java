@@ -4,13 +4,10 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.HashMap;
-
-import client.ClientMain;
-import client.ModelCacher;
-import client.ServerConnection;
 
 import server.ModelEnvelope;
+import client.ClientMain;
+import client.ServerConnection;
 
 /**
  * Model representing a single invitation
@@ -68,9 +65,9 @@ public class InvitationModel implements TransferableModel {
 	/**
 	 * Load in sub models
 	 */
-	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
-		meeting = (MeetingModel) (ModelCacher.get(meeting_umid) != null ? ModelCacher.get(meeting_umid) : modelBuff.get(meeting_umid));
-		user = (UserModel) (ModelCacher.get(user_umid) != null ? ModelCacher.get(user_umid) : modelBuff.get(user_umid));
+	public void registerSubModels(ModelEnvelope envelope) {
+		meeting = (MeetingModel) envelope.getFromBuffer(meeting_umid);
+		user = (UserModel) envelope.getFromBuffer(user_umid);
 	}
 
 	/**
@@ -196,11 +193,6 @@ public class InvitationModel implements TransferableModel {
 	 * @throws IOException
 	 */
 	public void store() throws IOException {
-		UserModel active = ClientMain.getActiveUser();
-		System.out.println(getUser());
-		System.out.println(getUser().getUMID());
-		System.out.println(ClientMain.getActiveUser());
-		System.out.println(ClientMain.getActiveUser().getUMID());
 		if(!getUser().equals(ClientMain.getActiveUser())) 
 			throw new IOException("Only invited user may store invitation");
 		ServerConnection.instance().storeModel(this);
@@ -210,7 +202,8 @@ public class InvitationModel implements TransferableModel {
 	 * Delete a invitation
 	 */
 	public void delete() throws IOException {
-		if(!ClientMain.getActiveUser().equals(getUser()))
+		if(!ClientMain.getActiveUser().equals(getUser()) 
+				&& !ClientMain.getActiveUser().equals(getMeeting().getOwner()))
 			throw new IOException("User does not own invitation");
 		ServerConnection.instance().deleteInvitation(this);
 	}

@@ -28,9 +28,12 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	public final static String	MEETING_ADDED = "MEETING_ADDED";
 	public final static String  MEETING_REMOVED = "MEETING REMOVE";
 	
+	private Calendar bufferStart, bufferEnd;
+	
 	private final UserModel owner;
 	
 	private int meetingsReq;
+	
 	
 	public CalendarModel(UserModel owner) {
 		
@@ -41,6 +44,8 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		meetingsTo = new TreeMap<Calendar, Set<MeetingModel>>();
 		
 		pcs = new PropertyChangeSupport(this);
+		
+		bufferStart = bufferEnd = Calendar.getInstance();
 		
 	}
 	
@@ -176,6 +181,10 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 					"toTime " + toTime.getTime() + "\n" +
 					"fromTime" + fromTime.getTime() + "\n");
 		
+		if (fromTime.before(bufferStart) || toTime.after(bufferEnd)) {
+			requestBuffer(fromTime, toTime);
+		}
+		
 		
 		Set<MeetingModel> fromSet = new HashSet<MeetingModel>();
 		for (Map.Entry<Calendar, Set<MeetingModel>> entry : meetingsFrom.subMap(fromTime, true, toTime, true).entrySet()) {
@@ -245,7 +254,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 			
 			if (e.getPropertyName() == MeetingModel.TIME_FROM_PROPERTY) {
 				moveMap = meetingsFrom;
-			} else if (e.getPropertyName() == MeetingModel.TIME_FROM_PROPERTY) {
+			} else if (e.getPropertyName() == MeetingModel.TIME_TO_PROPERTY) {
 				moveMap = meetingsTo;
 			}
 			
@@ -267,7 +276,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	 */
 	public void requestDefaultBuffer() {
 		if (ServerConnection.isOnline()) {
-			sendRequestForBuffer();
+			sendRequestForDefaultBuffer();
 		} else {
 			ServerConnection.addServerConnectionListener(this);
 		}
@@ -275,11 +284,11 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	
 	@Override
 	public void serverConnectionChange(String change) {
-		sendRequestForBuffer();
+		sendRequestForDefaultBuffer();
 		ServerConnection.removeServerConnectionListener(this);
 	}
 	
-	private void sendRequestForBuffer() {
+	private void sendRequestForDefaultBuffer() {
 		//Requests a chuck of meetings from the server
 		Calendar 	from = Calendar.getInstance(),
 					to   = Calendar.getInstance();
@@ -288,6 +297,24 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		to  .roll(Calendar.MONTH,  1);
 		from.set(Calendar.DAY_OF_MONTH, 1);
 		to.set(Calendar.DAY_OF_MONTH, to.getActualMaximum(Calendar.DAY_OF_MONTH));
+		
+		requestBuffer(from, to);
+	}
+	
+	private void requestBuffer(Calendar from, Calendar to) {
+		from.set(Calendar.HOUR, 0);
+		from.set(Calendar.MINUTE, 0);
+		from.set(Calendar.SECOND, 0);
+		
+		to.set(Calendar.HOUR, 23);
+		to.set(Calendar.MINUTE, 59);
+		to.set(Calendar.SECOND, 59);
+		
+		if (from.before(bufferStart)) 
+			bufferStart = from;
+		
+		if (to.after(bufferEnd))
+			bufferEnd = to;
 		
 		meetingsReq = ServerConnection.instance().requestMeetings(this, new UserModel[]{owner}, from, to);
 	}

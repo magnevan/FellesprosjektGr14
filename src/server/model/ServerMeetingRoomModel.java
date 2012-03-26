@@ -6,11 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 
 import server.DBConnection;
 import client.model.MeetingRoomModel;
-import client.model.TransferableModel;
 
 /**
  * Server side version of the MeetingRoomModel
