@@ -74,11 +74,12 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 	
 	
 	private void OpenAppointment(MeetingModel meeting) {
-		if (newAppointmentPane == null) {
-			newAppointmentPane = new NewAppointmentPanel(meeting);
-			optionTabbedPane.addTab("NAVN?", newAppointmentPane); //TODO navn?
-			newAppointmentPane.addPropertyChangeListener(this);
-		}
+		if (newAppointmentPane != null)
+			CloseAppointment();
+		
+		newAppointmentPane = new NewAppointmentPanel(meeting);
+		optionTabbedPane.addTab("Avtale", newAppointmentPane); //TODO navn?
+		newAppointmentPane.addPropertyChangeListener(this);
 		optionTabbedPane.setSelectedComponent(newAppointmentPane);
 	}
 	
