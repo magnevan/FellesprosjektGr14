@@ -289,7 +289,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		}
 		
 		//Moteplass
-		if (moteromComboBox.getSelectedIndex() != -1 && moteromText.getText() != "") {
+		if (moteromComboBox.getSelectedIndex() == -1 && moteromText.getText() != "") {
 			Toolkit.getDefaultToolkit().beep();
 			return false;
 		}

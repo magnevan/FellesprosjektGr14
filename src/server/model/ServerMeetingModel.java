@@ -186,7 +186,7 @@ public class ServerMeetingModel extends MeetingModel implements IDBStorableModel
 	 * 
 	 */
 	private void resetInvitations(DBConnection db) throws SQLException {
-		db.performUpdate("UPDATE user_appointment SET status=INVITED WHERE appointment_id="+getId());
+		db.performUpdate("UPDATE user_appointment SET status='INVITED' WHERE appointment_id="+getId());
 		
 		for(InvitationModel i : getInvitations()) {
 			i.setStatus(InvitationStatus.INVITED);

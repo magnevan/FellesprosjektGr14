@@ -106,10 +106,10 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		this.add(northPanel, BorderLayout.NORTH);
 
 		
-		//Legger CenterPanel i et JLayeredPane så jeg kan plasser avtaler over CenterPanel
+		//Legger CenterPanel i et JLayeredPane sï¿½ jeg kan plasser avtaler over CenterPanel
 		AppointmentLayer = new JLayeredPane();
 		AppointmentLayer.setPreferredSize(new Dimension(HOURWIDTH*7+30,HOURHEIGHT*24));
-		//Legger til centerpanel på 1.layer
+		//Legger til centerpanel pï¿½ 1.layer
 		AppointmentLayer.add(centerPanel, 1, 0);
 		centerPanel.setBounds(0,0,HOURWIDTH*7+50,HOURHEIGHT*25);
 		
@@ -154,7 +154,7 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		JPanel p = new JPanel();
 		p.setLayout(new GridLayout(1,8));
 				
-		//Setter dayOfWeek til å være datoen den første dagen i uken, bruker den til å loope og skrive dato
+		//Setter dayOfWeek til ï¿½ vï¿½re datoen den fï¿½rste dagen i uken, bruker den til ï¿½ loope og skrive dato
 		Calendar dayOfWeek = (Calendar)date.clone();
 		dayOfWeek.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
 		
@@ -296,20 +296,22 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 	}
 	
 	private void addAppointment(MeetingModel MM){
-		//Muligens litt tungvint, men hvis år og uke er lik med nåværende date så tegnes avtalen
-		//if(MM.getTimeFrom().get(MM.getTimeFrom().YEAR) == date.get(date.YEAR) && MM.getTimeFrom().get(MM.getTimeFrom().WEEK_OF_YEAR) == date.get(date.WEEK_OF_YEAR)){
+
+		//Muligens litt tungvint, men hvis ï¿½r og uke er lik med nï¿½vï¿½rende date sï¿½ tegnes avtalen
+		if(MM.getTimeFrom().get(MM.getTimeFrom().YEAR) == date.get(date.YEAR) && MM.getTimeFrom().get(MM.getTimeFrom().WEEK_OF_YEAR) == date.get(date.WEEK_OF_YEAR)){
+
 			AppointmentPanel avtale = new AppointmentPanel(MM);
 			avtale.addPCL(this);
 			appointments.add(avtale);
 			AppointmentLayer.add(avtale,2, 0);
 			avtale.setOpaque(true);
 			avtale.setBounds(avtale.getX(), avtale.getY(),avtale.getWidth(),avtale.getLength());
-		//}
+		}
 	}
 
 	
 	/**
-	 * Fjerner alle avtaler fra Panelet for å så fjerne alle fra arraylist.
+	 * Fjerner alle avtaler fra Panelet for ï¿½ sï¿½ fjerne alle fra arraylist.
 	 */
 	private void removeAllAppointments(){
 		for (AppointmentPanel AP : appointments){
@@ -328,7 +330,7 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		dayPanelWithPadding.add(Box.createHorizontalStrut(12));
 		dayPanelWithPadding.add(testPanel);
 		
-		//Setter uke og år
+		//Setter uke og ï¿½r
 		weekLabel.setText("Uke " + date.get(date.WEEK_OF_YEAR) + ", " + date.get(date.YEAR));
 		
 	}
