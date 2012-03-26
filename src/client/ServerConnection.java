@@ -1,5 +1,6 @@
 package client;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -46,6 +47,7 @@ public class ServerConnection extends AbstractConnection {
 	
 	private ActiveUserModel user;
 	private ReaderThread readerThread;	
+	private boolean readerThreadStopFlag = false; //When this is switched, the thread should terminate
 	private int nextRequestId = 1;
 	
 	// Stores listeners while we wait for the server to respond
@@ -58,7 +60,7 @@ public class ServerConnection extends AbstractConnection {
 	/**
 	 * Attempt to login
 	 * 
-	 * If successfull a ServerConnection instance will be accessible from
+	 * If successful a ServerConnection instance will be accessible from
 	 * instance();
 	 * 
 	 * @param address
@@ -81,8 +83,6 @@ public class ServerConnection extends AbstractConnection {
 	 * @return
 	 */
 	public static boolean logout() {
-		fireServerConnectionChange(IServerConnectionListener.LOGOUT);
-		ClientMain.setActiveUser(null);
 		if(instance != null) {
 			try {
 				instance.writeLine(instance.formatCommand(0, "LOGOUT"));
@@ -90,6 +90,8 @@ public class ServerConnection extends AbstractConnection {
 				// Ignore
 			} finally {
 				instance = null;
+				ClientMain.setActiveUser(null);
+				fireServerConnectionChange(IServerConnectionListener.LOGOUT);
 			}			
 			return true;
 		}
@@ -138,10 +140,11 @@ public class ServerConnection extends AbstractConnection {
 		try {
 			socket = new Socket(address, port);
 			
-			reader = new DebugReader(new InputStreamReader(socket.getInputStream()));
-			//reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			//reader = new DebugReader(new InputStreamReader(socket.getInputStream()));
+			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			//writer = new DebugWriter(new OutputStreamWriter(socket.getOutputStream()));
+			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			
 			
 			LOGGER.info(reader.readLine()); // Read welcome message
 			
@@ -152,7 +155,7 @@ public class ServerConnection extends AbstractConnection {
 			}
 			
 			reader.readLine();
-			user = (ActiveUserModel) readModels().get(0);
+			user = (ActiveUserModel) readModels().getModels().get(0);
 			ClientMain.setActiveUser(user);
 			
 			// Start a reader thread and return
@@ -168,12 +171,16 @@ public class ServerConnection extends AbstractConnection {
 	 * Private reader thread
 	 *
 	 */
-	class ReaderThread extends Thread {		
+	class ReaderThread extends Thread {
+		
+		private boolean running;
+		
 		@Override
 		public void run() {
+			running = true;
 			try {
 				String line;
-				while((line = reader.readLine()) != null) {
+				while(running && (line = reader.readLine()) != null) {
 					LOGGER.info(line);
 					
 					String[] parts = line.split("\\s+");
@@ -185,23 +192,41 @@ public class ServerConnection extends AbstractConnection {
 					}
 					
 					int id = Integer.parseInt(parts[0]);
-					String method = parts[1];
+					String method = parts[1];					
 					
+					// Server confirms logout, so we leave
+					if(method.equals("LOGOUT")) {
+						running = false;
+						continue;
+					}
+					
+					if(method.equals("DELETE") && parts.length > 2) {
+						String umid = parts[2];
+						TransferableModel deleted = ModelCacher.get(umid);
+						if(deleted != null) {
+							if(deleted instanceof MeetingModel) {
+								((MeetingModel)deleted).setActive(false);
+							} else if(deleted instanceof InvitationModel) {
+								InvitationModel i = (InvitationModel) deleted;
+								i.getMeeting().removeAttendee(i.getUser());
+								i.onDelete();
+							}
+						}
+						continue;
+					}
+					
+					// All responses below this line transmits a model
+					ModelEnvelope envelope = readModels();
+					List<TransferableModel> models = envelope.getModels();
 					
 					// Stored models are saved
 					if(method.equals("STORE") && parts.length > 2) {
 						if(parts[2].equals("ERROR")) 
 							storedModels.put(id, new IOException(reader.readLine()));
 						else
-							storedModels.put(id, readModels().get(0));							
+							storedModels.put(id, models.get(0));							
 						continue;
 					} 
-					
-					if(method.equals("DELETE")) {
-						continue;
-					}
-					
-					List<TransferableModel> models = readModels();
 					
 					// Broadcasts come with a zero id
 					if(id == 0 && method.equals("BROADCAST")) {
@@ -209,6 +234,13 @@ public class ServerConnection extends AbstractConnection {
 						
 						if(model instanceof NotificationModel) {
 							user.addNotification((NotificationModel)model);
+						} else if(model instanceof MeetingModel) {
+							if(envelope.isNewModel(0)) {
+								// Add newly added meeting, assumes that the calendar
+								// model figures out if it needes the given meeting
+								ClientMain.getActiveUser().getCalendarModel()
+									.add((MeetingModel) model);
+							}
 						}
 						continue;
 					}
@@ -347,7 +379,6 @@ public class ServerConnection extends AbstractConnection {
 		}
 		
 		if(stored instanceof TransferableModel) {
-			// TODO Have mode copy the contents of stored, free stored and cache model
 			return (TransferableModel) stored;
 		}
 		return null;
@@ -481,33 +512,8 @@ public class ServerConnection extends AbstractConnection {
 	 * Read models off stream
 	 */
 	@Override
-	protected List<TransferableModel> readModels() throws IOException {
-		ModelEnvelope envelope = new ModelEnvelope(reader, false);
-		return envelope.getModels();
-	}
-	
-	public static void main(String[] args) throws Exception {
-		ServerConnection.login(InetAddress.getLocalHost(), 9034, "runar", "runar");
-		
-		Calendar from = Calendar.getInstance();
-		from.set(2012, 1, 1);
-		Calendar to = Calendar.getInstance();
-		to.set(2013, 1, 1);
-		
-		ServerConnection.instance().requestMeetings(new Listener(), from, to);
-	}
-}
-
-
-class Listener implements IServerResponseListener {
-
-	@Override
-	public void onServerResponse(int requestId, Object data) {
-		MeetingModel mm = ((List<MeetingModel>) data).get(0);
-		System.out.println(mm.getName());
-		
-		System.out.println(mm.getInvitation(ClientMain.getActiveUser()));
-		
+	protected ModelEnvelope readModels() throws IOException {
+		return new ModelEnvelope(reader, false);
 	}
 	
 }

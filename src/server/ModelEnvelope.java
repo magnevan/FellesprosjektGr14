@@ -2,6 +2,7 @@ package server;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,6 +34,16 @@ import client.model.UserModel;
 public class ModelEnvelope {
 
 	/**
+	 * Model envelope header
+	 */
+	private static final String ENVELOPE_HEADER = "MODEL ENVELOPE";
+	
+	/**
+	 * Model envelope footer
+	 */
+	private static final String ENVELOPE_FOOTER = "\0MODEL ENVELOPE";
+	
+	/**
 	 * Models that are about to be transported over the socket
 	 */
 	private Stack<TransferableModel> models;
@@ -43,6 +54,13 @@ public class ModelEnvelope {
 	 * Used to check if you need to add a sub model 
 	 */
 	private HashSet<String> modelUMIDs;
+	
+	/**
+	 * Array of countModels boolean each indicating if the i'th model in a
+	 * client side model envelope that was read off stream was new to the
+	 * client
+	 */
+	private boolean[] newFlags;
 	
 	/**
 	 * The number of models that are about to be transfered.
@@ -69,6 +87,7 @@ public class ModelEnvelope {
 		this.models = new Stack<TransferableModel>();
 		modelUMIDs = new HashSet<String>();
 		countModels = models.size();
+		newFlags = new boolean[countModels];
 		
 		// Add models one by one
 		for(TransferableModel m : models) {
@@ -88,32 +107,44 @@ public class ModelEnvelope {
 		HashMap<String, TransferableModel> modelBuff = new HashMap<String, TransferableModel>(); 
 		
 		String line = reader.readLine();
-		if(!line.equals("MODEL ENVOLOPE")) {
+		if(line == null)
+			throw new EOFException("Expected envelope header got EOF");
+		if(!line.equals(ENVELOPE_HEADER))
 			throw new IOException("Expected envelope header, found "+line);
-		}
 		
 		int numModels = Integer.parseInt(reader.readLine());
 		countModels = Integer.parseInt(reader.readLine());
 		
 		TransferableModel[] list = new TransferableModel[numModels];
+		newFlags = new boolean[countModels];
 		
 		// create models
-		for(int i = 0; i < numModels; i++) {	
-			String name = reader.readLine(),
-					umid = reader.readLine();
-			list[i] = createModel(name, reader, server);
-			if(!umid.equals(""))
-				modelBuff.put(umid, list[i]);
+		try {
+			for(int i = 0; i < numModels; i++) {	
+				String name = reader.readLine(),
+						umid = reader.readLine();
+				list[i] = createModel(name, reader, server);
+				if(!umid.equals("")) {
+					modelBuff.put(umid, list[i]);
+				}
+			}
+		} catch(IOException e) {
+			// Attempt to clear the remainder of the envelope off stream
+			while(!reader.readLine().equals(ENVELOPE_FOOTER)) ;
+			throw new IOException("Exception reading model", e);
 		}
 		
 		// Validate that we're at the end
-		if(!reader.readLine().equals("")) {
-			throw new IOException("Expected empty line after envelope, got "+line);
+		if(!(line = reader.readLine()).equals(ENVELOPE_FOOTER)) {
+			throw new IOException("Expected envelope footer line, got "+line);
 		}
 		
 		// Have all models pull in dependencies, and register models in cacher
 		for(int i = 0; i < list.length; i++) {
 			list[i].registerSubModels(modelBuff);
+			
+			if((numModels-i) <= countModels)
+				newFlags[countModels - (numModels-i)] = ModelCacher.containsKey(list[i].getUMID());
 			list[i] = ModelCacher.cache(list[i]);
 		}
 		
@@ -142,7 +173,7 @@ public class ModelEnvelope {
 	 * @param model
 	 * @return
 	 */
-	public boolean hasModel(TransferableModel model) {
+	private boolean hasModel(TransferableModel model) {
 		return modelUMIDs.contains(model.getUMID());
 	}
 	
@@ -169,7 +200,20 @@ public class ModelEnvelope {
 	}
 	
 	/**
-	 * Writes all the models in this envolope to the given BufferedWriter 
+	 * True if the i'th model in a client side stream created model envelope
+	 * was new to the cache before it was received this time
+	 * 
+	 * @param i
+	 * @return
+	 */
+	public boolean isNewModel(int i) {
+		if(i >= countModels)
+			throw new IllegalArgumentException("Index out of bounds "+i);
+		return newFlags[i];
+	}
+	
+	/**
+	 * Writes all the models in this envelope to the given BufferedWriter 
 	 * 
 	 * This may be read back using the ModelEnvelope constructor with a
 	 * BufferedReader instance
@@ -186,7 +230,7 @@ public class ModelEnvelope {
 		StringBuilder sb = new StringBuilder();
 		
 		// Write header data
-		sb.append("MODEL ENVOLOPE\r\n");
+		sb.append(ENVELOPE_HEADER+"\r\n");
 		sb.append(models.size() + "\r\n" + getModelCount() + "\r\n");
 		
 		// Write models in reverse order to make sure all dependencies are provided
@@ -207,15 +251,16 @@ public class ModelEnvelope {
 			m.toStringBuilder(sb);
 		}
 		
-		// Append empty seperator line, and write the data
-		sb.append("\r\n");		
+		// Append envelope footer line
+		sb.append(ENVELOPE_FOOTER+"\r\n");
+		
 		writer.write(sb.toString());
 	}
 	
 	/**
-	 * Get the name identifing the model passed
+	 * Get the name identifying the model passed
 	 * 
-	 * This name is used on the reciving side to generate the actual model class
+	 * This name is used on the receiving side to generate the actual model class
 	 * 
 	 * @param model
 	 */
@@ -247,44 +292,40 @@ public class ModelEnvelope {
 	 * @return
 	 */
 	private TransferableModel createModel(String modelName,
-			BufferedReader reader, boolean server) {
+			BufferedReader reader, boolean server) throws IOException {
 
 		TransferableModel model = null;
-		try {
-			if(modelName.equals("UserModel"))
-				if(server) 
-					model = new ServerUserModel(reader);
-				else
-					model = new UserModel(reader);
-			else if(modelName.equals("MeetingModel"))
-				if(server)
-					model = new ServerMeetingModel(reader);
-				else
-					model = new MeetingModel(reader);
-			else if(modelName.equals("MeetingRoomModel"))
-				if(server)
-					model = new ServerMeetingRoomModel(reader);
-				else
-					model = new MeetingRoomModel(reader);
-			else if(modelName.equals("InvitationModel"))
-				if(server)
-					model = new ServerInvitationModel(reader);
-				else
-					model = new InvitationModel(reader);
-			else if(modelName.equals("NotificationModel"))
-				if(server)
-					model = new ServerNotificationModel(reader);
-				else
-					model = new NotificationModel(reader);
-			else if(modelName.equals("ActiveUserModel"))
-				if(server)
-					model = new ServerActiveUserModel(reader);
-				else
-					model = new ActiveUserModel(reader);
-					
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
+		if(modelName.equals("UserModel"))
+			if(server) 
+				model = new ServerUserModel(reader);
+			else
+				model = new UserModel(reader);
+		else if(modelName.equals("MeetingModel"))
+			if(server)
+				model = new ServerMeetingModel(reader);
+			else
+				model = new MeetingModel(reader);
+		else if(modelName.equals("MeetingRoomModel"))
+			if(server)
+				model = new ServerMeetingRoomModel(reader);
+			else
+				model = new MeetingRoomModel(reader);
+		else if(modelName.equals("InvitationModel"))
+			if(server)
+				model = new ServerInvitationModel(reader);
+			else
+				model = new InvitationModel(reader);
+		else if(modelName.equals("NotificationModel"))
+			if(server)
+				model = new ServerNotificationModel(reader);
+			else
+				model = new NotificationModel(reader);
+		else if(modelName.equals("ActiveUserModel"))
+			if(server)
+				model = new ServerActiveUserModel(reader);
+			else
+				model = new ActiveUserModel(reader);
+				
 		return model;		
 	}
 	
