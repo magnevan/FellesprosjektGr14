@@ -13,7 +13,7 @@ public class DebugReader extends BufferedReader {
 	@Override
 	public String readLine() throws IOException {
 		String line = super.readLine();
-		System.out.println("<< "+line);
+//		System.out.println("<< "+line);
 		return line;
 	}
 	

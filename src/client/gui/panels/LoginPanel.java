@@ -82,8 +82,18 @@ public class LoginPanel extends JPanel implements ActionListener{
 					.addComponent(loginButton)
 				);
 		
-		//Behaviors
+		//Default: Looks for a file called defaultlogin.local and uses those credentials
+		try {
+			Properties p = new Properties();
+			p.load(new FileReader(new File("src/defaultlogin.local")));
+			
+			txtUsername.setText(p.getProperty("username"));
+			txtPassword.setText(p.getProperty("password"));
+		} catch (IOException e) {
+			//Continue without doing anything
+		}
 		
+		//Behaviors
 		txtUsername.addActionListener(this);
 		txtPassword.addActionListener(this);
 		loginButton.addActionListener(this);

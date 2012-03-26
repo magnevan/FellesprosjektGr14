@@ -2,6 +2,7 @@ package client.gui.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
@@ -14,6 +15,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -74,12 +76,12 @@ public class NewAppointmentPanel extends JPanel
 	
 	public NewAppointmentPanel(MeetingModel meetingModel) {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
+//		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		model = meetingModel;
 		model.addPropertyChangeListener(this);
 		
 		isOwner = meetingModel.getOwner().equals(ClientMain.getActiveUser());
-		System.out.println(isOwner);
 		
 		// Find invitation if we're not the owner
 		if(!isOwner) {
@@ -98,7 +100,9 @@ public class NewAppointmentPanel extends JPanel
 		//Tid
 		this.add(new JLabel("Tid"));
 		JPanel tidPanel = new JPanel();
+		tidPanel.setLayout(new BoxLayout(tidPanel, BoxLayout.X_AXIS));
 		dateChooser = new JDateChooser(model.getTimeFrom().getTime(), "dd. MMMM YYYY");
+		
 		dateChooser.setPreferredSize(new Dimension(130,20));
 		dateChooser.setEnabled(isOwner);
 		tidPanel.add(dateChooser);
@@ -106,9 +110,11 @@ public class NewAppointmentPanel extends JPanel
 		fromTime = new JTimePicker(model.getTimeFrom());
 		toTime = new JTimePicker(model.getTimeTo());
 		
-		fromTime.setEditable(isOwner);
-		toTime.setEditable(isOwner);
+		if (!isOwner) fromTime.setEditable(false);
+		if (!isOwner) toTime.setEditable(false);
 		
+		tidPanel.add(dateChooser);
+		tidPanel.add(Box.createHorizontalGlue());
 		tidPanel.add(fromTime);
 		tidPanel.add(new JLabel(" - "));
 		tidPanel.add(toTime);
@@ -121,6 +127,10 @@ public class NewAppointmentPanel extends JPanel
 		moteromComboBox = new JComboBox();
 		selectedRoom = model.getRoom();
 		moteromComboBox.setSelectedItem(selectedRoom);
+		moteromComboBox.setPreferredSize(new Dimension(
+					100,
+					moteromComboBox.getPreferredSize().height
+				));
 		
 		moteromText = new JDefaultTextField("Skriv m�teplass...", 15);
 		moteromText.setText(model.getLocation());
@@ -151,6 +161,7 @@ public class NewAppointmentPanel extends JPanel
 		if (isOwner) {
 			this.add(new JLabel("Ansatte:"));
 			filteredUserListModel = new FilteredUserListModel();
+			filteredUserListModel.addUsersToBlacklist(new UserModel[]{ClientMain.getActiveUser()});
 			filteredUserList = new FilteredUserList(filteredUserListModel);
 			filteredUserList.setPreferredSize(new Dimension(
 						this.getPreferredSize().width,
@@ -303,17 +314,20 @@ public class NewAppointmentPanel extends JPanel
 		//Name
 		if (tittelText.getText().length() == 0) {
 			Toolkit.getDefaultToolkit().beep();
+			System.out.println("Invalid title");
 			return false;
 		}
 		//Time
 		if (!isTimeValid()) {
 			Toolkit.getDefaultToolkit().beep();
+			System.out.println("Invalid time");
 			return false;
 		}
 		
 		//Moteplass
-		if (moteromComboBox.getSelectedIndex() == -1 && moteromText.getText() != "") {
+		if (moteromComboBox.getSelectedItem() != null && moteromText.getText() != "") {
 			Toolkit.getDefaultToolkit().beep();
+			System.out.println("Only use a single meeting room field");
 			return false;
 		}
 			
@@ -337,6 +351,7 @@ public class NewAppointmentPanel extends JPanel
 		//Invitasjoner
 		model.commitInvitations();
 		
+		System.out.println("Store!");
 		try {
 			model.store();
 		} catch (IOException e) {
