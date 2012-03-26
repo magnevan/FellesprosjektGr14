@@ -283,7 +283,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 			return false;
 		
 		//Moteplass
-		if (moteromComboBox.getSelectedIndex() != -1 && moteromText.getText() != "")
+		if (moteromComboBox.getSelectedIndex() == -1 && moteromText.getText() != "")
 			return false;
 			
 		return true;
