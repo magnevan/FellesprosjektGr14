@@ -4,7 +4,6 @@ package client;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.util.Date;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -106,18 +105,4 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 	public static void main(String[] args) {
 		client = new ClientMain();
 	}
-	
-//	public static void main(String[] args) {
-//	    JFrame frame = new JFrame();
-//	    frame.setLayout(new GridBagLayout());
-//	    JPanel panel = new JPanel();
-//	    panel.add(new JLabel("This is a label"));
-//	    panel.setBorder(new LineBorder(Color.BLACK)); // make it easy to see
-//	    frame.add(panel, new GridBagConstraints());
-//	    frame.setSize(400, 400);
-//	    frame.setLocationRelativeTo(null);
-//	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//	    frame.setVisible(true);
-//	}
-
 }
