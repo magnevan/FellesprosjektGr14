@@ -135,8 +135,8 @@ public class NewAppointmentPanel extends JPanel
 		moteromText = new JDefaultTextField("Skriv m�teplass...", 15);
 		moteromText.setText(model.getLocation());
 		
-		moteromComboBox.setEnabled(isOwner);
-		moteromText.setEnabled(isOwner);
+		moteromComboBox.setEditable(isOwner);
+		moteromText.setEditable(isOwner);
 		
 		moteromPanel.add(moteromComboBox);
 		moteromPanel.add(moteromText);
@@ -455,8 +455,10 @@ public class NewAppointmentPanel extends JPanel
 		if(e.getPropertyName() == InvitationModel.STATUS_CHANGED) {
 			if(invitation.getStatus() == InvitationStatus.ACCEPTED) {
 				AcceptButton.setEnabled(false);
+				DeclineButton.setEnabled(true);
 			}
 			if(invitation.getStatus() == InvitationStatus.DECLINED) {
+				AcceptButton.setEnabled(true);
 				DeclineButton.setEnabled(false);
 			}
 		}
