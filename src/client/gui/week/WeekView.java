@@ -297,14 +297,14 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 	
 	private void addAppointment(MeetingModel MM){
 		//Muligens litt tungvint, men hvis år og uke er lik med nåværende date så tegnes avtalen
-		if(MM.getTimeFrom().get(MM.getTimeFrom().YEAR) == date.get(date.YEAR) && MM.getTimeFrom().get(MM.getTimeFrom().WEEK_OF_YEAR) == date.get(date.WEEK_OF_YEAR)){
+		//if(MM.getTimeFrom().get(MM.getTimeFrom().YEAR) == date.get(date.YEAR) && MM.getTimeFrom().get(MM.getTimeFrom().WEEK_OF_YEAR) == date.get(date.WEEK_OF_YEAR)){
 			AppointmentPanel avtale = new AppointmentPanel(MM);
 			avtale.addPCL(this);
 			appointments.add(avtale);
 			AppointmentLayer.add(avtale,2, 0);
 			avtale.setOpaque(true);
 			avtale.setBounds(avtale.getX(), avtale.getY(),avtale.getWidth(),avtale.getLength());
-		}
+		//}
 	}
 
 	
