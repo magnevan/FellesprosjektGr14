@@ -131,7 +131,7 @@ public class AndrePanel extends JPanel{
 				int[] selectedIndices = activeCalendarsList.getSelectedIndices();
 				for (int k = selectedIndices.length - 1; k >= 0; k--) {
 					UserModel selectedUser = (UserModel) activeCalendarsListModel.remove(k);
-					filteredUserListModel.removeUsersFromBlacklist(new UserModel[]{selectedUser});
+					filteredUserListModel.removeUserFromBlacklist(selectedUser);
 				}
 			}
 		}
