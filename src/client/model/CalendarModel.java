@@ -246,6 +246,8 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 			
 			moveMap.get((Calendar)e.getNewValue()).add(m);
 			
+		} else if(e.getPropertyName() == MeetingModel.ACTIVE_PROPERTY) {
+			remove((MeetingModel) e.getSource());
 		}
 	}
 

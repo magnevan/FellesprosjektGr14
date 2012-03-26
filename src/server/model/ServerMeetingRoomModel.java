@@ -57,7 +57,7 @@ public class ServerMeetingRoomModel extends MeetingRoomModel {
 		}		
 		ArrayList<ServerMeetingRoomModel> ret = new ArrayList<ServerMeetingRoomModel>();
 		try {			
-			ResultSet rs = db.preformQuery(
+			ResultSet rs = db.performQuery(
 					"SELECT * FROM meeting_room WHERE room_number NOT IN " +
 					"(SELECT DISTINCT meeting_room_number FROM appointment AS a " +
 					"INNER JOIN meeting_room_booking AS mrb ON mrb.appointment_id = a.id " +
@@ -83,7 +83,7 @@ public class ServerMeetingRoomModel extends MeetingRoomModel {
 	 */
 	public static ServerMeetingRoomModel findReservedRoom(int id, DBConnection db) {
 		try {
-			ResultSet rs = db.preformQuery(
+			ResultSet rs = db.performQuery(
 					"SELECT * FROM meeting_room AS mr " +
 					"LEFT JOIN meeting_room_booking AS mrb ON mr.room_number = mrb.meeting_room_number " +
 					"WHERE mrb.appointment_id = " + id + ";");

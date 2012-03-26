@@ -129,6 +129,6 @@ public abstract class AbstractConnection {
 	/**
 	 * Attempts to read a set of models from the input stream
 	 */
-	protected abstract List<TransferableModel> readModels() throws IOException;
+	protected abstract ModelEnvelope readModels() throws IOException;
 	
 }

@@ -48,14 +48,14 @@ public class ServerActiveUserModel extends ActiveUserModel {
 			notifications = new ArrayList<NotificationModel>();
 			
 			try {
-				ResultSet rs = ServerMain.dbConnection.preformQuery(String.format(
+				ResultSet rs = ServerMain.dbConnection.performQuery(String.format(
 					"SELECT count(*) FROM notification WHERE `read`=0 AND given_to='%s';",
 					getUsername()));
 			
 				rs.next();
 				int count = Math.max(rs.getInt(1), 10);
 				
-				rs = ServerMain.dbConnection.preformQuery(String.format(
+				rs = ServerMain.dbConnection.performQuery(String.format(
 					"SELECT * FROM notification WHERE given_to='%s' " +
 					"ORDER BY `read` ASC LIMIT %d",
 					getUsername(), count
