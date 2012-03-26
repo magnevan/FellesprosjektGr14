@@ -2,7 +2,6 @@ package client.gui.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
@@ -32,7 +31,6 @@ import client.gui.JDefaultTextArea;
 import client.gui.JDefaultTextField;
 import client.gui.JTimePicker;
 import client.gui.VerticalLayout;
-import client.gui.panels.AndrePanel.ButtonClickListener;
 import client.gui.participantstatus.ParticipantStatusList;
 import client.gui.usersearch.FilteredUserList;
 import client.model.FilteredUserListModel;
@@ -47,6 +45,10 @@ import com.toedter.calendar.JDateChooser;
 public class NewAppointmentPanel extends JPanel 
 	implements IServerResponseListener, PropertyChangeListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6937333587055621358L;
 	private final MeetingModel 			model;
 	private final InvitationModel 		invitation;
 	private final JTextField 			tittelText;
@@ -80,7 +82,6 @@ public class NewAppointmentPanel extends JPanel
 	
 	public NewAppointmentPanel(MeetingModel meetingModel) {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
-//		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		model = meetingModel;
 		
@@ -279,17 +280,15 @@ public class NewAppointmentPanel extends JPanel
 		toTime.addActionListener(listener);
 		
 		if (isOwner) {
-			storeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {storeMeeting();}});
-			deleteButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {deleteMeeting();}});
-		
-			addEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {addEmployee();}});
-			removeEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {removeEmployee();}});
+			storeButton.addActionListener(new ActionListener(){ public void actionPerformed(ActionEvent e) { storeMeeting(); }});
+			deleteButton.addActionListener(new ActionListener(){ public void actionPerformed(ActionEvent e) { deleteMeeting(); }});
+			addEmployeeButton.addActionListener(new ActionListener(){ public void actionPerformed(ActionEvent e) { addEmployee(); }});
+ 			removeEmployeeButton.addActionListener(new ActionListener(){ public void actionPerformed(ActionEvent e) {removeEmployee(); }});
 		} else {
-			acceptButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {changeInvitationStatus(InvitationStatus.ACCEPTED);}});
-			declineButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {changeInvitationStatus(InvitationStatus.DECLINED);}});
-			deleteFromCalendarButton.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) {deleteInvitation();}});
+			acceptButton.addActionListener(new ActionListener(){ public void actionPerformed(ActionEvent e) { changeInvitationStatus(InvitationStatus.ACCEPTED); }});
+			declineButton.addActionListener(new ActionListener(){ public void actionPerformed(ActionEvent e) { changeInvitationStatus(InvitationStatus.DECLINED); }});
+			deleteFromCalendarButton.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) {deleteInvitation(); }});
 		}
-		
 	}
 
 	/**
@@ -469,6 +468,7 @@ public class NewAppointmentPanel extends JPanel
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onServerResponse(int requestId, Object data) {
 		if (requestId == meetingRoomReqID) {

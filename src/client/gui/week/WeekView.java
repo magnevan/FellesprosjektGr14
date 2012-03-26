@@ -77,7 +77,7 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		//North
 		northPanel = new JPanel(new BorderLayout());
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		weekLabel = new JLabel("Uke " + date.get(date.WEEK_OF_YEAR) + ", " + date.get(date.YEAR),SwingConstants.CENTER);
+		weekLabel = new JLabel("Uke " + date.get(Calendar.WEEK_OF_YEAR) + ", " + date.get(Calendar.YEAR),SwingConstants.CENTER);
 		weekLabel.setFont(new Font("Times New Roman", Font.BOLD,20));
 		
 		prevWeekButton = new JButton("<<");
@@ -305,7 +305,7 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 	private void addAppointment(MeetingModel MM){
 		if (meetings.contains(MM)) return;
 		//Muligens litt tungvint, men hvis �r og uke er lik med n�v�rende date s� tegnes avtalen
-		if(MM.getTimeFrom().get(MM.getTimeFrom().YEAR) == date.get(date.YEAR) && MM.getTimeFrom().get(MM.getTimeFrom().WEEK_OF_YEAR) == date.get(date.WEEK_OF_YEAR)){
+		if(MM.getTimeFrom().get(Calendar.YEAR) == date.get(Calendar.YEAR) && MM.getTimeFrom().get(Calendar.WEEK_OF_YEAR) == date.get(Calendar.WEEK_OF_YEAR)){
 			AppointmentPanel avtale = new AppointmentPanel(MM);
 			avtale.addPCL(this);
 			appointments.add(avtale);
@@ -339,7 +339,7 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		dayPanelWithPadding.add(testPanel);
 		
 		//Setter uke og �r
-		weekLabel.setText("Uke " + date.get(date.WEEK_OF_YEAR) + ", " + date.get(date.YEAR));
+		weekLabel.setText("Uke " + date.get(Calendar.WEEK_OF_YEAR) + ", " + date.get(Calendar.YEAR));
 		
 	}
 	
