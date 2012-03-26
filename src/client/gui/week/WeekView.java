@@ -386,7 +386,7 @@ public class WeekView extends JPanel implements PropertyChangeListener{
 			addAllAppointments();
 			System.out.println(" 'Meeting_removed' recived");
 		}
-		else if(PN == AppointmentPanel.TIME_CHANGED_PROPERTY){
+		else if(PN == AppointmentPanel.APPOINTMENT_CHANGED_PROPERTY){
 			addAllAppointments();
 			System.out.println(" 'time_changed' recived");
 			

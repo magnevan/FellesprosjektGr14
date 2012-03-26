@@ -31,7 +31,7 @@ public class AppointmentPanel extends JButton implements PropertyChangeListener{
 	private static final long serialVersionUID = 2883636825162588873L;
 
 	public final static String APPOINTMENT_PRESSED_PROPERTY = "appPressed";
-	public final static String TIME_CHANGED_PROPERTY = "timeChanged";
+	public final static String APPOINTMENT_CHANGED_PROPERTY = "timeChanged";
 	
 	private GridBagConstraints c;
 	private JLabel nameLabel, ownerLabel, timeLabel, iconLabel, locationLabel;
@@ -243,9 +243,10 @@ public class AppointmentPanel extends JButton implements PropertyChangeListener{
 	public void propertyChange(PropertyChangeEvent evt) {
 		String PN = evt.getPropertyName();
 		
-		if(PN == MeetingModel.TIME_FROM_PROPERTY || PN == MeetingModel.TIME_TO_PROPERTY){
+		if(PN == MeetingModel.TIME_FROM_PROPERTY || PN == MeetingModel.TIME_TO_PROPERTY || PN == MeetingModel.LOCATION_PROPERTY
+				|| PN == MeetingModel.NAME_PROPERTY || PN == MeetingModel.ROOM_PROPERTY){
 			System.out.println("TIME FROM OR TIME TO RECIVED!");
-			pcs.firePropertyChange(TIME_CHANGED_PROPERTY, null, model);
+			pcs.firePropertyChange(APPOINTMENT_CHANGED_PROPERTY, null, model);
 		}
 		
 	}
