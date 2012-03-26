@@ -7,12 +7,9 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashMap;
-
-import client.ModelCacher;
-import client.ServerConnection;
 
 import server.ModelEnvelope;
+import client.ServerConnection;
 
 /**
  * Model representing a Notification

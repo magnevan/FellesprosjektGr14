@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import server.DBConnection;
-import client.model.TransferableModel;
 import client.model.UserModel;
 
 /**
