@@ -4,6 +4,7 @@ package client;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.util.Date;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -31,6 +32,8 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 	public ClientMain() {
 		super("Kalender");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
+		System.out.println(AbstractConnection.defaultDateTimeFormat.format(new Date()));
 		
 		contentPane = new JPanel(new BorderLayout());
 		this.setContentPane(contentPane);
