@@ -373,9 +373,8 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 			System.out.println("Meeting removed recived");
 		}
 		else if(PN == AppointmentPanel.APPOINTMENT_PRESSED_PROPERTY){
-			System.out.println("Avtale knapp trykket");
 			pcs.firePropertyChange(APPOINTMENTCLICEKD, null, (MeetingModel)event.getNewValue());
-			System.out.println("Avtale knapp trykket");
+
 		}
 	}
 	
