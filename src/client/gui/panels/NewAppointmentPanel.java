@@ -49,6 +49,7 @@ public class NewAppointmentPanel extends JPanel
 	private final MeetingModel 			model;
 	private final InvitationModel 		invitation;
 	private final JTextField 			tittelText;
+	private final JButton				closeButton;
 	private final JDateChooser 			dateChooser;
 	private final JTimePicker 			fromTime, 
 										toTime;
@@ -74,28 +75,34 @@ public class NewAppointmentPanel extends JPanel
 	
 	private MeetingRoomModel selectedRoom;
 	
+	public final static String CLOSE = "close";
+	
 	public NewAppointmentPanel(MeetingModel meetingModel) {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
 //		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		model = meetingModel;
-		model.addPropertyChangeListener(this);
 		
 		isOwner = meetingModel.getOwner().equals(ClientMain.getActiveUser());
 		
 		// Find invitation if we're not the owner
 		if(!isOwner) {
 			invitation = model.getInvitation(ClientMain.getActiveUser());
-			invitation.addPropertyChangeListener(this);
 		} else {
 			invitation = null;
 		}
 		
 		//Tittel
 		this.add(new JLabel("Tittel:"));
+		
+		JPanel tittelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		tittelText = new JTextField(model.getName(),26);
 		tittelText.setEditable(isOwner);
-		this.add(tittelText);
+		
+		closeButton = new JButton("Close");
+		
+		tittelPanel.add(tittelText);
+		this.add(tittelPanel);
 		
 		//Tid
 		this.add(new JLabel("Tid"));
@@ -110,8 +117,8 @@ public class NewAppointmentPanel extends JPanel
 		fromTime = new JTimePicker(model.getTimeFrom());
 		toTime = new JTimePicker(model.getTimeTo());
 		
-		if (!isOwner) fromTime.setEditable(false);
-		if (!isOwner) toTime.setEditable(false);
+		if (!isOwner) fromTime.setEnabled(false);
+		if (!isOwner) toTime.setEnabled(false);
 		
 		tidPanel.add(dateChooser);
 		tidPanel.add(Box.createHorizontalGlue());
@@ -240,6 +247,10 @@ public class NewAppointmentPanel extends JPanel
 		
 		
 		//Listeners
+		model.addPropertyChangeListener(this);
+		if (invitation != null) invitation.addPropertyChangeListener(this);
+		
+		closeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {close();}});
 		timeChangedListener listener = new timeChangedListener();
 		dateChooser.addPropertyChangeListener(listener);
 		fromTime.addActionListener(listener);
@@ -263,6 +274,10 @@ public class NewAppointmentPanel extends JPanel
 	 */
 	public void close() {
 		participantList.close();
+		model.removePropertyChangeListener(this);
+		if (invitation != null) invitation.removePropertyChangeListener(this);
+		
+		this.firePropertyChange(CLOSE, null, null);
 	}
 	
 	/**
