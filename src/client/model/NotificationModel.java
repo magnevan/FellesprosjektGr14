@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import server.ModelEnvelope;
+import client.AbstractConnection;
 import client.ServerConnection;
 
 /**
@@ -97,7 +98,7 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 	 */
 	public NotificationModel(BufferedReader reader) throws IOException {
 		this();
-		DateFormat df = DateFormat.getDateTimeInstance();
+		DateFormat df = AbstractConnection.defaultDateTimeFormat;
 		
 		id = Integer.parseInt(reader.readLine());
 		type = NotificationType.valueOf(reader.readLine());
@@ -291,7 +292,7 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 	 */
 	@Override
 	public void toStringBuilder(StringBuilder sb) {
-		DateFormat df = DateFormat.getDateTimeInstance();
+		DateFormat df = AbstractConnection.defaultDateTimeFormat;
 		
 		sb.append(getId() + "\r\n");
 		sb.append(getType() + "\r\n");

@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.Comparator;
 
 import server.ModelEnvelope;
+import client.AbstractConnection;
 import client.ClientMain;
 import client.ModelCacher;
 import client.ServerConnection;
@@ -111,7 +112,7 @@ public class MeetingModel implements TransferableModel {
 		while(!(l = reader.readLine()).equals("\0")) 
 			description += l+"\r\n";
 		
-		DateFormat df = DateFormat.getDateTimeInstance();
+		DateFormat df = AbstractConnection.defaultDateTimeFormat;
 
 		timeFrom = Calendar.getInstance();
 		timeTo = Calendar.getInstance();
@@ -478,7 +479,7 @@ public class MeetingModel implements TransferableModel {
 	 */
 	@Override
 	public void toStringBuilder(StringBuilder sb) {
-		DateFormat df = DateFormat.getDateTimeInstance();
+		DateFormat df = AbstractConnection.defaultDateTimeFormat;
 		
 		sb.append(getId() + "\r\n");
 		sb.append(getName() + "\r\n");
