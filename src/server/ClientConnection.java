@@ -141,7 +141,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 										.size()]), id, method, smethod);
 
 					} else if (smethod.equals("MEETING_LIST")) {
-						DateFormat df = DateFormat.getDateTimeInstance();
+						DateFormat df = AbstractConnection.defaultDateTimeFormat;
 						Calendar startDate = Calendar.getInstance();
 						startDate.setTime(df.parse(reader.readLine().trim()));
 						Calendar endDate = Calendar.getInstance();
@@ -165,7 +165,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 								method, smethod);
 
 					} else if (smethod.equals("AVAILABLE_ROOMS")) {
-						DateFormat df = DateFormat.getDateTimeInstance();
+						DateFormat df = AbstractConnection.defaultDateTimeFormat;
 						Calendar from = Calendar.getInstance();
 						from.setTime(df.parse(reader.readLine().trim()));
 						Calendar to = Calendar.getInstance();

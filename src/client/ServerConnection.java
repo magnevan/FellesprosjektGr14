@@ -301,7 +301,7 @@ public class ServerConnection extends AbstractConnection {
 		}
 		
 		try {
-			DateFormat df = DateFormat.getDateTimeInstance();
+			DateFormat df = AbstractConnection.defaultDateTimeFormat;
 			
 			listeners.put(id, listener);			
 			writeLine(formatCommand(id, "REQUEST",  "MEETING_LIST"));
@@ -427,7 +427,7 @@ public class ServerConnection extends AbstractConnection {
 		int id = ++nextRequestId;
 		
 		try {
-			DateFormat df = DateFormat.getDateTimeInstance();
+			DateFormat df = AbstractConnection.defaultDateTimeFormat;
 			
 			listeners.put(id, listener);
 			writeLine(formatCommand(id, "REQUEST",  "AVAILABLE_ROOMS"));

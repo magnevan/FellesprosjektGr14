@@ -171,7 +171,7 @@ public class ClientConnectionListener {
 	 */
 	public void broadcastModel(TransferableModel model,	
 			String username) throws IOException {
-		
+		LOGGER.info("Broadcasting model "+model.getUMID()+" to "+username);
 		if(clients.containsKey(username)) {
 			clients.get(username).broadcastModel(model);
 		}
