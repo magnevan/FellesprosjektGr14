@@ -49,7 +49,6 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		SHOWHOURS = 12;
 	
 	
-	private final CalendarModel calModel;
 	
 	private final Calendar date;
 	private final JScrollPane weekScroll;
@@ -63,9 +62,6 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 	
 	
 	public WeekView() {
-		
-		calModel = ClientMain.getActiveUser().getCalendarModel();
-		calModel.addPropertyChangeListner(this);
 		
 		appointments = new ArrayList<AppointmentPanel>();
 
@@ -217,10 +213,6 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		pcs.removePropertyChangeListener(listener);
 	}
 	
-	public CalendarModel getCalendarModel() {
-		return calModel;
-	}
-	
 	public int getWeekNumber() {
 		return date.get(Calendar.WEEK_OF_YEAR);
 	}
@@ -292,6 +284,7 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		usercal.add(ClientMain.getActiveUser());
 		
 		for (UserModel victim : usercal) {
+			victim.getCalendar().addPropertyChangeListner(this);
 			for (MeetingModel MM : victim.getCalendar().getMeetingsInWeek(date)){
 				AppointmentPanel avtale = new AppointmentPanel(MM);
 				avtale.addPCL(this);
