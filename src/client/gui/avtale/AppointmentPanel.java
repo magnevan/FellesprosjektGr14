@@ -22,15 +22,17 @@ import javax.swing.JPanel;
 
 
 import client.gui.week.WeekView;
+import client.model.CalendarModel;
 import client.model.InvitationModel;
 import client.model.InvitationStatus;
 import client.model.MeetingModel;
 import client.model.MeetingRoomModel;
 import client.model.UserModel;
 
-public class AppointmentPanel extends JButton{
+public class AppointmentPanel extends JButton implements PropertyChangeListener{
 
 	public final static String APPOINTMENT_PRESSED_PROPERTY = "appPressed";
+	public final static String TIME_CHANGED_PROPERTY = "timeChanged";
 	
 	private GridBagConstraints c;
 	private JLabel nameLabel, ownerLabel, timeLabel, iconLabel, locationLabel;
@@ -43,6 +45,7 @@ public class AppointmentPanel extends JButton{
 	public AppointmentPanel(MeetingModel MM){
 		
 		model = MM;
+		MM.addPropertyChangeListener(this);
 		pcs = new PropertyChangeSupport(this);
 		this.addActionListener(new AppointmentPressed());
 		
@@ -234,6 +237,18 @@ public class AppointmentPanel extends JButton{
 	
 	public void removePCL(PropertyChangeListener listener) {
 		pcs.removePropertyChangeListener(listener);
+	}
+
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		String PN = evt.getPropertyName();
+		
+		if(PN == MeetingModel.TIME_FROM_PROPERTY || PN == MeetingModel.TIME_TO_PROPERTY){
+			System.out.println("TIME FROM OR TIME TO RECIVED!");
+			pcs.firePropertyChange(TIME_CHANGED_PROPERTY, null, model);
+		}
+		
 	}
 
 

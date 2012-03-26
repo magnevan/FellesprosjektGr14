@@ -36,7 +36,7 @@ import client.model.UserModel;
 /**
  * @author Magne
  */
-public class WeekView extends JPanel implements PropertyChangeListener {
+public class WeekView extends JPanel implements PropertyChangeListener{
 	
 	private static final long serialVersionUID = -8533878088518459485L;
 	
@@ -320,7 +320,9 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 			AppointmentLayer.remove(AP);
 		}
 		appointments.clear();
-		AppointmentLayer.repaint();
+		
+		this.revalidate();
+		this.repaint();
 	}
 	
 	private void setDateLabels(){
@@ -376,6 +378,11 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		else if(PN == CalendarModel.MEETING_REMOVED){
 			addAllAppointments();
 			System.out.println(" 'Meeting_removed' recived");
+		}
+		else if(PN == AppointmentPanel.TIME_CHANGED_PROPERTY){
+			addAllAppointments();
+			System.out.println(" 'time_changed' recived");
+			
 		}
 		else if(PN == AppointmentPanel.APPOINTMENT_PRESSED_PROPERTY){
 			pcs.firePropertyChange(APPOINTMENTCLICEKD, null, (MeetingModel)event.getNewValue());
