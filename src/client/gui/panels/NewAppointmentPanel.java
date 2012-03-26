@@ -407,7 +407,7 @@ public class NewAppointmentPanel extends JPanel
 	}
 	
 	private void removeEmployee() {
-		// filteredUserListModel.removeUsersFromBlacklist()
+//		filteredUserListModel.removeUsersFromBlacklist(participantList.getSelectedUsers());
 		throw new UnsupportedOperationException("");
 	}
 	
