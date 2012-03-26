@@ -225,7 +225,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		return meetings.size();
 	}
 	
-	public void addPropertyChangeListner(PropertyChangeListener listener) {
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
 	}
 	

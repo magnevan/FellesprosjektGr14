@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,6 +23,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import client.ClientMain;
 import client.gui.VerticalLayout;
+import client.model.CalendarModel;
 import client.model.MeetingModel;
 
 
@@ -29,7 +32,7 @@ import client.model.MeetingModel;
  * @author Magne og Susanne
  *
  */
-public class HovedPanel extends JPanel{
+public class HovedPanel extends JPanel implements PropertyChangeListener{
 	
 	private JList appointmentList;
 	private static final long serialVersionUID = -2391925039508661574L;
@@ -38,6 +41,8 @@ public class HovedPanel extends JPanel{
 	MeetingModel model;
 	Calendar timeTo;
 	Calendar timeFrom;
+	
+	private final DefaultListModel<MeetingModel> lol;
 	
 	public HovedPanel() {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
@@ -49,7 +54,7 @@ public class HovedPanel extends JPanel{
 		topPanel.add(personLabel);
 		
 		//Center panel
-		final DefaultListModel lol = new DefaultListModel();
+		lol = new DefaultListModel<MeetingModel>();
 		List<MeetingModel> meetings = new ArrayList<MeetingModel>(
 				ClientMain.getActiveUser().getCalendarModel().getMeetingsInDay(Calendar.getInstance())
 				);
@@ -88,6 +93,8 @@ public class HovedPanel extends JPanel{
 		this.add(topPanel);
 		this.add(centerContent);
 		this.add(bottomPanel);
+		
+		ClientMain.getActiveUser().getCalendar().addPropertyChangeListener(this);
 	}
 
 	public static final String DATE_FORMAT_NOW = "dd.MM.yyyy";
@@ -100,6 +107,25 @@ public class HovedPanel extends JPanel{
 
 	public JButton getNewAppointmentButton() {
 		return newAppointmentButton;
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt.getPropertyName() == CalendarModel.MEETING_ADDED) {
+			MeetingModel model = (MeetingModel) evt.getNewValue();
+			Calendar from = model.getTimeFrom();
+			Calendar now = Calendar.getInstance();
+			
+			if (from.get(Calendar.YEAR) 		!= now.get(Calendar.YEAR) ||
+				from.get(Calendar.DAY_OF_YEAR) 	!= now.get(Calendar.DAY_OF_YEAR)) 
+				return;
+					
+			lol.addElement(model);
+		
+					
+		} else if (evt.getPropertyName() == CalendarModel.MEETING_REMOVED) {
+			lol.removeElement(model);
+		}
 	}
 
 }
