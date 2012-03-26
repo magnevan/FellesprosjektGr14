@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.text.SimpleDateFormat;
@@ -35,11 +36,11 @@ import client.model.UserModel;
 /**
  * @author Magne
  */
-public class WeekView extends JPanel {
+public class WeekView extends JPanel implements PropertyChangeListener {
 	
 	private static final long serialVersionUID = -8533878088518459485L;
 	
-	public static final String WEEKCLICK = "";
+	public static final String WEEKCLICK = "weekclick";
 	
 	public static final int 
 		HOURHEIGHT = 50,
@@ -56,11 +57,14 @@ public class WeekView extends JPanel {
 	private ArrayList<AppointmentPanel>  appointments;
 	private JLayeredPane AppointmentLayer;
 	private PropertyChangeSupport pcs;
+	private JPanel northPanel, dayPanelWithPadding;
+
 	
 	
 	public WeekView() {
 		
 		calModel = ClientMain.getActiveUser().getCalendarModel();
+		calModel.addPropertyChangeListner(this);
 		
 		appointments = new ArrayList<AppointmentPanel>();
 
@@ -69,10 +73,9 @@ public class WeekView extends JPanel {
 		this.setLayout(new BorderLayout());
 		
 		//North
-		JPanel northPanel = new JPanel(new BorderLayout());
+		northPanel = new JPanel(new BorderLayout());
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		
-		weekLabel = new JLabel("Uke 5",SwingConstants.CENTER);
+		weekLabel = new JLabel("Uke " + date.get(date.WEEK_OF_YEAR) + ", " + date.get(date.YEAR),SwingConstants.CENTER);
 		weekLabel.setFont(new Font("Times New Roman", Font.BOLD,20));
 		
 		prevWeekButton = new JButton("<<");
@@ -88,7 +91,7 @@ public class WeekView extends JPanel {
 		northPanel.add(weekLabel, BorderLayout.CENTER);
 		northPanel.add(buttonPanel, BorderLayout.EAST);
 		JPanel testPanel = createDayPanel(date);
-		JPanel dayPanelWithPadding = new JPanel(); //Because of the field on the left side that contains the times, e.g. "13:00", we need some extra padding.
+		dayPanelWithPadding = new JPanel(); //Because of the field on the left side that contains the times, e.g. "13:00", we need some extra padding.
 		dayPanelWithPadding.add(Box.createHorizontalStrut(12));
 		dayPanelWithPadding.add(testPanel);
 		northPanel.add(dayPanelWithPadding, BorderLayout.SOUTH);
@@ -114,7 +117,7 @@ public class WeekView extends JPanel {
 		weekScroll.setPreferredSize(new Dimension(HOURWIDTH*7 + 50,HOURHEIGHT*SHOWHOURS));
 		this.add(weekScroll, BorderLayout.CENTER);
 		
-		//addAllAppointments();
+		addAllAppointments();
 		
 		pcs = new PropertyChangeSupport(this);
 	}
@@ -124,6 +127,7 @@ public class WeekView extends JPanel {
 	 * 
 	 * @param hour The hour it should focus on, between 0 and 23 inclusive.
 	 */
+	//TODO denne er buggy
 	public void focusOnHour(int hour) {
 		if (hour > 23 || hour < 0) return;
 		
@@ -132,8 +136,6 @@ public class WeekView extends JPanel {
 		if (hour < SHOWHOURS/2) hour = SHOWHOURS/2;
 		if (hour > (23-SHOWHOURS/2)) hour = (23-SHOWHOURS/2);
 		hour -= SHOWHOURS/2;
-		
-		//System.out.println(hour);
 		
 //		It seems like getMaximum returns only half of the maximum. Dividing by two to compensate
 		vs.setValue(
@@ -168,6 +170,8 @@ public class WeekView extends JPanel {
 		
 		return p;
 	}
+
+	
 	
 	/**
 	 * Creates a JPanel filled with HourCells and timestamps to the left.
@@ -210,6 +214,14 @@ public class WeekView extends JPanel {
 	
 	public void removePropertyChangeListener(PropertyChangeListener listener) {
 		pcs.removePropertyChangeListener(listener);
+	}
+	
+	public CalendarModel getCalendarModel() {
+		return calModel;
+	}
+	
+	public int getWeekNumber() {
+		return date.get(Calendar.WEEK_OF_YEAR);
 	}
 	
 	class MouseClickListener implements MouseListener {
@@ -281,6 +293,18 @@ public class WeekView extends JPanel {
 		drawAppointments();
 	}
 	
+	private void addAppointment(MeetingModel MM){
+		//Muligens litt tungvint, men hvis år og uke er lik med nåværende date så tegnes avtalen
+		if(MM.getTimeFrom().get(MM.getTimeFrom().YEAR) == date.get(date.YEAR) && MM.getTimeFrom().get(MM.getTimeFrom().WEEK_OF_YEAR) == date.get(date.WEEK_OF_YEAR)){
+			AppointmentPanel avtale = new AppointmentPanel(MM);
+			appointments.add(avtale);
+			AppointmentLayer.add(avtale,2, 0);
+			avtale.setOpaque(true);
+			avtale.setBounds(avtale.getX(), avtale.getY(),avtale.getWidth(),avtale.getLength());
+		}
+	}
+
+	
 	/**
 	 * Fjerner alle avtaler fra Panelet for å så fjerne alle fra arraylist.
 	 */
@@ -289,18 +313,34 @@ public class WeekView extends JPanel {
 			AppointmentLayer.remove(AP);
 		}
 		appointments.clear();
+		AppointmentLayer.repaint();
+	}
+	
+	private void setDateLabels(){
+
+		//Setter datofeltene til riktig verdi
+		dayPanelWithPadding.removeAll();
+		JPanel testPanel = createDayPanel(date);
+		dayPanelWithPadding.add(Box.createHorizontalStrut(12));
+		dayPanelWithPadding.add(testPanel);
+		
+		//Setter uke og år
+		weekLabel.setText("Uke " + date.get(date.WEEK_OF_YEAR) + ", " + date.get(date.YEAR));
+		
 	}
 	
 	class  nextWeekAction implements ActionListener { 
         public void actionPerformed(ActionEvent e) { 
         	date.add(Calendar.WEEK_OF_YEAR, 1);
+        	setDateLabels();
         	addAllAppointments();
         } 
     }
 	
 	class prewWeekAction implements ActionListener { 
         public void actionPerformed(ActionEvent e) { 
-        	date.roll(Calendar.WEEK_OF_YEAR, 1);
+        	date.add(Calendar.WEEK_OF_YEAR, -1);
+        	setDateLabels();
         	addAllAppointments();
         } 
     }
@@ -308,42 +348,26 @@ public class WeekView extends JPanel {
 	class  todayAction implements ActionListener { 
         public void actionPerformed(ActionEvent e) { 
         	date.setTime(Calendar.getInstance().getTime());
+        	setDateLabels();
         	addAllAppointments();
         } 
     }
 	
-//	public static void main (String args[]) { 
-//        JFrame frame = new JFrame("");
-//        Calendar from =  Calendar.getInstance();
-//        from.set(2012, 3, 21, 13, 0);
-//        Calendar to = Calendar.getInstance();
-//        to.set(2012, 3, 21, 14, 0);
-//        UserModel testPerson = new UserModel("Olano", "ola@hotmail.com", "Ola Nordmann");
-//        MeetingModel  MM = new MeetingModel(from, to, testPerson);
-//        MM.setName("Viktig avtale");
-//        MM.setLocation("spisesalen");
-//        MM.setActive(true);
-//        
-//        Calendar from2 =  Calendar.getInstance();
-//        from2.set(2012, 3, 23, 13, 0);
-//        Calendar to2 = Calendar.getInstance();
-//        to2.set(2012, 3, 23, 14, 0);
-//        UserModel testPerson2 = new UserModel("Hansern", "hans@hotmail.com", "Hans Hansen");
-//        MeetingModel  MM2 = new MeetingModel(from2, to2, testPerson2);
-//        MM2.setName("Verksted");
-//        MM2.setLocation("Fjordgata 2");
-//        MM2.addAttendee(testPerson);
-//        MM2.setActive(true);
-//        
-//        
-//        
-//        WeekView WV = new WeekView();
-//        WV.setOpaque(true);
-//        WV.addAppointment(MM);
-//        WV.addAppointment(MM2);
-//        frame.getContentPane().add(WV); 
-//        frame.pack();  
-//        frame.setVisible(true);   
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//    }
+	
+
+
+	@Override
+	public void propertyChange(PropertyChangeEvent event) {
+		String PN = event.getPropertyName();
+		
+		if(PN == calModel.MEETING_ADDED){
+			addAppointment((MeetingModel)event.getNewValue());
+			System.out.println("Meeting added recived");
+		}
+		else if(PN == calModel.MEETING_REMOVED){
+			addAllAppointments();
+			System.out.println("Meeting removed recived");
+		}
+	}
+	
 }

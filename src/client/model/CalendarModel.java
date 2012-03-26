@@ -114,8 +114,31 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		Calendar fromTime = (Calendar)date.clone(),
 				   toTime = (Calendar)date.clone();
 		
-		fromTime.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-		toTime.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+		while (fromTime.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
+			fromTime.add(Calendar.DAY_OF_WEEK, -1);
+		
+		while (toTime.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY)
+			toTime.add(Calendar.DAY_OF_WEEK, 1);
+			
+		fromTime.set(Calendar.HOUR_OF_DAY, 0);
+		fromTime.set(Calendar.MINUTE, 0);
+		fromTime.set(Calendar.SECOND, 0);
+		
+		fromTime.set(Calendar.HOUR_OF_DAY, 23);
+		fromTime.set(Calendar.MINUTE, 59);
+		fromTime.set(Calendar.SECOND, 59);
+		
+		return getMeetingInterval(fromTime, toTime,true);
+	}
+	
+	/**
+	 * Returns meetings with a day, from 00:00:00 to 23:59:59
+	 * @param date
+	 * @return set of MeetingModels
+	 */
+	public Set<MeetingModel> getMeetingsInDay(Calendar date) {
+		Calendar fromTime = (Calendar)date.clone(),
+				   toTime = (Calendar)date.clone();
 		
 		fromTime.set(Calendar.HOUR_OF_DAY, 0);
 		fromTime.set(Calendar.MINUTE, 0);
@@ -127,6 +150,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		
 		return getMeetingInterval(fromTime, toTime,true);
 	}
+
 	
 	/**
 	 * @param fromTime Calendar object representing the start of the interval
@@ -145,6 +169,11 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	 */
 	public Set<MeetingModel> getMeetingInterval(Calendar fromTime, Calendar toTime, boolean tight) {
 		Set<MeetingModel> returnSet;
+		
+		if (!toTime.after(fromTime))
+			throw new IllegalArgumentException("toTime cannot be before fromTime\n" +
+					"toTime " + toTime.getTime() + "\n" +
+					"fromTime" + fromTime.getTime() + "\n");
 		
 		
 		Set<MeetingModel> fromSet = new HashSet<MeetingModel>();
@@ -169,16 +198,6 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 			returnSet.addAll(toSet);
 		}
 		
-		System.out.println("----LIST OF MEETINGS----");
-		for (MeetingModel m : returnSet) {
-//			Calendar c = (Calendar)m.getTimeFrom().clone(); //TODO FJERN DETTE, MODIFISERER MØTE PGA BUG ANNEN PLASS
-//			c.roll(Calendar.HOUR, 2);
-//			m.setTimeTo(c);
-			System.out.println(m);
-		}
-		System.out.println("------------------------");
-		
-		
 		return returnSet;
 	}
 	
@@ -198,11 +217,6 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	public void onServerResponse(int requestId, Object data) {
 		if (requestId == meetingsReq) {
 			List<MeetingModel> models = (List<MeetingModel>) data;
-			
-			System.out.println("----Response from server----");
-			for (MeetingModel m : models)
-				System.out.println(m);
-			System.out.println("----------------------------");
 			
 			this.addAll(models);
 		}
@@ -265,6 +279,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		System.out.printf("Request buffer (%s) - (%s)\n", from.getTime().toString(), to.getTime().toString());
 		meetingsReq = ServerConnection.instance().requestMeetings(this, new UserModel[]{owner}, from, to);
 	}
-
+	
+	
 	
 }

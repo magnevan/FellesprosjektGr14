@@ -16,8 +16,6 @@ import client.ClientMain;
 import client.ModelCacher;
 import client.ServerConnection;
 
-
-
 /**
  * A model for the meetings in the calendar
  * 
@@ -79,14 +77,19 @@ public class MeetingModel implements TransferableModel {
 	/**
 	 * Creates a default meeting model
 	 */
-	public static MeetingModel newDefaultInstance() {
-		Calendar timeFrom = Calendar.getInstance(), 
-				 timeTo   = Calendar.getInstance();
+	public static MeetingModel newDefaultInstance(Calendar startTime) {
+		Calendar timeFrom = (Calendar)startTime.clone(),
+				 timeTo   = (Calendar)startTime.clone();
 		
-		timeFrom.set(Calendar.HOUR_OF_DAY, 8);
-		timeFrom.set(Calendar.MINUTE, 0);
-		timeTo.set(Calendar.HOUR_OF_DAY, 9);
-		timeTo.set(Calendar.MINUTE, 0);
+		timeFrom.set(Calendar.SECOND, 0);
+		timeFrom.set(Calendar.SECOND, 0);
+		
+		if (timeFrom.get(Calendar.HOUR_OF_DAY) < 23)
+			timeTo.set(Calendar.HOUR_OF_DAY, timeFrom.get(Calendar.HOUR_OF_DAY) + 1);
+		else {
+			timeTo.set(Calendar.HOUR_OF_DAY, 23);
+			timeTo.set(Calendar.MINUTE, 59);
+		}
 		
 		UserModel owner = ClientMain.getActiveUser();
 		
@@ -318,13 +321,15 @@ public class MeetingModel implements TransferableModel {
 		return owner;
 	}
 	
+
+	public String toString() {
+		return   timeFrom + " - " + timeTo + "  "+ getName();
+	} 
+
 	public void setOwner(UserModel owner) {
 		this.owner = owner;
 	}
-	
-	public String toString() {
-		return getName() + " (" + timeFrom.getTime() + " - " + timeTo.getTime() + ")";
-	}
+
 	
 	/**
 	 * Get all invitations for the meeting
@@ -408,7 +413,10 @@ public class MeetingModel implements TransferableModel {
 				changeSupport.firePropertyChange(INVITATION_CREATED,null, invitation);
 			}
 		}		
-	}
+
+	}	
+	
+	
 	
 	/**
 	 * Changes the status of all invitations from NOT_YET_SAVED to INVITED
@@ -433,14 +441,6 @@ public class MeetingModel implements TransferableModel {
 				@Override
 				public int compare(MeetingModel A, MeetingModel B) {					
 					return A.getTimeFrom().compareTo(B.getTimeFrom());
-				}
-			};
-			
-	public static final Comparator<MeetingModel> timeToComparator = 
-			new Comparator<MeetingModel>() {
-				@Override
-				public int compare(MeetingModel A, MeetingModel B) {					
-					return A.getTimeTo().compareTo(B.getTimeTo());
 				}
 			};
 

@@ -12,9 +12,7 @@ import javax.swing.*;
 import client.ClientMain;
 import client.gui.VerticalLayout;
 import client.model.ActiveUserModel;
-import client.model.MeetingModel;
 import client.model.NotificationModel;
-import client.model.NotificationType;
 
 /**
  * The panel for displaying and handling notifications
@@ -32,45 +30,48 @@ public class VarselPanel extends JPanel implements PropertyChangeListener {
 	 * 
 	 */
 	private static final long serialVersionUID = -4184187489458007088L;
+	public static final String
+		NOTIFICATION_W_MEETING_CLICKED = "notification with meeting clicked",
+		NOTIFICATION_COUNT_CHANGED = "notification count changed";
 
-	private JButton newAppointmentButton; //TODO legg denne til grafisk
+	private JButton newAppointmentButton;
 	private NotificationList notificationList;
 	private PropertyChangeSupport pcs;
 	
+	@SuppressWarnings("static-access")
 	public VarselPanel(){
-		super(new VerticalLayout(1, VerticalLayout.LEFT));		
+		super(new VerticalLayout(5,SwingConstants.LEFT));		
 
 		pcs = new PropertyChangeSupport(this);
 		
-		// Top content, the person label
+		// Top panel, the users icon, name and the logout button
 		JPanel topPanel = new JPanel();
-		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.X_AXIS));
-		topPanel.setPreferredSize(new Dimension(310, 50));
 		PersonLabel personLabel = new PersonLabel();
+		personLabel.setPreferredSize(new Dimension(310, 50));
 		topPanel.add(personLabel);
-		this.add(topPanel);
 		
+		// Center content, the notification label and the notification list
+		JPanel centerContent = new JPanel(new VerticalLayout(5, SwingConstants.LEFT));
+		centerContent.setPreferredSize(new Dimension(310, 503));
 		
-		// Center content, the notification list
 		JLabel notifications = new JLabel("Varsler:");
-		notifications.setAlignmentX(LEFT_ALIGNMENT);
-		notifications.setAlignmentY(TOP_ALIGNMENT);
-		this.add(notifications);
+		centerContent.add(notifications);
+		
 		notificationList = new NotificationList();
 		notificationList.addPropertyChangeListener(this);
-		notificationList.setPreferredSize(new Dimension(310, 485));
-		this.add(notificationList);
-		notifications.setLabelFor(notificationList);
+		notificationList.setPreferredSize(new Dimension(310, 460));
+		centerContent.add(notificationList);
 	
-		// Create a small space
-		this.add(Box.createVerticalStrut(20));
-		
-		// Button at bottom
+		// Bottom panel, the button for creating a new meeting
 		JPanel bottomPanel = new JPanel(new BorderLayout());
-		bottomPanel.setPreferredSize(new Dimension(308, 100));
-		newAppointmentButton = new JButton("Opprett en avtale/møte");
+		bottomPanel.setPreferredSize(new Dimension(306,100));
+		newAppointmentButton = new JButton("Opprett en avtale/m¿te");
 		newAppointmentButton.setOpaque(true);
 		bottomPanel.add(newAppointmentButton);
+		
+		// Add the panels
+		this.add(topPanel);
+		this.add(centerContent);
 		this.add(bottomPanel);
 		
 		ClientMain.client().getActiveUser().addPropertyChangeListener(this);
@@ -103,20 +104,16 @@ public class VarselPanel extends JPanel implements PropertyChangeListener {
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName() == ActiveUserModel.NOTIFICATIONS_PROPERTY) {
-			receiveNotification((NotificationModel)evt.getNewValue());
-		} else if (evt.getPropertyName() == NotificationList.NOTIFICATION_COUNT) {
-			pcs.firePropertyChange(evt);
-		} else if (evt.getPropertyName() == NotificationList.NOTIFICATION_CLICKED) {
-			NotificationModel notification = (NotificationModel) evt.getNewValue();
-			if (!notification.isRead()) {
-				notification.setRead(true);
-				if (notification.getType() != NotificationType.A_CANCELED) {
-					MeetingModel meetingModel = notification.getRegardsMeeting();
-					// TODO: fire a property change message to notify MainPanel to open the appointment
-				} else {
-					notification.setRead(true);
-				}
-			}
+			receiveNotification((NotificationModel)evt.getNewValue());	
+		}
+		
+		if (evt.getPropertyName() == NotificationList.NOTIFICATION_ARRIVED ||
+				evt.getPropertyName() == NotificationList.NOTIFICATION_READ) {
+			pcs.firePropertyChange(NOTIFICATION_COUNT_CHANGED, null, notificationList.getUnreadCount());
+		}
+		if (evt.getPropertyName() == NotificationList.NOTIFICATION_OLD_READ ||
+				evt.getPropertyName() == NotificationList.NOTIFICATION_READ) {
+			pcs.firePropertyChange(NOTIFICATION_W_MEETING_CLICKED, null, evt.getNewValue());
 		}
 	}
 }

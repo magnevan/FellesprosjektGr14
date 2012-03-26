@@ -1,4 +1,5 @@
-	package client;
+
+package client;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -24,7 +25,6 @@ public class ClientMain extends JFrame implements IServerConnectionListener{
 	private MainPanel  mainPanel;
 	
 	private JPanel contentPane;
-	
 	private static ClientMain client;
 	private static ActiveUserModel activeUser;
 	

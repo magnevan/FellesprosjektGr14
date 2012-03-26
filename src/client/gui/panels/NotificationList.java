@@ -5,6 +5,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -30,8 +31,9 @@ public class NotificationList extends JPanel {
 	private static final long serialVersionUID = -2045270300264712032L;
 	private static final int MAX_SIZE = 10;
 	public static final String
-			NOTIFICATION_CLICKED = "notification clicked",
-			NOTIFICATION_COUNT = "notification count";
+			NOTIFICATION_READ = "notification read",
+			NOTIFICATION_ARRIVED = "notification arrived",
+			NOTIFICATION_OLD_READ = "notification old read";
 	private JScrollPane scrollPane;
 	private JList list;
 	private DefaultListModel listModel;
@@ -39,6 +41,7 @@ public class NotificationList extends JPanel {
 	private PropertyChangeSupport pcs;
 
 	public NotificationList() {
+		this.setBorder(null);
 		pcs = new PropertyChangeSupport(this);
 		unread = new ArrayList<NotificationModel>();
 		read = new ArrayList<NotificationModel>();
@@ -62,13 +65,13 @@ public class NotificationList extends JPanel {
 	 */
 	public void initializeList(ArrayList<NotificationModel> models) {
 		Collections.sort(models);
+		System.out.println("PETERTEST: " + models);
 		for (NotificationModel notificationModel : models) {
 			listModel.addElement(notificationModel);
 			if (notificationModel.isRead()) read.add(notificationModel);
 			else unread.add(notificationModel);
 		}
-		System.out.println("PROP.CH: NotificationList: " + unread.size());
-		pcs.firePropertyChange(NOTIFICATION_COUNT, null, new Integer(unread.size()));
+		pcs.firePropertyChange(NOTIFICATION_ARRIVED, null, new Integer(unread.size()));
 	}
 	
 	/**
@@ -94,8 +97,11 @@ public class NotificationList extends JPanel {
 		}
 		listModel.add(0, newNotification);
 		unread.add(newNotification);
-		System.out.println("PROP.CH: NotificationList: " + unread.size());
-		pcs.firePropertyChange(NOTIFICATION_COUNT, null, new Integer(unread.size()));
+		pcs.firePropertyChange(NOTIFICATION_ARRIVED, null, new Integer(unread.size()));
+	}
+	
+	public int getUnreadCount() {
+		return unread.size();
 	}
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -117,8 +123,22 @@ public class NotificationList extends JPanel {
 			timestamp = now;
 			// Only care about double clicks with delta < 500 ms
 			if (delta < 500 && !secondClick) {
-				// Propagate event to all listeners
-				pcs.firePropertyChange(NOTIFICATION_CLICKED, null, list.getSelectedValue());
+				// Propagate event to all listeners and reorganize notification arrays
+				NotificationModel clickedNotification = (NotificationModel) list.getSelectedValue();
+				if (unread.contains(clickedNotification)) {
+					unread.remove(clickedNotification);
+					clickedNotification.setRead(true);
+					read.add(clickedNotification);
+					pcs.firePropertyChange(NOTIFICATION_READ, null, clickedNotification);
+					try {
+						clickedNotification.store();
+					} catch (IOException e) {
+						System.err.println("ERROR: Exception happened while trying to store a notification as read");
+						e.printStackTrace();
+					}
+				} else {
+					pcs.firePropertyChange(NOTIFICATION_OLD_READ, null, clickedNotification);
+				}
 				secondClick = true;
 			} else {
 				secondClick = false;

@@ -70,7 +70,7 @@ public class ServerInvitationModel extends InvitationModel
 		try {
 			// New invitation
 			if(old == null) {
-				db.preformUpdate(String.format("INSERT INTO user_appointment" +
+				db.performUpdate(String.format("INSERT INTO user_appointment" +
 						"(appointment_id, username, status) VALUES(%d, '%s', '%s')",
 						getMeeting().getId(), getUser().getUsername(), getStatus()));
 				
@@ -83,7 +83,7 @@ public class ServerInvitationModel extends InvitationModel
 
 			// Update invitation
 			} else {
-				db.preformUpdate(String.format("UPDATE user_appointment " +
+				db.performUpdate(String.format("UPDATE user_appointment " +
 						"SET status = '%s' WHERE appointment_id=%d AND username='%s'",
 						getStatus(), getMeeting().getId(), getUser().getUsername()));
 				
@@ -115,7 +115,7 @@ public class ServerInvitationModel extends InvitationModel
 	 */
 	public void delete(DBConnection db, boolean notify) {
 		try {
-			db.preformUpdate(String.format("DELETE FROM user_appointment " +
+			db.performUpdate(String.format("DELETE FROM user_appointment " +
 					"WHERE appointment_id=%d AND username='%s'",
 					getMeeting().getId(), getUser().getUsername()));
 		} catch(SQLException e) {
@@ -142,7 +142,7 @@ public class ServerInvitationModel extends InvitationModel
 		
 		ArrayList<InvitationModel> ret = new ArrayList<InvitationModel>();
 		try {
-			ResultSet rs = db.preformQuery(
+			ResultSet rs = db.performQuery(
 					"SELECT * FROM user_appointment as ua " +
 					"INNER JOIN user as u ON ua.username = u.username " +
 					"WHERE ua.appointment_id = "+meeting.getId()+";");
@@ -169,7 +169,7 @@ public class ServerInvitationModel extends InvitationModel
 		
 		ServerInvitationModel ret = null;
 		try {
-			ResultSet rs = db.preformQuery(
+			ResultSet rs = db.performQuery(
 					"SELECT * FROM user_appointment " +
 					"WHERE appointment_id = "+meeting.getId()+" " +
 					"AND username = '"+user.getUsername()+"';");

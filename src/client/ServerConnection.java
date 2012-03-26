@@ -47,6 +47,7 @@ public class ServerConnection extends AbstractConnection {
 	
 	private ActiveUserModel user;
 	private ReaderThread readerThread;	
+	private boolean readerThreadStopFlag = false; //When this is switched, the thread should terminate
 	private int nextRequestId = 1;
 	
 	// Stores listeners while we wait for the server to respond

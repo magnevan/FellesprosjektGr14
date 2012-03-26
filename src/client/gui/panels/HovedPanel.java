@@ -4,8 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
-import javax.swing.ImageIcon;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -14,50 +16,97 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 
 import client.gui.VerticalLayout;
+import client.model.MeetingModel;
 
 /**
  * Panel for the "Hoved" tab
- * @author Magne
+ * @author Magne og Susanne
  *
  */
 public class HovedPanel extends JPanel{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2391925039508661574L;
 	private final JList appointmentList;
 	private final JButton newAppointmentButton;
+	JLabel label = new JLabel();
+	MeetingModel model;
+	Calendar timeTo;
+	Calendar timeFrom;
 	
 	public HovedPanel() {
 		super(new VerticalLayout(5,SwingConstants.LEFT));
-		
-		//Top
+		 
+		// Top panel, the users icon, name and the logout button
 		JPanel topPanel = new JPanel();
 		PersonLabel personLabel = new PersonLabel();
+		personLabel.setPreferredSize(new Dimension(310, 50));
 		topPanel.add(personLabel);
 		
-		//Center
-		JPanel centerPanel = new JPanel(new BorderLayout());
-		appointmentList = new JList(new String[] {"testdata1","testdata2","testdata3","testdata4"});
-		centerPanel.setPreferredSize(new Dimension(270,404));
-		centerPanel.add(appointmentList);
-		JScrollPane scroll = new JScrollPane(appointmentList);
-		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		centerPanel.add(scroll);
+		// Center content, a label, todays date and the list containing todays meetings
+		JPanel centerContent = new JPanel(new VerticalLayout(5, SwingConstants.LEFT));
+		centerContent.setPreferredSize(new Dimension(310, 503));
 		
-		//Bottom
+		centerContent.add(new JLabel("Dagens aktiviteter "));
+		
+		JLabel todaysDate = new JLabel();
+		String dateString = now();
+		todaysDate.setText(dateString);
+		todaysDate.setFont(new Font("", Font.BOLD, 18));
+		todaysDate.setForeground(Color.BLUE);
+		centerContent.add(todaysDate);
+		
+		DefaultListModel appointmentListModel = new DefaultListModel();		
+		appointmentListModel.addElement(createMeetingModel(timeFrom, timeTo, "Styrem¿te"));
+		appointmentListModel.addElement(createMeetingModel(timeFrom, timeTo, "Lunsjavtale"));
+		appointmentListModel.addElement(createMeetingModel(timeFrom, timeTo, "Verksted"));
+		
+		appointmentList = new JList(appointmentListModel);
+		appointmentList.setCellRenderer(new MeetingModelRenderer());
+		
+		JScrollPane appointmentListScrollPane = new JScrollPane(appointmentList);
+		appointmentListScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		appointmentListScrollPane.setPreferredSize(new Dimension(310, 450));
+		centerContent.add(appointmentListScrollPane);
+		
+		// Bottom panel, the button for creating a new meeting
 		JPanel bottomPanel = new JPanel(new BorderLayout());
-		bottomPanel.setPreferredSize(new Dimension(270,100));
-		newAppointmentButton = new JButton("Opprett en avtale/møte");
+		bottomPanel.setPreferredSize(new Dimension(306,100));
+		newAppointmentButton = new JButton("Opprett en avtale/m¿te");
 		newAppointmentButton.setOpaque(true);
 		bottomPanel.add(newAppointmentButton);
-		
-		//adding panels
+				
+		// Add the panels
 		this.add(topPanel);
-		this.add(centerPanel);
+		this.add(centerContent);
 		this.add(bottomPanel);
-		
 	}
 	
+	public DefaultListModel addMettingModel(){
+		return null;
+	}
+	
+	public static MeetingModel createMeetingModel(Calendar timeFrom,Calendar timeTo, String name){
+		MeetingModel model = new MeetingModel();
+		
+		model.setName(name);
+		model.setTimeFrom(timeFrom);
+		model.setTimeTo(timeTo);
+		return model;
+	}
+	
+
+	public static final String DATE_FORMAT_NOW = "dd.MM.yyyy";
+	
+	public static String now() {
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
+		return sdf.format(cal.getTime());
+	}
+
 	public JButton getNewAppointmentButton() {
 		return newAppointmentButton;
-	}
-	
+	}	
 }
