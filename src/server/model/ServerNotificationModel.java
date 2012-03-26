@@ -109,8 +109,8 @@ public class ServerNotificationModel extends NotificationModel
 //				String queryString = "UPDATE notification SET `read` = " + (isRead() ? "0" : "1") + " WHERE `id` = " + getId() + ";";
 //				db.performUpdate(queryString);
 				db.performUpdate(String.format(
-					"UPDATE notification SET  `read` = %s WHERE `id` = %d",
-					(isRead() ? "0" : "1"), getId()
+					"UPDATE notification SET  `read` = %d WHERE `id` = %d",
+					(isRead() ? 1 : 0), getId()
 				));
 			}
 
