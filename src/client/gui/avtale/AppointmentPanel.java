@@ -5,8 +5,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -25,19 +28,23 @@ import client.model.MeetingModel;
 import client.model.MeetingRoomModel;
 import client.model.UserModel;
 
-public class AppointmentPanel extends JButton {
+public class AppointmentPanel extends JButton{
 
-
+	public final static String APPOINTMENT_PRESSED_PROPERTY = "appPressed";
+	
 	private GridBagConstraints c;
 	private JLabel nameLabel, ownerLabel, timeLabel, iconLabel, locationLabel;
 	private Color color;
 	private MeetingModel model;
 	int AppointmentLength;
+	private PropertyChangeSupport pcs;
 	
 	
 	public AppointmentPanel(MeetingModel MM){
 		
 		model = MM;
+		pcs = new PropertyChangeSupport(this);
+		this.addActionListener(new AppointmentPressed());
 		
 		
 		color=new Color(0,100,255);
@@ -71,6 +78,12 @@ public class AppointmentPanel extends JButton {
 		
 		setPanel();
 
+	}
+	
+	class AppointmentPressed implements ActionListener {
+		public void actionPerformed(ActionEvent e) { 
+    		pcs.firePropertyChange(APPOINTMENT_PRESSED_PROPERTY, null, model);
+        } 
 	}
 	
 	private void setPanel(){
@@ -215,6 +228,15 @@ public class AppointmentPanel extends JButton {
 		return padding + time;
 	}
 	
+	public void addPCL(PropertyChangeListener listener) {
+		pcs.addPropertyChangeListener(listener);
+	}
+	
+	public void removePCL(PropertyChangeListener listener) {
+		pcs.removePropertyChangeListener(listener);
+	}
+
+
 //	
 //	public static void main (String args[]) { 
 //        JFrame frame = new JFrame("");

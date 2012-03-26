@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import client.ClientMain;
+import client.gui.avtale.AppointmentPanel;
 import client.gui.week.WeekView;
 import client.model.CalendarModel;
 import client.model.MeetingModel;
@@ -111,6 +112,8 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 			clickTime.set(Calendar.MINUTE, 0);
 			clickTime.set(Calendar.SECOND, 0);
 			OpenNewAppointment(clickTime);
+		} else if (evt.getPropertyName() == WeekView.APPOINTMENTCLICEKD){
+			OpenAppointment((MeetingModel)evt.getNewValue());
 		}
 	}
 }

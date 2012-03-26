@@ -41,6 +41,7 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 	private static final long serialVersionUID = -8533878088518459485L;
 	
 	public static final String WEEKCLICK = "weekclick";
+	public static final String APPOINTMENTCLICEKD = "appointclick";
 	
 	public static final int 
 		HOURHEIGHT = 50,
@@ -288,6 +289,7 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		removeAllAppointments();
 		for (MeetingModel MM : calModel.getMeetingsInWeek(date)){
 			AppointmentPanel avtale = new AppointmentPanel(MM);
+			avtale.addPCL(this);
 			appointments.add(avtale);
 		}
 		drawAppointments();
@@ -297,6 +299,7 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		//Muligens litt tungvint, men hvis år og uke er lik med nåværende date så tegnes avtalen
 		if(MM.getTimeFrom().get(MM.getTimeFrom().YEAR) == date.get(date.YEAR) && MM.getTimeFrom().get(MM.getTimeFrom().WEEK_OF_YEAR) == date.get(date.WEEK_OF_YEAR)){
 			AppointmentPanel avtale = new AppointmentPanel(MM);
+			avtale.addPCL(this);
 			appointments.add(avtale);
 			AppointmentLayer.add(avtale,2, 0);
 			avtale.setOpaque(true);
@@ -310,6 +313,7 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 	 */
 	private void removeAllAppointments(){
 		for (AppointmentPanel AP : appointments){
+			AP.removePCL(this);
 			AppointmentLayer.remove(AP);
 		}
 		appointments.clear();
@@ -367,6 +371,11 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		else if(PN == calModel.MEETING_REMOVED){
 			addAllAppointments();
 			System.out.println("Meeting removed recived");
+		}
+		else if(PN == AppointmentPanel.APPOINTMENT_PRESSED_PROPERTY){
+			System.out.println("Avtale knapp trykket");
+			pcs.firePropertyChange(APPOINTMENTCLICEKD, null, (MeetingModel)event.getNewValue());
+			System.out.println("Avtale knapp trykket");
 		}
 	}
 	
