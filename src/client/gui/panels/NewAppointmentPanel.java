@@ -143,6 +143,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		if (isOwner) {
 			this.add(new JLabel("Ansatte:"));
 			filteredUserListModel = new FilteredUserListModel();
+			filteredUserListModel.addUsersToBlacklist(new UserModel[]{ClientMain.getActiveUser()});
 			filteredUserList = new FilteredUserList(filteredUserListModel);
 			filteredUserList.setPreferredSize(new Dimension(
 						this.getPreferredSize().width,
@@ -288,17 +289,20 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		//Name
 		if (tittelText.getText().length() == 0) {
 			Toolkit.getDefaultToolkit().beep();
+			System.out.println("Invalid title");
 			return false;
 		}
 		//Time
 		if (!isTimeValid()) {
 			Toolkit.getDefaultToolkit().beep();
+			System.out.println("Invalid time");
 			return false;
 		}
 		
 		//Moteplass
-		if (moteromComboBox.getSelectedIndex() == -1 && moteromText.getText() != "") {
+		if (moteromComboBox.getSelectedItem() != null && moteromText.getText() != "") {
 			Toolkit.getDefaultToolkit().beep();
+			System.out.println("Only use a single meeting room field");
 			return false;
 		}
 			
@@ -322,6 +326,7 @@ public class NewAppointmentPanel extends JPanel implements IServerResponseListen
 		//Invitasjoner
 		model.commitInvitations();
 		
+		System.out.println("Store!");
 		try {
 			model.store();
 		} catch (IOException e) {
