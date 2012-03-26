@@ -140,10 +140,10 @@ public class ServerConnection extends AbstractConnection {
 		try {
 			socket = new Socket(address, port);
 			
-			reader = new DebugReader(new InputStreamReader(socket.getInputStream()));
-			//reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			writer = new DebugWriter(new OutputStreamWriter(socket.getOutputStream()));
-			//writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			//reader = new DebugReader(new InputStreamReader(socket.getInputStream()));
+			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			//writer = new DebugWriter(new OutputStreamWriter(socket.getOutputStream()));
+			writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 			
 			
 			LOGGER.info(reader.readLine()); // Read welcome message
