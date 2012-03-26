@@ -110,8 +110,8 @@ public class NewAppointmentPanel extends JPanel
 		fromTime = new JTimePicker(model.getTimeFrom());
 		toTime = new JTimePicker(model.getTimeTo());
 		
-		if (!isOwner) fromTime.setEditable(false);
-		if (!isOwner) toTime.setEditable(false);
+		if (!isOwner) fromTime.setEnabled(false);
+		if (!isOwner) toTime.setEnabled(false);
 		
 		tidPanel.add(dateChooser);
 		tidPanel.add(Box.createHorizontalGlue());

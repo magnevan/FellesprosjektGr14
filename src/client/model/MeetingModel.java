@@ -138,13 +138,14 @@ public class MeetingModel implements TransferableModel {
 	private String room_umid;
 	private String[] invitation_umids;
 	
-	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
-		owner = (UserModel) modelBuff.get(owner_umid);
+	@Override
+	public void registerSubModels(ModelEnvelope envelope) {
+		owner = (UserModel) envelope.getFromBuffer(owner_umid);
 		if(!room_umid.equals("")) {
-			room = (MeetingRoomModel) modelBuff.get(room_umid);
+			room = (MeetingRoomModel) envelope.getFromBuffer(room_umid);
 		}
 		for(String s : invitation_umids) {
-			invitations.add((InvitationModel) modelBuff.get(s));
+			invitations.add((InvitationModel) envelope.getFromBuffer(s));
 		}
 	}
 	

@@ -122,13 +122,14 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 	
 	private String given_to_umid, regards_meeting_umid, regards_user_umid;
 	
-	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
-		given_to = (UserModel) modelBuff.get(given_to_umid);
+	@Override
+	public void registerSubModels(ModelEnvelope envelope) {
+		given_to = (UserModel) envelope.getFromBuffer(given_to_umid);
 		if(!regards_meeting_umid.equals("")) {
-			regards_meeting = (MeetingModel) modelBuff.get(regards_meeting_umid);
+			regards_meeting = (MeetingModel) envelope.getFromBuffer(regards_meeting_umid);
 		}
 		if(!regards_user_umid.equals("")) {
-			regards_user = (UserModel) modelBuff.get(regards_user_umid);
+			regards_user = (UserModel) envelope.getFromBuffer(regards_user_umid);
 		}
 	}
 	
