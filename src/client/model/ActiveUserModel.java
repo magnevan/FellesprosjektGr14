@@ -16,6 +16,7 @@ import server.ModelEnvelope;
 public class ActiveUserModel extends UserModel {
 
 	public final static String NOTIFICATIONS_PROPERTY = "notifications";
+	private ArrayList<UserModel> stalkingList;
 	
 	protected ArrayList<NotificationModel> notifications;
 	
@@ -29,6 +30,7 @@ public class ActiveUserModel extends UserModel {
 	public ActiveUserModel(String username, String email, String fullName) {
 		super(username, email, fullName);
 		notifications = new ArrayList<NotificationModel>();
+		stalkingList = new ArrayList<UserModel>();
 	}
 		
 	/**
@@ -46,6 +48,7 @@ public class ActiveUserModel extends UserModel {
 		for( ; n > 0; n-- ) {
 			notificationsUMIDs[n-1] = reader.readLine();
 		}
+		stalkingList = new ArrayList<UserModel>();
 	}
 
 	private String[] notificationsUMIDs;
@@ -104,5 +107,28 @@ public class ActiveUserModel extends UserModel {
 		for(NotificationModel n : notifications)
 			sb.append(n.getUMID() + "\r\n");
 	}
-
+	
+	/**
+	 * Add a user to be stalked
+	 * @param stalkee the user you want to stalk
+	 */
+	public void addToStalkingList(UserModel stalkee) {
+		stalkingList.add(stalkee);
+	}
+	
+	/**
+	 * Get a list of all the users you stalk
+	 * @return ArrayList<UserModel> containing all the users you stalk
+	 */
+	public ArrayList<UserModel> getStalkingList() {
+		return stalkingList;
+	}
+	
+	/**
+	 * Quit stalking a user
+	 * @param stalkee the user you do not want to stalk anymore
+	 */
+	public void removeFromStalkingList(UserModel stalkee) {
+		stalkingList.remove(stalkee);
+	}
 }

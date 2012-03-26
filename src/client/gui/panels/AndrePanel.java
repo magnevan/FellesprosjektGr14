@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.*;
 
+import client.ClientMain;
 import client.gui.CheckListManager;
 import client.gui.VerticalLayout;
 import client.model.FilteredUserListModel;
@@ -24,12 +25,13 @@ public class AndrePanel extends JPanel{
 	 * 
 	 */
 	private static final long serialVersionUID = 5571042635925738029L;
-	private final JList activeCalendersList;
+	private final JList activeCalendarsList;
 	private final JButton upButton, downButton, newAppointmentButton;
 	private final DefaultListModel activeCalendarsListModel;
 	@SuppressWarnings("unused")
 	private final CheckListManager checkListManager; 
 	private final FilteredUserList filteredUserList;
+	private final FilteredUserListModel filteredUserListModel;
 
 	public AndrePanel(){
 		super(new VerticalLayout(5,SwingConstants.LEFT));
@@ -48,8 +50,9 @@ public class AndrePanel extends JPanel{
 		employeesLabel.setText("Ansatte");
 		centerContent.add(employeesLabel);
 		
-		
-		filteredUserList = new FilteredUserList(new FilteredUserListModel());
+		filteredUserListModel = new FilteredUserListModel();
+		filteredUserListModel.addUsersToBlacklist(new UserModel[]{ClientMain.client().getActiveUser()});
+		filteredUserList = new FilteredUserList(filteredUserListModel);
 		filteredUserList.setPreferredSize(new Dimension(307,200));
 		centerContent.add(filteredUserList);
 				
@@ -74,10 +77,10 @@ public class AndrePanel extends JPanel{
 		centerContent.add(activeCalendarsLabel);
 		
 		activeCalendarsListModel = new DefaultListModel();
-		activeCalendersList = new JList(activeCalendarsListModel);
-		checkListManager = new CheckListManager(activeCalendersList);
-		activeCalendersList.setForeground(Color.black);
-		JScrollPane activeCalendarsScrollPane = new JScrollPane(activeCalendersList);
+		activeCalendarsList = new JList(activeCalendarsListModel);
+		checkListManager = new CheckListManager(activeCalendarsList);
+		activeCalendarsList.setForeground(Color.black);
+		JScrollPane activeCalendarsScrollPane = new JScrollPane(activeCalendarsList);
 		activeCalendarsScrollPane.setPreferredSize(new Dimension(310, 200));
 		activeCalendarsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		centerContent.add(activeCalendarsScrollPane);
@@ -119,12 +122,18 @@ public class AndrePanel extends JPanel{
 		@Override
 		public void actionPerformed(ActionEvent evt) {
 			if (evt.getSource() == upButton) {
-				for (UserModel model : filteredUserList.getSelectedUsers())
+				UserModel[] selectedUsers = filteredUserList.getSelectedUsers();
+				filteredUserListModel.addUsersToBlacklist(selectedUsers);
+				for (UserModel model : selectedUsers) {
 					activeCalendarsListModel.addElement(model);
-			} else if (evt.getSource() == downButton) {
-				activeCalendarsListModel.removeElement(activeCalendersList.getSelectedValue());
+				}
+			} else if (evt.getSource() == downButton) {		
+				int[] selectedIndices = activeCalendarsList.getSelectedIndices();
+				for (int k = selectedIndices.length - 1; k >= 0; k--) {
+					UserModel selectedUser = (UserModel) activeCalendarsListModel.remove(k);
+					filteredUserListModel.removeUserFromBlacklist(selectedUser);
+				}
 			}
 		}
-		
 	}
 }

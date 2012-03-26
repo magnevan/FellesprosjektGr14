@@ -341,9 +341,9 @@ public class NewAppointmentPanel extends JPanel
 		}
 		
 		//Moteplass
-		if (moteromComboBox.getSelectedItem() != null && moteromText.getText() != "") {
+		if (moteromComboBox.getSelectedItem() != null && !moteromText.getText().equals("")) {
 			Toolkit.getDefaultToolkit().beep();
-			System.out.println("Only use a single meeting room field");
+			System.out.printf("Only use a single meeting room field, text is '%s'\n", moteromText.getText());
 			return false;
 		}
 			
