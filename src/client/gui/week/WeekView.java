@@ -15,7 +15,8 @@ import java.beans.PropertyChangeSupport;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -28,6 +29,7 @@ import javax.swing.SwingConstants;
 
 import client.ClientMain;
 import client.gui.avtale.AppointmentPanel;
+import client.model.ActiveUserModel;
 import client.model.CalendarModel;
 import client.model.MeetingModel;
 import client.model.UserModel;
@@ -55,6 +57,7 @@ public class WeekView extends JPanel implements PropertyChangeListener{
 	private final JLabel weekLabel;
 	private final JButton prevWeekButton, todayButton, nextWeekButton;
 	private ArrayList<AppointmentPanel>  appointments;
+	private Set<MeetingModel> meetings = new HashSet<MeetingModel>();
 	private JLayeredPane AppointmentLayer;
 	private PropertyChangeSupport pcs;
 	private JPanel northPanel, dayPanelWithPadding;
@@ -62,6 +65,8 @@ public class WeekView extends JPanel implements PropertyChangeListener{
 	
 	
 	public WeekView() {
+		
+		ClientMain.getActiveUser().addPropertyChangeListener(this);
 		
 		appointments = new ArrayList<AppointmentPanel>();
 
@@ -277,18 +282,19 @@ public class WeekView extends JPanel implements PropertyChangeListener{
 	 * Legger til alle avtaler for denne uken
 	 * Tegner alle disse avtalene med drawAppintments
 	 */
+	//TODO rydd opp
 	private void addAllAppointments(){
 		removeAllAppointments();
 		
-		List<UserModel> usercal = ClientMain.getActiveUser().getStalkingList();
-		usercal.add(ClientMain.getActiveUser());
+		ClientMain.getActiveUser().getCalendar().addPropertyChangeListner(this);
+		for (MeetingModel MM : ClientMain.getActiveUser().getCalendar().getMeetingsInWeek(date)){
+			addAppointment(MM);
+		}
 		
-		for (UserModel victim : usercal) {
+		for (UserModel victim : ClientMain.getActiveUser().getStalkingList()) {
 			victim.getCalendar().addPropertyChangeListner(this);
 			for (MeetingModel MM : victim.getCalendar().getMeetingsInWeek(date)){
-				AppointmentPanel avtale = new AppointmentPanel(MM);
-				avtale.addPCL(this);
-				appointments.add(avtale);
+				addAppointment(MM);
 			}
 		}
 		
@@ -297,16 +303,16 @@ public class WeekView extends JPanel implements PropertyChangeListener{
 	}
 	
 	private void addAppointment(MeetingModel MM){
-
+		if (meetings.contains(MM)) return;
 		//Muligens litt tungvint, men hvis �r og uke er lik med n�v�rende date s� tegnes avtalen
 		if(MM.getTimeFrom().get(MM.getTimeFrom().YEAR) == date.get(date.YEAR) && MM.getTimeFrom().get(MM.getTimeFrom().WEEK_OF_YEAR) == date.get(date.WEEK_OF_YEAR)){
-
 			AppointmentPanel avtale = new AppointmentPanel(MM);
 			avtale.addPCL(this);
 			appointments.add(avtale);
 			AppointmentLayer.add(avtale,2, 0);
 			avtale.setOpaque(true);
 			avtale.setBounds(avtale.getX(), avtale.getY(),avtale.getWidth(),avtale.getLength());
+			meetings.add(MM);
 		}
 	}
 
@@ -319,6 +325,7 @@ public class WeekView extends JPanel implements PropertyChangeListener{
 			AP.removePCL(this);
 			AppointmentLayer.remove(AP);
 		}
+		meetings.clear();
 		appointments.clear();
 		
 		this.revalidate();
@@ -387,6 +394,9 @@ public class WeekView extends JPanel implements PropertyChangeListener{
 		else if(PN == AppointmentPanel.APPOINTMENT_PRESSED_PROPERTY){
 			pcs.firePropertyChange(APPOINTMENTCLICEKD, null, (MeetingModel)event.getNewValue());
 
+		}
+		else if(PN == ActiveUserModel.NEW_STALKEE || PN == ActiveUserModel.REMOVED_STALKEE) {
+			addAllAppointments();
 		}
 	}
 	

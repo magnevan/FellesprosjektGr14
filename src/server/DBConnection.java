@@ -9,8 +9,6 @@ import java.util.Calendar;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import client.model.TransferableModel;
-
 /**
  * A wrapper around the java sql framework
  * 

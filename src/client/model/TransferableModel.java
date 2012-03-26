@@ -1,7 +1,5 @@
 package client.model;
 
-import java.util.HashMap;
-
 import server.ModelEnvelope;
 
 /**

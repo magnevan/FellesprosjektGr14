@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import server.ModelEnvelope;
@@ -20,6 +22,12 @@ import client.model.TransferableModel;
  */
 public abstract class AbstractConnection {
 
+
+	/**
+	 * The default date format used when transmitting models
+	 */
+	public static final DateFormat defaultDateTimeFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+	
 	protected Socket socket;
 	protected BufferedWriter writer;
 	protected BufferedReader reader;
@@ -130,5 +138,6 @@ public abstract class AbstractConnection {
 	 * Attempts to read a set of models from the input stream
 	 */
 	protected abstract ModelEnvelope readModels() throws IOException;
+
 	
 }

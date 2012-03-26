@@ -220,7 +220,9 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 								.findByMeetingAndUser(
 										ServerMeetingModel.findById(mid, db), 
 										ServerUserModel.findByUsername(username, db), db);
-						i.delete(db, true);
+						
+						boolean isMeetingOwner = i.getMeeting().getOwner().getUsername().equals(user.getUsername());
+						i.delete(db, isMeetingOwner);
 
 						writeLine(formatCommand(id, method, i.getUMID()));
 					}

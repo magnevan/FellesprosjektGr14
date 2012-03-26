@@ -4,13 +4,10 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.HashMap;
-
-import client.ClientMain;
-import client.ModelCacher;
-import client.ServerConnection;
 
 import server.ModelEnvelope;
+import client.ClientMain;
+import client.ServerConnection;
 
 /**
  * Model representing a single invitation
