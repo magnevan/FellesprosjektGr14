@@ -1,5 +1,6 @@
 package client.model;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
@@ -33,6 +34,7 @@ public class MeetingModel implements TransferableModel {
     public final static String ACTIVE_PROPERTY = "active";
     public final static String INVITATION_CREATED = "invitation created";
     public final static String INVITATION_REMOVED = "invitation removed";
+    public final static String INVITATION_UPDATED = "invitation updated";
 
 	protected int id;
 	protected Calendar timeFrom, timeTo;
@@ -42,11 +44,13 @@ public class MeetingModel implements TransferableModel {
 	protected UserModel owner;	
 	private PropertyChangeSupport changeSupport;
 	protected ArrayList<InvitationModel> invitations;
+	private Listener invitationListener;
 	
 	/**
 	 * Protected constructor
 	 */
 	public MeetingModel() {
+		invitationListener = new Listener();
 		changeSupport = new PropertyChangeSupport(this);
 		id = -1;
 		name = location = description = "";
@@ -146,6 +150,7 @@ public class MeetingModel implements TransferableModel {
 		}
 		for(String s : invitation_umids) {
 			invitations.add((InvitationModel) envelope.getFromBuffer(s));
+			((InvitationModel) envelope.getFromBuffer(s)).addPropertyChangeListener(invitationListener);
 		}
 	}
 	
@@ -392,6 +397,7 @@ public class MeetingModel implements TransferableModel {
 	public void removeAttendee(UserModel user) {
 		if (isInvited(user)) {
 			InvitationModel inv = getInvitation(user);
+			inv.removePropertyChangeListener(invitationListener);
 			invitations.remove(inv);
 			if(inv.getStatus() != InvitationStatus.NOT_YET_SAVED) {
 				try {
@@ -424,6 +430,7 @@ public class MeetingModel implements TransferableModel {
 		for(UserModel user : users) {
 			if(!isInvited(user)) {
 				InvitationModel invitation = new InvitationModel(user, this);
+				invitation.addPropertyChangeListener(invitationListener);
 				invitations.add(invitation);
 				changeSupport.firePropertyChange(INVITATION_CREATED,null, invitation);
 			}
@@ -566,6 +573,23 @@ public class MeetingModel implements TransferableModel {
 		if(!ClientMain.getActiveUser().equals(getOwner()))
 			throw new IOException("User does not own meeting");
 		ServerConnection.instance().deleteMeeting(this);
+	}
+	
+	/**
+	 * Listener passed to internal invitations
+	 * 
+	 * @author Runar B. Olsen <runar.b.olsen@gmail.com>
+	 *
+	 */
+	class Listener implements PropertyChangeListener {
+		@Override
+		public void propertyChange(PropertyChangeEvent e) {
+			if(e.getPropertyName() == InvitationModel.STATUS_CHANGED) {
+				changeSupport.firePropertyChange(MeetingModel.INVITATION_UPDATED, null, e.getSource());
+			}
+			
+		}
+		
 	}
 	
 }
