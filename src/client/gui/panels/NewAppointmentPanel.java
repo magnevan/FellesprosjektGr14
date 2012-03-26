@@ -353,7 +353,7 @@ public class NewAppointmentPanel extends JPanel
 	}
 	
 	private void requestMeetingRooms() {
-		if (!isTimeValid()) return;
+		if (!isTimeValid() || !ServerConnection.isOnline()) return;
 		
 		Calendar 	from = getFromTime(), 
 					to = getToTime();

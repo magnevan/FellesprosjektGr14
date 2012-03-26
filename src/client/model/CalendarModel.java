@@ -174,6 +174,8 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 	 * @return Set with all the meetings within the given interval
 	 */
 	public Set<MeetingModel> getMeetingInterval(Calendar fromTime, Calendar toTime, boolean tight) {
+		if (!ServerConnection.isOnline()) return new HashSet<MeetingModel>();
+		
 		Set<MeetingModel> returnSet;
 		
 		if (!toTime.after(fromTime))
