@@ -8,11 +8,15 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+/**
+ * Main entry point for the server
+ * 
+ * @author Runar B. Olsen <runar.b.olsen@gmail.com>
+ */
 public class ServerMain {
 
 	private static Logger LOGGER = Logger.getLogger("Main");	
-	public static String VERSION = "calendar-server-0.0.1";	
-//	public static Properties properties;	
+	public static String VERSION = "calendar-server-0.0.1";
 	public static DBConnection dbConnection;
 	public static ClientConnectionListener ccl;
 	
@@ -21,9 +25,7 @@ public class ServerMain {
 	 * @param p server configuration
 	 * @throws NumberFormatException on badly formatted number in properties
 	 */
-	public ServerMain(Properties p) throws NumberFormatException {	
-		Properties properties = p;
-		
+	public ServerMain(Properties p) throws NumberFormatException {		
 		try {
 			dbConnection = new DBConnection(p);
 		} catch(SQLException e) {
@@ -35,17 +37,14 @@ public class ServerMain {
 		ccl = new ClientConnectionListener(
 			Integer.parseInt(p.getProperty("fp.server.listen_port"))
 		);
-		
+		p = null;		
 		try {
 			// Enter listen loop
 			ccl.listen();
 		} catch(IOException e) {
 			LOGGER.severe("Port number in use");
 			LOGGER.severe(e.toString());
-		}
-		
-		properties = null;
-		
+		}		
 	}
 	
 	/**

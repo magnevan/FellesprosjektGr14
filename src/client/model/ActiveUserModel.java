@@ -55,8 +55,10 @@ public class ActiveUserModel extends UserModel {
 	 */
 	@Override
 	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
-		for(int i = notificationsUMIDs.length-1; i >= 0; i--) {
-			notifications.add((NotificationModel) modelBuff.get(notificationsUMIDs[i]));
+		if(notificationsUMIDs != null) {
+			for(int i = notificationsUMIDs.length-1; i >= 0; i--) {
+				notifications.add((NotificationModel) modelBuff.get(notificationsUMIDs[i]));
+			}
 		}
 		notificationsUMIDs = null;
 	}
@@ -68,6 +70,7 @@ public class ActiveUserModel extends UserModel {
 	 */
 	public void addNotification(NotificationModel notification) {
 		notifications.add(notification);
+		//getCalendarModel().add(notification.getRegardsMeeting());
 		pcs.firePropertyChange(NOTIFICATIONS_PROPERTY, null, notification);		
 	}
 

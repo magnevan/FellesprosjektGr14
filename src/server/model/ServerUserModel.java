@@ -63,7 +63,7 @@ public class ServerUserModel extends UserModel  {
 			throw new IllegalArgumentException("ServerUserModel: user name can not be an empty string");
 		}
 		try {
-			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username = '" + usr + "';");
+			ResultSet rs = db.performQuery("SELECT * FROM user WHERE username = '" + usr + "';");
 			if(rs.next()) {
 				return new ServerUserModel(rs);
 			}
@@ -87,7 +87,7 @@ public class ServerUserModel extends UserModel  {
 			throw new IllegalArgumentException("ServerUserModel: user name can not be an empty string");
 		}
 		try {
-			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username = '" + usr + "' AND password = '" + password + "';");
+			ResultSet rs = db.performQuery("SELECT * FROM user WHERE username = '" + usr + "' AND password = '" + password + "';");
 			if(rs.next()) {
 				return new ServerUserModel(rs);
 			}
@@ -156,7 +156,7 @@ public class ServerUserModel extends UserModel  {
 	public static ArrayList<ServerUserModel> searchByUsernameAndEmail(String usr, String em, DBConnection db) {
 		ArrayList<ServerUserModel> ret = new ArrayList<ServerUserModel>();
 		try {
-			ResultSet rs = db.preformQuery("SELECT * FROM user WHERE username LIKE '%" + usr + "%' AND email LIKE '%" + em + "%';");
+			ResultSet rs = db.performQuery("SELECT * FROM user WHERE username LIKE '%" + usr + "%' AND email LIKE '%" + em + "%';");
 			while (rs.next()) {
 				ret.add(new ServerUserModel(rs));
 			}

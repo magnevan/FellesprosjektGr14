@@ -51,7 +51,7 @@ public class DBConnection {
 	 * @param query
 	 * @return
 	 */
-	public ResultSet preformQuery(String query) throws SQLException {
+	public ResultSet performQuery(String query) throws SQLException {
 		Statement st = connection.createStatement();
 		return st.executeQuery(query);
 	}
@@ -63,7 +63,7 @@ public class DBConnection {
 	 * @return
 	 * @throws SQLException
 	 */
-	public int preformUpdate(String query) throws SQLException {
+	public int performUpdate(String query) throws SQLException {
 		Statement st = connection.createStatement();
 		return st.executeUpdate(query);
 	}

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import client.ClientMain;
+import client.ModelCacher;
 import client.ServerConnection;
 
 import server.ModelEnvelope;
@@ -24,6 +25,7 @@ public class InvitationModel implements TransferableModel {
 	
 	private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 	public static final String STATUS_CHANGED = "status changed";
+	public static final String INVITATION_DELETED = "invitation deleted";
 	
 	/**
 	 * Create a new invitation
@@ -67,14 +69,16 @@ public class InvitationModel implements TransferableModel {
 	 * Load in sub models
 	 */
 	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
-		meeting = (MeetingModel) modelBuff.get(meeting_umid);
-		user = (UserModel) modelBuff.get(user_umid);
+		meeting = (MeetingModel) (ModelCacher.get(meeting_umid) != null ? ModelCacher.get(meeting_umid) : modelBuff.get(meeting_umid));
+		user = (UserModel) (ModelCacher.get(user_umid) != null ? ModelCacher.get(user_umid) : modelBuff.get(user_umid));
 	}
 
+	/**
+	 * Copy updated data from a broadcasted model
+	 */
 	@Override
 	public void copyFrom(TransferableModel source) {
-		// TODO Auto-generated method stub
-		
+		setStatus(((InvitationModel)source).getStatus());
 	}
 	
 	/**
@@ -187,12 +191,35 @@ public class InvitationModel implements TransferableModel {
 	}
 	
 	/**
+	 * Store invitation
+	 * 
+	 * @throws IOException
+	 */
+	public void store() throws IOException {
+		UserModel active = ClientMain.getActiveUser();
+		System.out.println(getUser());
+		System.out.println(getUser().getUMID());
+		System.out.println(ClientMain.getActiveUser());
+		System.out.println(ClientMain.getActiveUser().getUMID());
+		if(!getUser().equals(ClientMain.getActiveUser())) 
+			throw new IOException("Only invited user may store invitation");
+		ServerConnection.instance().storeModel(this);
+	}
+	
+	/**
 	 * Delete a invitation
 	 */
 	public void delete() throws IOException {
 		if(!ClientMain.getActiveUser().equals(getUser()))
 			throw new IOException("User does not own invitation");
 		ServerConnection.instance().deleteInvitation(this);
+	}
+	
+	/**
+	 * Trigger a deleted event
+	 */
+	public void onDelete() {
+		changeSupport.firePropertyChange(INVITATION_DELETED, null, null);
 	}
 	
 }

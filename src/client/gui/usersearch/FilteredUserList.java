@@ -1,6 +1,7 @@
 package client.gui.usersearch;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
@@ -37,10 +38,13 @@ import client.model.UserModel;
  * 
  * @author Runar B. Olsen <runar.b.olsen@gmail.com>
  */
-@SuppressWarnings("serial")
-public class FilteredUserList extends JPanel 
-	implements PropertyChangeListener, KeyListener {
+
+public class FilteredUserList extends JPanel implements PropertyChangeListener, KeyListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5719450049399224241L;
 	// Internal component
 	private JTextField searchField;
 	private JTable userTable;
@@ -102,9 +106,8 @@ public class FilteredUserList extends JPanel
 				&& event.getOldValue() != event.getNewValue()) {
 			userListModel.fireTableDataChanged();
 		}
-		
 	}
-
+	
 	/**
 	 * Capture keyPressed events in the searchField text field and update the 
 	 * filter of the filtered user list model. This is expected to cause a 
@@ -114,12 +117,12 @@ public class FilteredUserList extends JPanel
 	 */
 	@Override
 	public void keyPressed(KeyEvent event) {}
-
+	
 	@Override
 	public void keyReleased(KeyEvent event) {
-		
 		model.setFilter(searchField.getText());
 	}
+	
 	@Override
 	public void keyTyped(KeyEvent event) {}
 	
@@ -175,5 +178,4 @@ public class FilteredUserList extends JPanel
 		}
 		
 	}
-
 }

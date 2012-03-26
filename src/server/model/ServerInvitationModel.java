@@ -55,8 +55,19 @@ public class ServerInvitationModel extends InvitationModel
 	 * @param mid
 	 * @return
 	 */
-	public ServerInvitationModel findInvitation(DBConnection db, String username, int mid) {
-		
+	public ServerInvitationModel findInvitation(DBConnection db, UserModel user, MeetingModel meeting) {
+		try {
+			ResultSet rs = db.performQuery(
+					"SELECT * FROM user_appointment " +
+					"WHERE username='"+user.getUsername()+"' AND appointment_id=" + meeting.getId());
+			
+			if(rs.next()) {
+				return new ServerInvitationModel(rs, user, meeting);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 	
@@ -65,12 +76,12 @@ public class ServerInvitationModel extends InvitationModel
 	 */
 	@Override
 	public void store(DBConnection db) {
-		ServerInvitationModel old = findInvitation(db, getUser().getUsername(), getMeeting().getId());
+		ServerInvitationModel old = findInvitation(db, getUser(), getMeeting());
 		
 		try {
 			// New invitation
 			if(old == null) {
-				db.preformUpdate(String.format("INSERT INTO user_appointment" +
+				db.performUpdate(String.format("INSERT INTO user_appointment" +
 						"(appointment_id, username, status) VALUES(%d, '%s', '%s')",
 						getMeeting().getId(), getUser().getUsername(), getStatus()));
 				
@@ -83,7 +94,7 @@ public class ServerInvitationModel extends InvitationModel
 
 			// Update invitation
 			} else {
-				db.preformUpdate(String.format("UPDATE user_appointment " +
+				db.performUpdate(String.format("UPDATE user_appointment " +
 						"SET status = '%s' WHERE appointment_id=%d AND username='%s'",
 						getStatus(), getMeeting().getId(), getUser().getUsername()));
 				
@@ -100,30 +111,34 @@ public class ServerInvitationModel extends InvitationModel
 	}
 	
 	/**
-	 * Delete invitation, caused by a change in the containing meeting
-	 * 
+	 * Delete the invitation without notifying the meeting owner
 	 * @param db
 	 */
 	public void delete(DBConnection db) {
+		delete(db, false);
+	}
+	
+	/**
+	 * Delete invitation, if notify is set to true the owner of the meeting will
+	 * be notified, else this will pass silently
+	 * 
+	 * @param db
+	 */
+	public void delete(DBConnection db, boolean notify) {
 		try {
-			db.preformUpdate(String.format("DELETE FROM user_appointment " +
+			db.performUpdate(String.format("DELETE FROM user_appointment " +
 					"WHERE appointment_id=%d AND username='%s'",
 					getMeeting().getId(), getUser().getUsername()));
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	/**
-	 * Delete invitation, caused by a user, this will notify the meeting owner
-	 */
-	public void userDelete(DBConnection db) {
-		delete(db);
 		
-		new ServerNotificationModel(
-				NotificationType.A_USER_DENIED, getMeeting().getOwner(),
-				getMeeting(), getUser()
-		).store(db);		
+		if(notify) {
+			new ServerNotificationModel(
+					NotificationType.A_USER_DENIED, getMeeting().getOwner(),
+					getMeeting(), getUser()
+			).store(db);
+		}
 	}
 	
 	/**
@@ -138,7 +153,7 @@ public class ServerInvitationModel extends InvitationModel
 		
 		ArrayList<InvitationModel> ret = new ArrayList<InvitationModel>();
 		try {
-			ResultSet rs = db.preformQuery(
+			ResultSet rs = db.performQuery(
 					"SELECT * FROM user_appointment as ua " +
 					"INNER JOIN user as u ON ua.username = u.username " +
 					"WHERE ua.appointment_id = "+meeting.getId()+";");
@@ -165,7 +180,7 @@ public class ServerInvitationModel extends InvitationModel
 		
 		ServerInvitationModel ret = null;
 		try {
-			ResultSet rs = db.preformQuery(
+			ResultSet rs = db.performQuery(
 					"SELECT * FROM user_appointment " +
 					"WHERE appointment_id = "+meeting.getId()+" " +
 					"AND username = '"+user.getUsername()+"';");
