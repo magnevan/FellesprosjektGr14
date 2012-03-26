@@ -366,11 +366,12 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 		
 		if(PN == calModel.MEETING_ADDED){
 			addAppointment((MeetingModel)event.getNewValue());
+			//addAllAppointments();
 			System.out.println("Meeting added recived");
 		}
 		else if(PN == calModel.MEETING_REMOVED){
 			addAllAppointments();
-			System.out.println("Meeting removed recived");
+			System.out.println(" 'Meeting_removed' recived");
 		}
 		else if(PN == AppointmentPanel.APPOINTMENT_PRESSED_PROPERTY){
 			pcs.firePropertyChange(APPOINTMENTCLICEKD, null, (MeetingModel)event.getNewValue());
