@@ -236,10 +236,17 @@ public class ServerConnection extends AbstractConnection {
 							user.addNotification((NotificationModel)model);
 						} else if(model instanceof MeetingModel) {
 							if(envelope.isNewModel(0)) {
-								// Add newly added meeting, assumes that the calendar
-								// model figures out if it needes the given meeting
-								ClientMain.getActiveUser().getCalendarModel()
-									.add((MeetingModel) model);
+								MeetingModel m = (MeetingModel) model;
+								if(m.getOwner().equals(ClientMain.getActiveUser()) || m.isInvited(ClientMain.getActiveUser())) {
+									ClientMain.getActiveUser().getCalendarModel().add(m);
+								} else {
+									for(UserModel u : ClientMain.getActiveUser().getStalkingList()) {
+										if(m.getOwner().equals(u) || m.isInvited(u)) {
+											u.getCalendarModel().add(m);
+										}
+										
+									}
+								}
 							}
 						}
 						continue;
