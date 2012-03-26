@@ -86,7 +86,8 @@ public class NewAppointmentPanel extends JPanel
 		
 		isOwner = meetingModel.getOwner().equals(ClientMain.getActiveUser());
 		
-		// Find invitation if we're not the owner
+
+		// Attempt to find invitation if we're not the owner
 		if(!isOwner) {
 			invitation = model.getInvitation(ClientMain.getActiveUser());
 		} else {
@@ -150,7 +151,7 @@ public class NewAppointmentPanel extends JPanel
 		this.add(tidPanel);
 		
 		//Moterom
-		this.add(new JLabel("M¿terom"));
+		this.add(new JLabel("Mï¿½terom"));
 		JPanel moteromPanel = new JPanel();
 		moteromPanel.setPreferredSize(new Dimension(310, 30));
 		moteromComboBox = new JComboBox();
@@ -227,13 +228,13 @@ public class NewAppointmentPanel extends JPanel
 			storeDelPane.add(deleteButton);
 			
 			this.add(storeDelPane);
-		} else {
+		} else if(invitation != null) {
 			// Accept/Decline
 			JPanel acceptDeclinePanel = new JPanel();
 			acceptDeclinePanel.setLayout(new BoxLayout(acceptDeclinePanel, BoxLayout.X_AXIS));
 			acceptDeclinePanel.setPreferredSize(new Dimension(310, 30));
 			acceptButton = new JButton("Godkjenn");
-			declineButton = new JButton("AvslŒ");
+			declineButton = new JButton("Avslï¿½");
 			acceptDeclinePanel.add(Box.createHorizontalGlue());
 			acceptButton.setAlignmentX(LEFT_ALIGNMENT);
 			acceptDeclinePanel.add(acceptButton);
@@ -241,7 +242,7 @@ public class NewAppointmentPanel extends JPanel
 			acceptDeclinePanel.add(declineButton);
 			acceptDeclinePanel.add(Box.createHorizontalGlue());
 			
-			deleteFromCalendarButton = new JButton("Slett m¿te fra min kalender");
+			deleteFromCalendarButton = new JButton("Slett mï¿½te fra min kalender");
 			this.add(deleteFromCalendarButton);
 			
 			if(invitation.getStatus() == InvitationStatus.ACCEPTED) {
@@ -284,7 +285,7 @@ public class NewAppointmentPanel extends JPanel
 		
 			addEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {addEmployee();}});
 			removeEmployeeButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {removeEmployee();}});
-		} else {
+		} else if(invitation != null) {
 			acceptButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {changeInvitationStatus(InvitationStatus.ACCEPTED);}});
 			declineButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {changeInvitationStatus(InvitationStatus.DECLINED);}});
 			deleteFromCalendarButton.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) {deleteInvitation();}});
