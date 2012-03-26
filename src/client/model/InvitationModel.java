@@ -68,9 +68,9 @@ public class InvitationModel implements TransferableModel {
 	/**
 	 * Load in sub models
 	 */
-	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {
-		meeting = (MeetingModel) (ModelCacher.get(meeting_umid) != null ? ModelCacher.get(meeting_umid) : modelBuff.get(meeting_umid));
-		user = (UserModel) (ModelCacher.get(user_umid) != null ? ModelCacher.get(user_umid) : modelBuff.get(user_umid));
+	public void registerSubModels(ModelEnvelope envelope) {
+		meeting = (MeetingModel) envelope.getFromBuffer(meeting_umid);
+		user = (UserModel) envelope.getFromBuffer(user_umid);
 	}
 
 	/**
@@ -196,11 +196,6 @@ public class InvitationModel implements TransferableModel {
 	 * @throws IOException
 	 */
 	public void store() throws IOException {
-		UserModel active = ClientMain.getActiveUser();
-		System.out.println(getUser());
-		System.out.println(getUser().getUMID());
-		System.out.println(ClientMain.getActiveUser());
-		System.out.println(ClientMain.getActiveUser().getUMID());
 		if(!getUser().equals(ClientMain.getActiveUser())) 
 			throw new IOException("Only invited user may store invitation");
 		ServerConnection.instance().storeModel(this);

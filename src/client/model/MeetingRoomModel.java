@@ -49,7 +49,8 @@ public class MeetingRoomModel implements TransferableModel {
 				Integer.parseInt(reader.readLine()));
 	}
 
-	public void registerSubModels(HashMap<String, TransferableModel> modelBuff) {}
+	@Override
+	public void registerSubModels(ModelEnvelope envelope) {}
 
 
 	@Override

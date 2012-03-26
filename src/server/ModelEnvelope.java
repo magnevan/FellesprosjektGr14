@@ -70,6 +70,16 @@ public class ModelEnvelope {
 	private int countModels;
 	
 	/**
+	 * Buffer while the envelope is being read
+	 */
+	private HashMap<String, TransferableModel> modelBuff;
+	
+	/**
+	 * True if we're on server
+	 */
+	private boolean server;
+	
+	/**
 	 * Create a new ModelEnvelope sending a single model
 	 * 
 	 * @param model
@@ -104,7 +114,8 @@ public class ModelEnvelope {
 	 * @param server true if we're server side, false on client side
 	 */
 	public ModelEnvelope(BufferedReader reader, boolean server) throws IOException {
-		HashMap<String, TransferableModel> modelBuff = new HashMap<String, TransferableModel>(); 
+		modelBuff = new HashMap<String, TransferableModel>(); 
+		this.server = server;
 		
 		String line = reader.readLine();
 		if(line == null)
@@ -141,7 +152,7 @@ public class ModelEnvelope {
 		
 		// Have all models pull in dependencies, and register models in cacher
 		for(int i = 0; i < list.length; i++) {
-			list[i].registerSubModels(modelBuff);
+			list[i].registerSubModels(this);
 			
 			if((numModels-i) <= countModels)
 				newFlags[countModels - (numModels-i)] = ModelCacher.containsKey(list[i].getUMID());
@@ -158,6 +169,19 @@ public class ModelEnvelope {
 		}
 	}
 
+	/**
+	 * Get a entry for the model buffer
+	 * 
+	 * @param umid
+	 * @return
+	 */
+	public TransferableModel getFromBuffer(String umid) {
+		if(!server && ModelCacher.containsKey(umid)) {
+			return ModelCacher.get(umid);
+		} 
+		return modelBuff.get(umid);
+	}
+	
 	/**
 	 * Get the number of models in the envelope
 	 * 
