@@ -1,12 +1,10 @@
 package client.gui.usersearch;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.HashSet;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -130,6 +128,11 @@ public class FilteredUserList extends JPanel implements PropertyChangeListener, 
 	 * Table model providing data for the internal JTable 
 	 */
 	class UserListModel extends AbstractTableModel {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -3536365067493060239L;
 
 		/**
 		 * Get header name for column i

@@ -1,13 +1,11 @@
 package client.gui.avtale;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.text.SimpleDateFormat;
@@ -16,20 +14,20 @@ import java.util.Calendar;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-
 
 import client.gui.week.WeekView;
 import client.model.CalendarModel;
 import client.model.InvitationModel;
 import client.model.InvitationStatus;
 import client.model.MeetingModel;
-import client.model.MeetingRoomModel;
-import client.model.UserModel;
 
 public class AppointmentPanel extends JButton implements PropertyChangeListener{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2883636825162588873L;
 
 	public final static String APPOINTMENT_PRESSED_PROPERTY = "appPressed";
 	public final static String TIME_CHANGED_PROPERTY = "timeChanged";
@@ -58,7 +56,7 @@ public class AppointmentPanel extends JButton implements PropertyChangeListener{
     	
     	c.gridx = 0;
     	c.gridy = 0;
-    	c.fill = c.HORIZONTAL;
+    	c.fill = GridBagConstraints.HORIZONTAL;
 	    nameLabel = new JLabel();
 		add(nameLabel,c);
 		

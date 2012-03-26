@@ -233,6 +233,7 @@ public class CalendarModel implements IServerResponseListener, PropertyChangeLis
 		pcs.removePropertyChangeListener(listener);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onServerResponse(int requestId, Object data) {
 		if (requestId == meetingsReq) {

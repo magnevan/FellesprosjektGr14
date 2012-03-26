@@ -41,13 +41,9 @@ public class ServerConnection extends AbstractConnection {
 	
 	private static Logger LOGGER = Logger.getLogger("ServerConnection");
 	private static ServerConnection instance = null;	
-	
-	// Timeout in ms before one expect a store to have failed
-	private static final int STORE_WAIT_TIMEOUT = 3000;
-	
+		
 	private ActiveUserModel user;
 	private ReaderThread readerThread;	
-	private boolean readerThreadStopFlag = false; //When this is switched, the thread should terminate
 	private int nextRequestId = 1;
 	
 	// Stores listeners while we wait for the server to respond
@@ -301,7 +297,7 @@ public class ServerConnection extends AbstractConnection {
 		}
 		
 		try {
-			DateFormat df = DateFormat.getDateTimeInstance();
+			DateFormat df = AbstractConnection.defaultDateTimeFormat;
 			
 			listeners.put(id, listener);			
 			writeLine(formatCommand(id, "REQUEST",  "MEETING_LIST"));
@@ -427,7 +423,7 @@ public class ServerConnection extends AbstractConnection {
 		int id = ++nextRequestId;
 		
 		try {
-			DateFormat df = DateFormat.getDateTimeInstance();
+			DateFormat df = AbstractConnection.defaultDateTimeFormat;
 			
 			listeners.put(id, listener);
 			writeLine(formatCommand(id, "REQUEST",  "AVAILABLE_ROOMS"));

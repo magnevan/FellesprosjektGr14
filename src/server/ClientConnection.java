@@ -76,8 +76,8 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 	 * @param smethod
 	 * @throws IOException
 	 */
-	private void writeModels(TransferableModel[] models, int id, String method)
-			throws IOException {
+	@SuppressWarnings("unused")
+	private void writeModels(TransferableModel[] models, int id, String method) throws IOException {
 		writeModels(Arrays.asList(models), id, method, "");
 	}
 
@@ -141,7 +141,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 										.size()]), id, method, smethod);
 
 					} else if (smethod.equals("MEETING_LIST")) {
-						DateFormat df = DateFormat.getDateTimeInstance();
+						DateFormat df = AbstractConnection.defaultDateTimeFormat;
 						Calendar startDate = Calendar.getInstance();
 						startDate.setTime(df.parse(reader.readLine().trim()));
 						Calendar endDate = Calendar.getInstance();
@@ -165,7 +165,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 								method, smethod);
 
 					} else if (smethod.equals("AVAILABLE_ROOMS")) {
-						DateFormat df = DateFormat.getDateTimeInstance();
+						DateFormat df = AbstractConnection.defaultDateTimeFormat;
 						Calendar from = Calendar.getInstance();
 						from.setTime(df.parse(reader.readLine().trim()));
 						Calendar to = Calendar.getInstance();
@@ -236,6 +236,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 
 			}
 		} catch (ParseException e) {
+			e.printStackTrace();
 			LOGGER.info(String.format(
 					"Client %s (%s) dropped due to malformed time formats",
 					socket.getInetAddress().toString(), user));
