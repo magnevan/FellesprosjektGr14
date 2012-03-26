@@ -89,6 +89,11 @@ public class FilteredUserListModel
 		rebuildFilteredList();
 	}
 	
+	public void removeUserFromBlacklist(UserModel user) {
+		userBlacklist.remove(user);
+		rebuildFilteredList();
+	}
+	
 	/**
 	 * Rebuild the filtered list
 	 * 
