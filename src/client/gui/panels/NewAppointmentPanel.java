@@ -154,7 +154,7 @@ public class NewAppointmentPanel extends JPanel
 			filteredUserList = new FilteredUserList(filteredUserListModel);
 			filteredUserList.setPreferredSize(new Dimension(
 						this.getPreferredSize().width,
-						150
+						80
 					));
 			this.add(filteredUserList);
 			

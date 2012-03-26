@@ -15,6 +15,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import client.model.MeetingModel;
+
 
 public class CheckListManager extends MouseAdapter implements ListSelectionListener, ActionListener{ 
     private ListSelectionModel selectionModel = new DefaultListSelectionModel(); 
@@ -62,7 +64,6 @@ public class CheckListManager extends MouseAdapter implements ListSelectionListe
     /*-----------------------------[ ActionListener ]------------------------------*/ 
     public void actionPerformed(ActionEvent e){ 
         toggleSelection(list.getSelectedIndex()); 
-        
     } 
  
 } 

@@ -32,7 +32,7 @@ public class MeetingModelRenderer extends DefaultListCellRenderer {
 		panel.setLayout(new BorderLayout());
 		JLabel timeStamp = new JLabel(sdf.format(model.getTimeFrom().getTime()) + " - " + sdf.format(model.getTimeTo().getTime())+"     " + model.getName() );
 		timeStamp.setPreferredSize(new Dimension(100,40));
-		panel.add(timeStamp, BorderLayout.CENTER);
+		panel.add(timeStamp);
 		
 		return panel;
 	}
