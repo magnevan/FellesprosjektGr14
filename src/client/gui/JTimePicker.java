@@ -2,6 +2,7 @@ package client.gui;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashSet;
 
@@ -33,7 +34,7 @@ public class JTimePicker extends JComboBox implements Comparable<JTimePicker>{
 	}
 	
 	public JTimePicker(Calendar time) {
-		this(format(time.get(Calendar.HOUR_OF_DAY)) + ":" + format(time.get(Calendar.MINUTE)));
+		this(format(time.get(Calendar.HOUR_OF_DAY)) + ":" + format((int)(time.get(Calendar.MINUTE) / 15) * 15));
 	}
 	
 

@@ -15,10 +15,10 @@ import java.beans.PropertyChangeSupport;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
@@ -287,11 +287,19 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 	 */
 	private void addAllAppointments(){
 		removeAllAppointments();
-		for (MeetingModel MM : calModel.getMeetingsInWeek(date)){
-			AppointmentPanel avtale = new AppointmentPanel(MM);
-			avtale.addPCL(this);
-			appointments.add(avtale);
+		
+		List<UserModel> usercal = ClientMain.getActiveUser().getStalkingList();
+		usercal.add(ClientMain.getActiveUser());
+		
+		for (UserModel victim : usercal) {
+			for (MeetingModel MM : victim.getCalendar().getMeetingsInWeek(date)){
+				AppointmentPanel avtale = new AppointmentPanel(MM);
+				avtale.addPCL(this);
+				appointments.add(avtale);
+			}
 		}
+		
+		
 		drawAppointments();
 	}
 	
@@ -366,13 +374,13 @@ public class WeekView extends JPanel implements PropertyChangeListener {
 	public void propertyChange(PropertyChangeEvent event) {
 		String PN = event.getPropertyName();
 		
-		if(PN == calModel.MEETING_ADDED){
+		if(PN == CalendarModel.MEETING_ADDED){
 			addAppointment((MeetingModel)event.getNewValue());
 
 			//addAllAppointments();
 			System.out.println("Meeting added recived");
 		}
-		else if(PN == calModel.MEETING_REMOVED){
+		else if(PN == CalendarModel.MEETING_REMOVED){
 			addAllAppointments();
 			System.out.println(" 'Meeting_removed' recived");
 		}

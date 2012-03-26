@@ -89,6 +89,10 @@ public class UserModel implements TransferableModel {
 	}
 
 	
+	public CalendarModel getCalendar() {
+		return calendar;
+	}
+
 	/**
 	 * Get username
 	 * 
