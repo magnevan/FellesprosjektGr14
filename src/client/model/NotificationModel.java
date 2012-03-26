@@ -9,6 +9,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 
+import client.ModelCacher;
+import client.ServerConnection;
+
 import server.ModelEnvelope;
 
 /**
@@ -113,6 +116,8 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 		
 		regards_meeting_umid = reader.readLine();
 		regards_user_umid = reader.readLine();
+		
+		read = reader.readLine().equals("TRUE");
 	}
 	
 	private String given_to_umid, regards_meeting_umid, regards_user_umid;
@@ -301,7 +306,8 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 			
 		if(getRegardsUser() != null)
 			sb.append(getRegardsUser().getUMID());
-		sb.append("\r\n");		
+		sb.append("\r\n");	
+		sb.append((read ? "TRUE" : "FALSE") + "\r\n");
 	}
 
 	@Override
@@ -313,7 +319,13 @@ public class NotificationModel implements TransferableModel, Comparable<Notifica
 	public String toString() {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm");
 		if (regards_meeting != null)
-			return sdf.format(time.getTime()) + " " + regards_meeting.getName() + read;
-		else return sdf.format(time.getTime()) + read;
+			return sdf.format(time.getTime()) + " " + regards_meeting.getName() + " " + read;
+		else return sdf.format(time.getTime()) + " " + read;
+	}
+	
+	public void store()  throws IOException {
+		if(!ServerConnection.isOnline())
+			throw new IOException("Cannot store Meeting, not logged in");
+		ServerConnection.instance().storeModel(this);
 	}
 }

@@ -8,3 +8,4 @@ eclipse
 logs
 *~
 *.orig
+.DS_Store

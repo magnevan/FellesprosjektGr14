@@ -9,7 +9,6 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
 import java.util.logging.Logger;
 
 import server.model.IDBStorableModel;
@@ -19,6 +18,7 @@ import server.model.ServerMeetingModel;
 import server.model.ServerMeetingRoomModel;
 import server.model.ServerUserModel;
 import client.AbstractConnection;
+import client.model.NotificationModel;
 import client.model.TransferableModel;
 
 /**
@@ -26,8 +26,8 @@ import client.model.TransferableModel;
  * 
  * ClientConnection is the server side counter part to the client side
  * ServerConnection. After a client has connected and has authenticated a
- * ClientConnection thread is created and spawned with the given clients
- * socket, streams and ServerUserModel.
+ * ClientConnection thread is created and spawned with the given clients socket,
+ * streams and ServerUserModel.
  * 
  * ClientConnection will then enter a read loop reading commands from the
  * client, executing the request and then returning a response back
@@ -36,13 +36,13 @@ import client.model.TransferableModel;
  */
 public class ClientConnection extends AbstractConnection implements Runnable {
 
-	private static Logger LOGGER = Logger.getLogger("ClientConnection");	
-	
+	private static Logger LOGGER = Logger.getLogger("ClientConnection");
+
 	// Internal variables
-	private final ServerActiveUserModel user;	
-	private final ClientConnectionListener handler;	
+	private final ServerActiveUserModel user;
+	private final ClientConnectionListener handler;
 	private boolean running = true;
-	
+
 	/**
 	 * Create a ClientConnection thread
 	 * 
@@ -50,13 +50,14 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 	 * @param reader
 	 * @param writer
 	 */
-	public ClientConnection(Socket s, BufferedReader reader, BufferedWriter writer, 
-			ServerActiveUserModel user, ClientConnectionListener handler) {
+	public ClientConnection(Socket s, BufferedReader reader,
+			BufferedWriter writer, ServerActiveUserModel user,
+			ClientConnectionListener handler) {
 		super(s, writer, reader);
 		this.user = user;
 		this.handler = handler;
 	}
-	
+
 	/**
 	 * Broadcast a model that has been added or updated
 	 * 
@@ -65,9 +66,10 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 	public void broadcastModel(TransferableModel model) throws IOException {
 		writeModels(Arrays.asList(model), 0, "BROADCAST");
 	}
-	
+
 	/**
 	 * Write a set of models to the client
+	 * 
 	 * @param models
 	 * @param id
 	 * @param method
@@ -78,7 +80,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 			throws IOException {
 		writeModels(Arrays.asList(models), id, method, "");
 	}
-	
+
 	/**
 	 * Write a set of models to the client
 	 * 
@@ -92,52 +94,53 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 			String smethod) throws IOException {
 		writeModels(Arrays.asList(models), id, method, smethod);
 	}
-	
+
 	/**
 	 * Start thread, listen for incoming request, handle and repeat
 	 */
 	@Override
 	public void run() {
-		LOGGER.info(String.format(
-			"Client thread for %s (%s) started", 
-			socket.getInetAddress().toString(), user
-		));
-		
+		LOGGER.info(String.format("Client thread for %s (%s) started", socket
+				.getInetAddress().toString(), user));
+
 		DBConnection db = ServerMain.dbConnection;
 		try {
-			
+
 			writeModels(Arrays.asList((TransferableModel) user), 0, "USER");
-			
+
 			// Read loop, read until we're shutting down or we reach EOF
 			String line = null;
-			while(running && (line = reader.readLine()) != null) {
-				
+			while (running && (line = reader.readLine()) != null) {
+
 				// All request starts with a ID followed by the method
-				String[] parts = line.split("\\s+");				
-				if(parts.length < 2) {
-					LOGGER.severe("Malformed command recived from client: "+line);
+				String[] parts = line.split("\\s+");
+				if (parts.length < 2) {
+					LOGGER.severe("Malformed command recived from client: "
+							+ line);
 					continue;
 				}
 				int id = Integer.parseInt(parts[0]);
 				String method = parts[1];
-				
-				if(method.equals("REQUEST") && parts.length > 2) {
+
+				if (method.equals("REQUEST") && parts.length > 2) {
 					String smethod = parts[2];
-					
+
 					// Request a filtered user list
-					if(smethod.equals("FILTERED_USERLIST")) {
+					if (smethod.equals("FILTERED_USERLIST")) {
 						// Allow empty filters
 						String filter = "";
-						if(parts.length == 4) {
+						if (parts.length == 4) {
 							filter = parts[3];
 						}
-						
-						ArrayList<ServerUserModel> matches = ServerUserModel.searchByUsernameAndEmail(
-								filter, filter, ServerMain.dbConnection);
-						writeModels((TransferableModel[]) matches.toArray(new TransferableModel[matches.size()]), 
-								id, method, smethod);	
-						
-					} else if(smethod.equals("MEETING_LIST")) {
+
+						ArrayList<ServerUserModel> matches = ServerUserModel
+								.searchByUsernameAndEmail(filter, filter,
+										ServerMain.dbConnection);
+						writeModels(
+								(TransferableModel[]) matches.toArray(new TransferableModel[matches
+										.size()]), id, method, smethod);
+
+					} else if (smethod.equals("MEETING_LIST")) {
 						DateFormat df = DateFormat.getDateTimeInstance();
 						Calendar startDate = Calendar.getInstance();
 						startDate.setTime(df.parse(reader.readLine().trim()));
@@ -145,95 +148,107 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 						endDate.setTime(df.parse(reader.readLine().trim()));
 						String[] users = reader.readLine().split(",");
 						reader.readLine(); // filler line
-						
-						ArrayList<ServerMeetingModel> matches = ServerMeetingModel.searchByUsernamesAndPeriod(
-								users, startDate, endDate, ServerMain.dbConnection);
-						writeModels((TransferableModel[]) matches.toArray(new TransferableModel[matches.size()]), 
-								id, method, smethod);		
-						
-					} else if(smethod.equals("MEETING") && parts.length == 4) {
+
+						ArrayList<ServerMeetingModel> matches = ServerMeetingModel
+								.searchByUsernamesAndPeriod(users, startDate,
+										endDate, ServerMain.dbConnection);
+						writeModels(
+								(TransferableModel[]) matches.toArray(new TransferableModel[
+								        matches.size()]), id, method, smethod);
+
+					} else if (smethod.equals("MEETING") && parts.length == 4) {
 						int mid = Integer.parseInt(parts[3]);
-						
-						ServerMeetingModel match = ServerMeetingModel.findById(mid, ServerMain.dbConnection);
-						writeModels(new TransferableModel[]{match},	id, method, smethod);
-						
-					} else if(smethod.equals("AVAILABLE_ROOMS")) {
+
+						ServerMeetingModel match = ServerMeetingModel.findById(
+								mid, ServerMain.dbConnection);
+						writeModels(new TransferableModel[] { match }, id,
+								method, smethod);
+
+					} else if (smethod.equals("AVAILABLE_ROOMS")) {
 						DateFormat df = DateFormat.getDateTimeInstance();
 						Calendar from = Calendar.getInstance();
 						from.setTime(df.parse(reader.readLine().trim()));
 						Calendar to = Calendar.getInstance();
 						to.setTime(df.parse(reader.readLine().trim()));
 						reader.readLine(); // filler line
-						
-						ArrayList<ServerMeetingRoomModel> matches = ServerMeetingRoomModel.findAvailableRooms(
-								from, to, ServerMain.dbConnection);
-						writeModels((TransferableModel[]) matches.toArray(new TransferableModel[matches.size()]), 
-								id, method, smethod);		
+
+						ArrayList<ServerMeetingRoomModel> matches = ServerMeetingRoomModel
+								.findAvailableRooms(from, to,
+										ServerMain.dbConnection);
+						writeModels(
+								(TransferableModel[]) matches.toArray(new TransferableModel[
+								        matches.size()]), id, method, smethod);
 					}
-				
-				} else if(method.equals("STORE")) {
+
+				} else if (method.equals("STORE")) {
 					// Store model
-					TransferableModel model = readModels().get(0);
-					if(!(model instanceof IDBStorableModel)) {
+					TransferableModel model = readModels().getModels().get(0);
+					if (!(model instanceof IDBStorableModel)) {
 						writeError("Model is not storable", id, method);
 					}
 					try {
-						((IDBStorableModel)model).store(db);
-					} catch(IOException e) {
+						((IDBStorableModel) model).store(db);
+					} catch (IOException e) {
 						writeError(e.getMessage(), id, method);
 					}
-					writeModels(new TransferableModel[]{model}, id, method, "OK");
-					
-				} else if(method.equals("LOGOUT")) {
+					writeModels(new TransferableModel[] { model }, id, method,
+							"OK");
+
+					// Broadcast changed model (All but changed notifications)
+					if(!(model instanceof NotificationModel))
+						ServerMain.ccl.broadcastModel(model);
+
+				} else if (method.equals("LOGOUT")) {
 					writeLine(formatCommand(id, "LOGOUT"));
 					disconnect();
-				
-				} else if(method.equals("DELETE") && parts.length >= 4) {
+
+				} else if (method.equals("DELETE") && parts.length >= 4) {
 					String smethod = parts[2];
-					
+
 					// Delete meeting
-					if(smethod.equals("MEETING")) {
-						ServerMeetingModel.findById(
-								Integer.parseInt(parts[3]), ServerMain.dbConnection)
-								.delete(ServerMain.dbConnection);
-						
-						writeLine(formatCommand(id, method, smethod+" OK"));
-					} else if(smethod.equals("INVITATION") && parts.length == 5) {
+					if (smethod.equals("MEETING")) {
+						ServerMeetingModel meeting = ServerMeetingModel.findById(Integer.parseInt(parts[3]),
+								ServerMain.dbConnection);
+						meeting.delete(ServerMain.dbConnection);
+
+						writeLine(formatCommand(id, method, meeting.getUMID()));
+					} else if (smethod.equals("INVITATION")
+							&& parts.length == 5) {
 						String username = parts[3];
 						int mid = Integer.parseInt(parts[4]);
-						ServerInvitationModel i = ServerInvitationModel.findByMeetingAndUser(
-								ServerMeetingModel.findById(mid, db), 
-								ServerUserModel.findByUsername(username, db), db);
-						i.userDelete(db);
-						
-						writeLine(formatCommand(id, method, smethod+" OK"));
+						ServerInvitationModel i = ServerInvitationModel
+								.findByMeetingAndUser(
+										ServerMeetingModel.findById(mid, db), 
+										ServerUserModel.findByUsername(username, db), db);
+						i.delete(db, true);
+
+						writeLine(formatCommand(id, method, i.getUMID()));
 					}
 				}
-				
+
 				else {
-					LOGGER.severe("Malformed command recived from client: "+line);
+					LOGGER.severe("Malformed command recived from client: "
+							+ line);
 					continue;
 				}
-					
+
 			}
-		} catch(ParseException e) {
+		} catch (ParseException e) {
 			LOGGER.info(String.format(
-					"Client %s (%s) dropped due to malformed time formats", 
-					socket.getInetAddress().toString(), user
-				));
-				LOGGER.info(e.toString());
-			
-		} catch(IOException e) {
+					"Client %s (%s) dropped due to malformed time formats",
+					socket.getInetAddress().toString(), user));
+			LOGGER.info(e.toString());
+
+		} catch (IOException e) {
 			// Drop client if we cannot read/write socket
 			LOGGER.info(String.format(
-				"Client %s (%s) dropped due to IOException", 
-				socket.getInetAddress().toString(), user
-			));
+					"Client %s (%s) dropped due to IOException", socket
+							.getInetAddress().toString(), user));
 			LOGGER.info(e.toString());
 		} finally {
 			disconnect();
 		}
-		
+
 	}
 
 	/**
@@ -247,7 +262,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 			reader.close();
 			writer.close();
 			socket.close();
-		} catch(IOException e) {
+		} catch (IOException e) {
 			// Ignore
 		}
 	}
@@ -257,9 +272,8 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 	 * 
 	 */
 	@Override
-	protected List<TransferableModel> readModels() throws IOException {
-		ModelEnvelope envelope = new ModelEnvelope(reader, true);
-		return envelope.getModels();
+	protected ModelEnvelope readModels() throws IOException {
+		return new ModelEnvelope(reader, true);
 	}
-	
+
 }

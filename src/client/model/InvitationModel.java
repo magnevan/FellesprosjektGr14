@@ -24,6 +24,7 @@ public class InvitationModel implements TransferableModel {
 	
 	private final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 	public static final String STATUS_CHANGED = "status changed";
+	public static final String INVITATION_DELETED = "invitation deleted";
 	
 	/**
 	 * Create a new invitation
@@ -71,10 +72,12 @@ public class InvitationModel implements TransferableModel {
 		user = (UserModel) modelBuff.get(user_umid);
 	}
 
+	/**
+	 * Copy updated data from a broadcasted model
+	 */
 	@Override
 	public void copyFrom(TransferableModel source) {
-		// TODO Auto-generated method stub
-		
+		setStatus(((InvitationModel)source).getStatus());
 	}
 	
 	/**
@@ -193,6 +196,13 @@ public class InvitationModel implements TransferableModel {
 		if(!ClientMain.getActiveUser().equals(getUser()))
 			throw new IOException("User does not own invitation");
 		ServerConnection.instance().deleteInvitation(this);
+	}
+	
+	/**
+	 * Trigger a deleted event
+	 */
+	public void onDelete() {
+		changeSupport.firePropertyChange(INVITATION_DELETED, null, null);
 	}
 	
 }

@@ -2,42 +2,27 @@ package client.gui.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-
-import javax.swing.Box;
 import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
 import client.ClientMain;
-import client.gui.CheckListManager;
 import client.gui.VerticalLayout;
-import client.gui.panels.NotificationList.ListClickedListener;
+import client.model.CalendarModel;
 import client.model.MeetingModel;
-import client.model.NotificationModel;
-import client.model.UserModel;
+
 
 /**
  * Panel for the "Hoved" tab
@@ -47,6 +32,7 @@ import client.model.UserModel;
 public class HovedPanel extends JPanel{
 	
 	private JList appointmentList;
+	private static final long serialVersionUID = -2391925039508661574L;
 	private final JButton newAppointmentButton;
 	JLabel label = new JLabel();
 	MeetingModel model;
@@ -69,6 +55,8 @@ public class HovedPanel extends JPanel{
 		Collections.sort(meetings, MeetingModel.timeFromComparator);
 		for (MeetingModel m : meetings)
 			lol.addElement(m);
+				
+		//lol.addElement(createModel("hei"));
 		
 		appointmentList = new JList(lol);
 		
@@ -152,5 +140,10 @@ public class HovedPanel extends JPanel{
 	
 	}
 	
+	public MeetingModel createModel(String name){
+		MeetingModel model = new MeetingModel();
+		model.setName(name);
+		return model;
+	}
 
 }

@@ -152,6 +152,15 @@ public class ClientConnectionListener {
 		}
 		
 	}
+	
+	/**
+	 * Broadcast a model to all connected client
+	 */
+	public void broadcastModel(TransferableModel model) throws IOException {
+		for(ClientConnection c : clients.values()) {
+			c.broadcastModel(model);
+		}
+	}
 
 	/**
 	 * Broadcast a model that has either been created or updated to the 

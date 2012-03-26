@@ -16,8 +16,6 @@ import client.ClientMain;
 import client.ModelCacher;
 import client.ServerConnection;
 
-
-
 /**
  * A model for the meetings in the calendar
  * 
@@ -153,7 +151,17 @@ public class MeetingModel implements TransferableModel {
 
 	@Override
 	public void copyFrom(TransferableModel source) {
-		// TODO Auto-generated method stub
+		MeetingModel n = (MeetingModel) source;
+		
+		setName(n.getName());
+		setTimeFrom(n.getTimeFrom());
+		setTimeTo(n.getTimeTo());
+		setLocation(n.getLocation());
+		setRoom(n.getRoom());
+		setDescription(n.getDescription());
+		setOwner(n.getOwner());
+		invitations = n.getInvitations();
+		
 		
 	}
 	
