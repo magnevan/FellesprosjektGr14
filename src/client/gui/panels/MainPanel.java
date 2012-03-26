@@ -2,6 +2,7 @@ package client.gui.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -37,6 +38,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 
 		AndrePanel akp = new AndrePanel();
 		
+		optionTabbedPane.setFont(new Font("Sans serif", Font.PLAIN, 10));
 		optionTabbedPane.addTab("Hoved", hp); //TODO
 		optionTabbedPane.addTab("Andre Kalendre", akp); //TODO
 		optionTabbedPane.addTab("Varsler (0)", vp); //TODO
