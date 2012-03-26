@@ -182,7 +182,7 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 
 				} else if (method.equals("STORE")) {
 					// Store model
-					TransferableModel model = readModels().get(0);
+					TransferableModel model = readModels().getModels().get(0);
 					if (!(model instanceof IDBStorableModel)) {
 						writeError("Model is not storable", id, method);
 					}
@@ -206,22 +206,23 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 
 					// Delete meeting
 					if (smethod.equals("MEETING")) {
-						ServerMeetingModel.findById(Integer.parseInt(parts[3]),
-								ServerMain.dbConnection).delete(
+						ServerMeetingModel meeting = ServerMeetingModel.findById(Integer.parseInt(parts[3]),
 								ServerMain.dbConnection);
+						meeting.setActive(false);
+						meeting.store();
 
-						writeLine(formatCommand(id, method, smethod + " OK"));
+						writeLine(formatCommand(id, method, meeting.getUMID()));
 					} else if (smethod.equals("INVITATION")
 							&& parts.length == 5) {
 						String username = parts[3];
 						int mid = Integer.parseInt(parts[4]);
 						ServerInvitationModel i = ServerInvitationModel
-								.findByMeetingAndUser(ServerMeetingModel
-										.findById(mid, db), ServerUserModel
-										.findByUsername(username, db), db);
-						i.userDelete(db);
+								.findByMeetingAndUser(
+										ServerMeetingModel.findById(mid, db), 
+										ServerUserModel.findByUsername(username, db), db);
+						i.delete(db, true);
 
-						writeLine(formatCommand(id, method, smethod + " OK"));
+						writeLine(formatCommand(id, method, i.getUMID()));
 					}
 				}
 
@@ -271,9 +272,8 @@ public class ClientConnection extends AbstractConnection implements Runnable {
 	 * 
 	 */
 	@Override
-	protected List<TransferableModel> readModels() throws IOException {
-		ModelEnvelope envelope = new ModelEnvelope(reader, true);
-		return envelope.getModels();
+	protected ModelEnvelope readModels() throws IOException {
+		return new ModelEnvelope(reader, true);
 	}
 
 }

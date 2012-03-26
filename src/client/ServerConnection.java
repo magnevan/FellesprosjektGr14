@@ -82,8 +82,6 @@ public class ServerConnection extends AbstractConnection {
 	 * @return
 	 */
 	public static boolean logout() {
-		fireServerConnectionChange(IServerConnectionListener.LOGOUT);
-		ClientMain.setActiveUser(null);
 		if(instance != null) {
 			try {
 				instance.writeLine(instance.formatCommand(0, "LOGOUT"));
@@ -91,6 +89,8 @@ public class ServerConnection extends AbstractConnection {
 				// Ignore
 			} finally {
 				instance = null;
+				ClientMain.setActiveUser(null);
+				fireServerConnectionChange(IServerConnectionListener.LOGOUT);
 			}			
 			return true;
 		}
@@ -154,7 +154,7 @@ public class ServerConnection extends AbstractConnection {
 			}
 			
 			reader.readLine();
-			user = (ActiveUserModel) readModels().get(0);
+			user = (ActiveUserModel) readModels().getModels().get(0);
 			ClientMain.setActiveUser(user);
 			
 			// Start a reader thread and return
@@ -199,20 +199,31 @@ public class ServerConnection extends AbstractConnection {
 						continue;
 					}
 					
-					// TODO Handle deleted objects
-					if(method.equals("DELETE")) {
+					if(method.equals("DELETE") && parts.length > 2) {
+						String umid = parts[2];
+						TransferableModel deleted = ModelCacher.get(umid);
+						if(deleted != null) {
+							if(deleted instanceof MeetingModel) {
+								((MeetingModel)deleted).setActive(false);
+							} else if(deleted instanceof InvitationModel) {
+								InvitationModel i = (InvitationModel) deleted;
+								i.getMeeting().removeAttendee(i.getUser());
+								i.onDelete();
+							}
+						}
 						continue;
 					}
 					
 					// All responses below this line transmits a model
-					List<TransferableModel> models = readModels();
+					ModelEnvelope envelope = readModels();
+					List<TransferableModel> models = envelope.getModels();
 					
 					// Stored models are saved
 					if(method.equals("STORE") && parts.length > 2) {
 						if(parts[2].equals("ERROR")) 
 							storedModels.put(id, new IOException(reader.readLine()));
 						else
-							storedModels.put(id, readModels().get(0));							
+							storedModels.put(id, models.get(0));							
 						continue;
 					} 
 					
@@ -222,6 +233,11 @@ public class ServerConnection extends AbstractConnection {
 						
 						if(model instanceof NotificationModel) {
 							user.addNotification((NotificationModel)model);
+						} else if(model instanceof MeetingModel) {
+							// Newly added meeting
+							if(envelope.isNewModel(0)) {
+								// TODO Register this newly added meeting in the calendar model
+							}
 						}
 						continue;
 					}
@@ -493,9 +509,8 @@ public class ServerConnection extends AbstractConnection {
 	 * Read models off stream
 	 */
 	@Override
-	protected List<TransferableModel> readModels() throws IOException {
-		ModelEnvelope envelope = new ModelEnvelope(reader, false);
-		return envelope.getModels();
+	protected ModelEnvelope readModels() throws IOException {
+		return new ModelEnvelope(reader, false);
 	}
 	
 }

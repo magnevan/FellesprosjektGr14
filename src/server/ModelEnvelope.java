@@ -56,6 +56,13 @@ public class ModelEnvelope {
 	private HashSet<String> modelUMIDs;
 	
 	/**
+	 * Array of countModels boolean each indicating if the i'th model in a
+	 * client side model envelope that was read off stream was new to the
+	 * client
+	 */
+	private boolean[] newFlags;
+	
+	/**
 	 * The number of models that are about to be transfered.
 	 * 
 	 * This is the number of actual models and not the number of submodels.
@@ -80,6 +87,7 @@ public class ModelEnvelope {
 		this.models = new Stack<TransferableModel>();
 		modelUMIDs = new HashSet<String>();
 		countModels = models.size();
+		newFlags = new boolean[countModels];
 		
 		// Add models one by one
 		for(TransferableModel m : models) {
@@ -108,6 +116,7 @@ public class ModelEnvelope {
 		countModels = Integer.parseInt(reader.readLine());
 		
 		TransferableModel[] list = new TransferableModel[numModels];
+		newFlags = new boolean[countModels];
 		
 		// create models
 		try {
@@ -115,8 +124,9 @@ public class ModelEnvelope {
 				String name = reader.readLine(),
 						umid = reader.readLine();
 				list[i] = createModel(name, reader, server);
-				if(!umid.equals(""))
+				if(!umid.equals("")) {
 					modelBuff.put(umid, list[i]);
+				}
 			}
 		} catch(IOException e) {
 			// Attempt to clear the remainder of the envelope off stream
@@ -132,6 +142,9 @@ public class ModelEnvelope {
 		// Have all models pull in dependencies, and register models in cacher
 		for(int i = 0; i < list.length; i++) {
 			list[i].registerSubModels(modelBuff);
+			
+			if((numModels-i) <= countModels)
+				newFlags[countModels - (numModels-i)] = ModelCacher.containsKey(list[i].getUMID());
 			list[i] = ModelCacher.cache(list[i]);
 		}
 		
@@ -184,6 +197,19 @@ public class ModelEnvelope {
 	 */
 	public List<TransferableModel> getModels() {
 		return models.subList(0, getModelCount());
+	}
+	
+	/**
+	 * True if the i'th model in a client side stream created model envelope
+	 * was new to the cache before it was received this time
+	 * 
+	 * @param i
+	 * @return
+	 */
+	public boolean isNewModel(int i) {
+		if(i >= countModels)
+			throw new IllegalArgumentException("Index out of bounds "+i);
+		return newFlags[i];
 	}
 	
 	/**

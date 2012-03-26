@@ -92,7 +92,7 @@ public abstract class ModelCacher {
 	 * @param umid
 	 * @return
 	 */
-	private static TransferableModel get(String umid) {
+	public static TransferableModel get(String umid) {
 		if(containsKey(umid)) {
 			return cache.get(umid).get();
 		}
@@ -106,7 +106,7 @@ public abstract class ModelCacher {
 	 * @param umid
 	 * @return
 	 */
-	private static boolean containsKey(String umid) {
+	public static boolean containsKey(String umid) {
 		if(cache.containsKey(umid)) {
 			if(cache.get(umid).get() != null) {
 				return true;

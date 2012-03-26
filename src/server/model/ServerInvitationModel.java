@@ -100,11 +100,20 @@ public class ServerInvitationModel extends InvitationModel
 	}
 	
 	/**
-	 * Delete invitation, caused by a change in the containing meeting
-	 * 
+	 * Delete the invitation without notifying the meeting owner
 	 * @param db
 	 */
 	public void delete(DBConnection db) {
+		delete(db, false);
+	}
+	
+	/**
+	 * Delete invitation, if notify is set to true the owner of the meeting will
+	 * be notified, else this will pass silently
+	 * 
+	 * @param db
+	 */
+	public void delete(DBConnection db, boolean notify) {
 		try {
 			db.preformUpdate(String.format("DELETE FROM user_appointment " +
 					"WHERE appointment_id=%d AND username='%s'",
@@ -112,18 +121,13 @@ public class ServerInvitationModel extends InvitationModel
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	/**
-	 * Delete invitation, caused by a user, this will notify the meeting owner
-	 */
-	public void userDelete(DBConnection db) {
-		delete(db);
 		
-		new ServerNotificationModel(
-				NotificationType.A_USER_DENIED, getMeeting().getOwner(),
-				getMeeting(), getUser()
-		).store(db);		
+		if(notify) {
+			new ServerNotificationModel(
+					NotificationType.A_USER_DENIED, getMeeting().getOwner(),
+					getMeeting(), getUser()
+			).store(db);
+		}
 	}
 	
 	/**
