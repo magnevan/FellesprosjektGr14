@@ -64,7 +64,7 @@ public class NewAppointmentPanel extends JPanel
 										deleteButton;
 	private		  JButton				AcceptButton,
 										DeclineButton,
-										DeleteFromCalendarButton;
+										deleteFromCalendarButton;
 	
 	
 	private       FilteredUserListModel filteredUserListModel;
@@ -218,7 +218,7 @@ public class NewAppointmentPanel extends JPanel
 			JPanel buttonPane = new JPanel(new BorderLayout());
 			AcceptButton = new JButton("Godkjenn");
 			DeclineButton = new JButton("Avslå");
-			DeleteFromCalendarButton = new JButton("Slett møte fra min kalender");
+			deleteFromCalendarButton = new JButton("Slett møte fra min kalender");
 			
 			if(invitation.getStatus() == InvitationStatus.ACCEPTED) {
 				AcceptButton.setEnabled(false);
@@ -230,13 +230,13 @@ public class NewAppointmentPanel extends JPanel
 			JPanel AcceptDeclinePane = new JPanel(new BorderLayout());
 			AcceptDeclinePane.add(AcceptButton, BorderLayout.WEST);
 			AcceptDeclinePane.add(DeclineButton, BorderLayout.EAST);
-			DeleteFromCalendarButton.setPreferredSize(new Dimension(
+			deleteFromCalendarButton.setPreferredSize(new Dimension(
 						AcceptButton.getPreferredSize().width + DeclineButton.getPreferredSize().width,
-						DeleteFromCalendarButton.getPreferredSize().height
+						deleteFromCalendarButton.getPreferredSize().height
 					));
 			
 			buttonPane.add(AcceptDeclinePane, BorderLayout.CENTER);
-			buttonPane.add(DeleteFromCalendarButton, BorderLayout.SOUTH);
+			buttonPane.add(deleteFromCalendarButton, BorderLayout.SOUTH);
 			
 			buttonPane.setPreferredSize(new Dimension(
 						(int)this.getPreferredSize().getWidth(),
@@ -266,8 +266,21 @@ public class NewAppointmentPanel extends JPanel
 		} else {
 			AcceptButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {changeInvitationStatus(InvitationStatus.ACCEPTED);}});
 			DeclineButton.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e) {changeInvitationStatus(InvitationStatus.DECLINED);}});
+			deleteFromCalendarButton.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) {deleteInvitation();}});
 		}
 		
+	}
+
+	/**
+	 * Delete an invitation
+	 */
+	private void deleteInvitation(){
+		try {
+			invitation.removePropertyChangeListener(this);
+			invitation.delete();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**

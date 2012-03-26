@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 
 import server.DBConnection;
 import server.ServerMain;
@@ -15,7 +14,6 @@ import client.model.InvitationModel;
 import client.model.InvitationStatus;
 import client.model.MeetingModel;
 import client.model.NotificationType;
-import client.model.TransferableModel;
 import client.model.UserModel;
 
 /**

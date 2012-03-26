@@ -50,7 +50,7 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		weekView = new WeekView();
 		weekView.addPropertyChangeListener(this);
 		calendarTabbedPane.addTab("Uke", weekView);
-		calendarTabbedPane.addTab("Måned", new JPanel()); //TODO
+		calendarTabbedPane.addTab("Mï¿½ned", new JPanel()); //TODO
 		
 		//TODO This should probably be done in a better manner
 		optionTabbedPane.setPreferredSize(new Dimension(330,calendarTabbedPane.getPreferredSize().height));
@@ -107,7 +107,11 @@ public class MainPanel extends JPanel implements PropertyChangeListener {
 		if (evt.getPropertyName() == VarselPanel.NOTIFICATION_COUNT_CHANGED) {
 			optionTabbedPane.setTitleAt(2, "Varsel (" + ((Integer)evt.getNewValue()) + ")");
 		} else if (evt.getPropertyName() == VarselPanel.NOTIFICATION_W_MEETING_CLICKED) {
-			OpenAppointment(((NotificationModel)evt.getNewValue()).getRegardsMeeting());
+			MeetingModel m = ((NotificationModel)evt.getNewValue()).getRegardsMeeting();
+			if(m.getOwner().equals(ClientMain.getActiveUser()) 
+					|| m.isInvited(ClientMain.getActiveUser())) {
+				OpenAppointment(m);
+			}
 		} else if (evt.getPropertyName() == WeekView.WEEKCLICK) {
 			int[] dayAndHour = (int[]) evt.getNewValue();
 			int weekNumber = weekView.getWeekNumber();
