@@ -59,7 +59,7 @@ public class VarselPanel extends JPanel implements PropertyChangeListener {
 		
 		notificationList = new NotificationList();
 		notificationList.addPropertyChangeListener(this);
-		notificationList.setPreferredSize(new Dimension(310, 460));
+		notificationList.setPreferredSize(new Dimension(310, 350));
 		centerContent.add(notificationList);
 	
 		// Bottom panel, the button for creating a new meeting
