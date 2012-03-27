@@ -54,6 +54,7 @@ public class NotificationList extends JPanel {
 		scrollPane = new JScrollPane(list);
 		scrollPane.setPreferredSize(new Dimension(310, 485));
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		
 		this.add(scrollPane);
 	}
 
@@ -98,6 +99,13 @@ public class NotificationList extends JPanel {
 		listModel.add(0, newNotification);
 		unread.add(newNotification);
 		pcs.firePropertyChange(NOTIFICATION_ARRIVED, null, new Integer(unread.size()));
+	}
+	
+	@Override
+	public void setPreferredSize(Dimension d) {
+		super.setPreferredSize(d);
+		list.setPreferredSize(new Dimension(d.width-50, d.height-20));
+		scrollPane.setPreferredSize(new Dimension(d.width-20, d.height-20));
 	}
 	
 	public int getUnreadCount() {
