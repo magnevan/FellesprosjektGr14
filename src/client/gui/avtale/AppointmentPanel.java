@@ -18,7 +18,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 
 import client.gui.week.WeekView;
-import client.model.CalendarModel;
 import client.model.InvitationModel;
 import client.model.InvitationStatus;
 import client.model.MeetingModel;
